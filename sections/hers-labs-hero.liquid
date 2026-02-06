@@ -1,0 +1,323 @@
+{{ 'section-hers-labs-hero.css' | asset_url | stylesheet_tag }}
+<script src="{{ 'hers-labs-hero.js' | asset_url }}" defer="defer"></script>
+
+{%- comment -%} Preload first image for faster display {%- endcomment -%}
+{%- assign image_blocks = section.blocks | where: 'type', 'sliding_image' -%}
+{%- if image_blocks.size > 0 and image_blocks.first.settings.image != blank -%}
+  <link rel="preload" as="image" href="{{ image_blocks.first.settings.image | image_url: width: 600 }}" fetchpriority="high">
+{%- endif -%}
+
+{%- style -%}
+  .hers-labs-hero {
+    padding-top: {{ section.settings.padding_top | times: 0.5 | round: 0 }}px;
+    padding-bottom: {{ section.settings.padding_bottom | times: 0.5 | round: 0 }}px;
+    position: relative;
+    min-height: 500px;
+  }
+
+  @media screen and (min-width: 750px) {
+    .hers-labs-hero {
+      padding-top: {{ section.settings.padding_top }}px;
+      padding-bottom: {{ section.settings.padding_bottom }}px;
+    }
+  }
+
+  /* Full-width section */
+  #shopify-section-{{ section.id }} {
+    padding-left: 0;
+    padding-right: 0;
+    margin-left: 0;
+    margin-right: 0;
+  }
+
+  .hers-labs-hero__background-image-wrapper {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 0;
+  }
+
+  .hers-labs-hero__background-image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: center;
+  }
+
+  .hers-labs-hero__background {
+    position: relative;
+    width: 100%;
+    min-height: 500px;
+  }
+
+  .hers-labs-hero__characters-wrapper {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 3;
+    pointer-events: none;
+    width: 100%;
+    height: 100%;
+  }
+
+  .hers-labs-hero__characters-image {
+    width: auto;
+    height: auto;
+    max-width: 90%;
+    max-height: 80%;
+    object-fit: contain;
+    display: block;
+  }
+
+  @media screen and (min-width: 750px) {
+    .hers-labs-hero {
+      min-height: 600px;
+    }
+
+    .hers-labs-hero__background {
+      min-height: 600px;
+    }
+  }
+
+  @media screen and (max-width: 749px) {
+    .hers-labs-hero__characters-image {
+      max-width: 95%;
+      max-height: 70%;
+    }
+  }
+{%- endstyle -%}
+
+<section class="hers-labs-hero" data-section-id="{{ section.id }}">
+  <div class="hers-labs-hero__background">
+    {%- if section.settings.background_image != blank -%}
+      <div class="hers-labs-hero__background-image-wrapper">
+        {{ section.settings.background_image | image_url: width: 1920 | image_tag: loading: 'eager', alt: '', class: 'hers-labs-hero__background-image' }}
+      </div>
+    {%- endif -%}
+    <div class="hers-labs-hero__gradient"></div>
+    
+    {%- if section.settings.characters_image != blank -%}
+      <div class="hers-labs-hero__characters-wrapper">
+        {{ section.settings.characters_image | image_url: width: 1200 | image_tag: loading: 'eager', alt: section.settings.characters_alt_text | default: 'Character onesies', class: 'hers-labs-hero__characters-image' }}
+      </div>
+    {%- endif -%}
+
+    <div class="hers-labs-hero__sliding-images">
+      <div class="hers-labs-hero__images-track" data-marquee-track>
+        {%- assign image_blocks = section.blocks | where: 'type', 'sliding_image' -%}
+        {%- if image_blocks.size > 0 -%}
+          {%- for i in (1..4) -%}
+            <div class="hers-labs-hero__images-set" data-marquee-set="{{ i }}">
+              {%- for block in image_blocks -%}
+                {%- if block.settings.image != blank -%}
+                  <div class="hers-labs-hero__image-wrapper" {{ block.shopify_attributes }}>
+                    {%- if forloop.first and i == 1 -%}
+                      {{ block.settings.image | image_url: width: 600 | image_tag: loading: 'eager', fetchpriority: 'high', alt: block.settings.alt_text | default: '', class: 'hers-labs-hero__sliding-image' }}
+                    {%- else -%}
+                      {{ block.settings.image | image_url: width: 600 | image_tag: loading: 'eager', alt: block.settings.alt_text | default: '', class: 'hers-labs-hero__sliding-image' }}
+                    {%- endif -%}
+                  </div>
+                {%- endif -%}
+              {%- endfor -%}
+            </div>
+          {%- endfor -%}
+        {%- else -%}
+          {%- comment -%} Placeholder to ensure track exists even when no images {%- endcomment -%}
+          <div class="hers-labs-hero__images-set" data-marquee-set="1" style="min-width: 1px; min-height: 1px;"></div>
+          <div class="hers-labs-hero__images-set" data-marquee-set="2" style="min-width: 1px; min-height: 1px;"></div>
+          <div class="hers-labs-hero__images-set" data-marquee-set="3" style="min-width: 1px; min-height: 1px;"></div>
+          <div class="hers-labs-hero__images-set" data-marquee-set="4" style="min-width: 1px; min-height: 1px;"></div>
+        {%- endif -%}
+      </div>
+    </div>
+  </div>
+
+</section>
+
+{% schema %}
+{
+  "name": "Hers Labs Hero",
+  "tag": "section",
+  "class": "section",
+  "settings": [
+    {
+      "type": "image_picker",
+      "id": "background_image",
+      "label": "Background Image",
+      "info": "Background image for the hero section"
+    },
+    {
+      "type": "header",
+      "content": "t:sections.all.padding.section_padding_heading"
+    },
+    {
+      "type": "range",
+      "id": "padding_top",
+      "min": 0,
+      "max": 100,
+      "step": 4,
+      "unit": "px",
+      "label": "t:sections.all.padding.padding_top",
+      "default": 0
+    },
+    {
+      "type": "range",
+      "id": "padding_bottom",
+      "min": 0,
+      "max": 100,
+      "step": 4,
+      "unit": "px",
+      "label": "t:sections.all.padding.padding_bottom",
+      "default": 0
+    },
+    {
+      "type": "image_picker",
+      "id": "characters_image",
+      "label": "Characters Image",
+      "info": "Upload a single image containing all character onesies"
+    },
+    {
+      "type": "text",
+      "id": "characters_alt_text",
+      "label": "Characters Image Alt Text",
+      "default": "Character onesies"
+    },
+    {
+      "type": "header",
+      "content": "Sliding Images",
+      "info": "IMPORTANT: If you don't see blocks below, remove this section and add it again to load 7 empty image blocks. Then scroll down past this header to see the 'Add block' button or existing blocks."
+    }
+  ],
+  "max_blocks": 10,
+  "blocks": [
+    {
+      "type": "character_image",
+      "name": "Character (Deprecated)",
+      "settings": [
+        {
+          "type": "paragraph",
+          "content": "This block type is deprecated. Please use the 'Characters Image' setting in section settings instead."
+        }
+      ]
+    },
+    {
+      "type": "sliding_image",
+      "name": "Sliding Image",
+      "settings": [
+        {
+          "type": "image_picker",
+          "id": "image",
+          "label": "Image"
+        },
+        {
+          "type": "text",
+          "id": "alt_text",
+          "label": "Alt Text",
+          "info": "Description of the image for accessibility"
+        }
+      ]
+    },
+    {
+      "type": "data_panel",
+      "name": "Data Panel (Deprecated)",
+      "settings": [
+        {
+          "type": "text",
+          "id": "title",
+          "label": "Title"
+        },
+        {
+          "type": "text",
+          "id": "subtitle",
+          "label": "Subtitle"
+        },
+        {
+          "type": "textarea",
+          "id": "description",
+          "label": "Description"
+        },
+        {
+          "type": "checkbox",
+          "id": "show_chart",
+          "label": "Show Chart",
+          "default": true
+        },
+        {
+          "type": "range",
+          "id": "chart_value",
+          "min": 0,
+          "max": 100,
+          "step": 5,
+          "unit": "%",
+          "label": "Chart Value",
+          "default": 75
+        },
+        {
+          "type": "color",
+          "id": "chart_color",
+          "label": "Chart Color",
+          "default": "#4fd1c7"
+        },
+        {
+          "type": "text",
+          "id": "chart_label",
+          "label": "Chart Label"
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "Hers Labs Hero",
+      "blocks": [
+        {
+          "type": "sliding_image",
+          "settings": {
+            "image": null
+          }
+        },
+        {
+          "type": "sliding_image",
+          "settings": {
+            "image": null
+          }
+        },
+        {
+          "type": "sliding_image",
+          "settings": {
+            "image": null
+          }
+        },
+        {
+          "type": "sliding_image",
+          "settings": {
+            "image": null
+          }
+        },
+        {
+          "type": "sliding_image",
+          "settings": {
+            "image": null
+          }
+        },
+        {
+          "type": "sliding_image",
+          "settings": {
+            "image": null
+          }
+        },
+        {
+          "type": "sliding_image",
+          "settings": {
+            "image": null
+          }
+        }
+      ]
+    }
+  ]
+}
+{% endschema %}
+

@@ -1,0 +1,816 @@
+/*
+ * ------------------------------------------------------------
+ * IMPORTANT: The contents of this file are auto-generated.
+ *
+ * This file may be updated by the Shopify admin theme editor
+ * or related systems. Please exercise caution as any changes
+ * made to this file may be overwritten.
+ * ------------------------------------------------------------
+ */
+{
+  "sections": {
+    "hex_prism_carousel_WDEgJy": {
+      "type": "hex-prism-carousel",
+      "blocks": {
+        "face_kY9Niz": {
+          "type": "face",
+          "settings": {
+            "name": "FoxBoo",
+            "ages": "4-7",
+            "image": "shopify://shop_images/FOXBOO.png",
+            "link": "shopify://products/griboo-copy",
+            "gradient_start": "#4a90e2",
+            "gradient_end": "#7b68ee"
+          }
+        },
+        "face_JxVWWQ": {
+          "type": "face",
+          "settings": {
+            "name": "DinoBoo",
+            "ages": "0.5-4,4-7",
+            "image": "shopify://shop_images/DIBABOOOO.png",
+            "link": "shopify://products/dinoboo",
+            "gradient_start": "#4a90e2",
+            "gradient_end": "#7b68ee"
+          }
+        },
+        "face_jLktq7": {
+          "type": "face",
+          "settings": {
+            "name": "ShaBoo",
+            "ages": "4-7",
+            "image": "shopify://shop_images/SHABOO.png",
+            "link": "shopify://products/griboo-copy-3",
+            "gradient_start": "#4a90e2",
+            "gradient_end": "#7b68ee"
+          }
+        },
+        "face_q8Wjqd": {
+          "type": "face",
+          "settings": {
+            "name": "FoxBoo\\",
+            "ages": "4-7",
+            "image": "shopify://shop_images/FOXBOO.png",
+            "link": "shopify://products/griboo-copy",
+            "gradient_start": "#4a90e2",
+            "gradient_end": "#7b68ee"
+          }
+        },
+        "face_M7Hj6q": {
+          "type": "face",
+          "settings": {
+            "name": "GriBoo",
+            "ages": "4-7",
+            "image": "shopify://shop_images/Griboo.png",
+            "link": "shopify://products/griboo",
+            "gradient_start": "#4a90e2",
+            "gradient_end": "#7b68ee"
+          }
+        },
+        "face_QYqcdH": {
+          "type": "face",
+          "settings": {
+            "name": "BunBoo",
+            "ages": "0.5-4,4-7",
+            "image": "shopify://shop_images/RABOO.png",
+            "link": "shopify://products/griboo-copy-4",
+            "gradient_start": "#4a90e2",
+            "gradient_end": "#7b68ee"
+          }
+        }
+      },
+      "block_order": [
+        "face_kY9Niz",
+        "face_JxVWWQ",
+        "face_jLktq7",
+        "face_q8Wjqd",
+        "face_M7Hj6q",
+        "face_QYqcdH"
+      ],
+      "name": "Hex Prism Carousel",
+      "settings": {
+        "perspective": 1400,
+        "radius": 300,
+        "card_gap_multiplier": 100,
+        "perspective_mobile": 1000,
+        "radius_mobile": 200,
+        "face_width": 320,
+        "face_height": 500,
+        "card_aspect_ratio": "",
+        "face_width_mobile": 240,
+        "face_height_mobile": 480,
+        "section_title": "Swipe to choose your character",
+        "section_title_color": "#000000",
+        "corner_radius": 14,
+        "side_opacity": 3,
+        "side2_opacity": 3,
+        "image_max_width": 700,
+        "background_color": "#ffffff",
+        "padding_top": 0,
+        "padding_bottom": 100,
+        "age_filter_title": "Choose Age",
+        "age_filter_title_color": "#000000",
+        "show_age_filter": true,
+        "age_filter_values": "0.5-4,4-7",
+        "filter_gap": 10,
+        "filter_top_padding": 20,
+        "filter_bottom_margin": 68
+      }
+    },
+    "best_sellers_on_sale_ygnM6X": {
+      "type": "best-sellers-on-sale",
+      "blocks": {
+        "product_card_VxhWU3": {
+          "type": "product_card",
+          "settings": {
+            "product": "griboo-copy-3",
+            "custom_image": "shopify://shop_images/SHABOO.png",
+            "age_range": "0.5-4"
+          }
+        },
+        "product_card_UnEfVU": {
+          "type": "product_card",
+          "settings": {
+            "product": "griboo",
+            "custom_image": "shopify://shop_images/Griboo.png",
+            "age_range": "0.5-4"
+          }
+        },
+        "product_card_BU6Aba": {
+          "type": "product_card",
+          "settings": {
+            "product": "griboo-copy",
+            "custom_image": "shopify://shop_images/FOXBOO.png",
+            "age_range": "5-7"
+          }
+        },
+        "product_card_RfCYQD": {
+          "type": "product_card",
+          "settings": {
+            "product": "dinoboo",
+            "custom_image": "shopify://shop_images/DIBABOOOO.png",
+            "age_range": "5-7"
+          }
+        },
+        "product_card_67K4Pp": {
+          "type": "product_card",
+          "settings": {
+            "product": "griboo-copy",
+            "custom_image": "shopify://shop_images/FOXBOO.png",
+            "age_range": "0.5-4"
+          }
+        }
+      },
+      "block_order": [
+        "product_card_VxhWU3",
+        "product_card_UnEfVU",
+        "product_card_BU6Aba",
+        "product_card_RfCYQD",
+        "product_card_67K4Pp"
+      ],
+      "name": "Best Sellers on Sale",
+      "settings": {
+        "heading": "Best Sellers on Sale",
+        "heading_color": "#0d4c07",
+        "button_label": "SHOP NOW",
+        "button_link": "shopify://collections/all",
+        "top_cta_1_label": "Age 0.5-4",
+        "top_cta_2_label": "Age 5-7",
+        "top_cta_bg": "#0d4c07",
+        "top_cta_text": "#ffffff",
+        "badge_text": "Best Seller",
+        "badge_tag": "Best Seller",
+        "section_bg": "#ffffff",
+        "card_bg": "#f3f3f3",
+        "button_bg": "#0d4c07",
+        "button_text": "#ffffff",
+        "badge_bg": "#d8d0c8",
+        "badge_text_color": "#4b4b4b",
+        "card_aspect_ratio": "4 / 9",
+        "image_max_width": 900
+      }
+    },
+    "hers_labs_hero_AAQ9WT": {
+      "type": "hers-labs-hero",
+      "blocks": {
+        "sliding_image_Qf9MyM": {
+          "type": "sliding_image",
+          "settings": {
+            "image": "shopify://shop_images/3_LOGO_Alone.png",
+            "alt_text": ""
+          }
+        },
+        "sliding_image_VJYKJM": {
+          "type": "sliding_image",
+          "settings": {
+            "image": "shopify://shop_images/3_LOGO_Alone.png",
+            "alt_text": ""
+          }
+        }
+      },
+      "block_order": [
+        "sliding_image_Qf9MyM",
+        "sliding_image_VJYKJM"
+      ],
+      "name": "Hers Labs Hero",
+      "settings": {
+        "background_image": "shopify://shop_images/Background.jpg",
+        "padding_top": 0,
+        "padding_bottom": 20,
+        "characters_image": "shopify://shop_images/Foreground.png",
+        "characters_alt_text": "Character onesies"
+      }
+    },
+    "shop_color_grid_ifdnEa": {
+      "type": "shop-color-grid",
+      "blocks": {
+        "tile_Rbgae7": {
+          "type": "tile",
+          "settings": {
+            "product": "griboo-copy-4",
+            "custom_image": "shopify://shop_images/RABOO.png",
+            "text_color": "#ffffff",
+            "age_range": "0.5-3,4"
+          }
+        },
+        "tile_hPQHAX": {
+          "type": "tile",
+          "settings": {
+            "product": "dinoboo",
+            "custom_image": "shopify://shop_images/DIBABOOOO.png",
+            "text_color": "#ffffff",
+            "age_range": "0.5-3,4"
+          }
+        },
+        "tile_6bAzm9": {
+          "type": "tile",
+          "settings": {
+            "product": "griboo-copy",
+            "custom_image": "shopify://shop_images/FOXBOO.png",
+            "text_color": "#ffffff",
+            "age_range": "4,5-7"
+          }
+        },
+        "tile_tNNNai": {
+          "type": "tile",
+          "settings": {
+            "product": "griboo",
+            "custom_image": "shopify://shop_images/Griboo.png",
+            "text_color": "#ffffff",
+            "age_range": "4,5-7"
+          }
+        },
+        "tile_W3yWNi": {
+          "type": "tile",
+          "settings": {
+            "product": "griboo-copy-3",
+            "custom_image": "shopify://shop_images/SHABOO.png",
+            "text_color": "#ffffff",
+            "age_range": "4,5-7"
+          }
+        }
+      },
+      "block_order": [
+        "tile_Rbgae7",
+        "tile_hPQHAX",
+        "tile_6bAzm9",
+        "tile_tNNNai",
+        "tile_W3yWNi"
+      ],
+      "name": "Shop color grid",
+      "settings": {
+        "hide_on_mobile": false,
+        "heading_text": "Choose Your Character",
+        "heading_color": "#000000",
+        "filter_title": "Select your Age",
+        "filter_btn_bg_color": "#888888",
+        "filter_btn_text_color": "#ffffff",
+        "filter_btn_active_bg_color": "#212121",
+        "filter_btn_radius": 20,
+        "reset_icon": "shopify://shop_images/Reset_Icon_71351e35-0398-499f-98aa-05905e28b5e3.png",
+        "filter_button_1_text": "0.5 - 3 Years",
+        "filter_button_1_range": "0.5-3",
+        "filter_button_2_text": "4 Years",
+        "filter_button_2_range": "4",
+        "filter_button_3_text": "5-7 Years",
+        "filter_button_3_range": "5-7",
+        "section_bg": "#ffffff",
+        "section_padding_top": 24,
+        "section_padding_bottom": 0,
+        "section_padding_left": 0,
+        "section_padding_right": 0,
+        "section_margin_top": 0,
+        "section_margin_bottom": 0,
+        "heading_padding_top": 0,
+        "heading_padding_bottom": 0,
+        "heading_padding_left": 20,
+        "heading_padding_right": 20,
+        "age_filter_margin_top": 16,
+        "age_filter_margin_bottom": 44,
+        "mobile_carousel_padding_top": 20,
+        "mobile_carousel_padding_bottom": 40,
+        "mobile_carousel_padding_left": 0,
+        "mobile_carousel_padding_right": 0,
+        "grid_wrap_padding_top": 0,
+        "grid_wrap_padding_bottom": 40,
+        "grid_wrap_padding_left": 40,
+        "grid_wrap_padding_right": 40,
+        "grid_vertical_align": "start",
+        "grid_offset_top": 0,
+        "max_width": 1400,
+        "outer_padding": 40,
+        "gap": 40,
+        "columns": 5,
+        "height_vh": 100,
+        "tile_aspect_ratio": "3/7",
+        "tile_h": 540,
+        "tile_aspect_ratio_mobile": "",
+        "tile_h_mobile": 420,
+        "tile_bg": "#ffffff",
+        "image_fit": "cover",
+        "image_scale": 100,
+        "image_pos_x": 50,
+        "image_pos_y": 50,
+        "hover_zoom": 112,
+        "radius": 26,
+        "overlay_opacity": 0,
+        "overlay_hover_opacity": 15
+      }
+    },
+    "split_hero_features_hJ4mnm": {
+      "type": "split-hero-features",
+      "blocks": {
+        "feature_WaC7m8": {
+          "type": "feature",
+          "settings": {
+            "feature_image": "shopify://shop_images/ELEMENT_1.png",
+            "feature_icon": "",
+            "feature_title": "",
+            "feature_description": "Do you do\neverything they\nsay NO! to?",
+            "feature_description_2": "Definitely\nyou’re a DinoBoo",
+            "title_size": 2,
+            "description_size": 1.5,
+            "image_position": "middle",
+            "right_offset_value": 20,
+            "center_image_position": "center",
+            "desc1_position": "left",
+            "desc2_position": "right",
+            "desc1_alignment": "center",
+            "desc2_alignment": "center",
+            "desc1_size": 2,
+            "desc2_size": 2,
+            "desc1_bold": false,
+            "desc2_bold": false,
+            "image_size": 230,
+            "image_padding": 0,
+            "box_width": 0,
+            "box_height": 0,
+            "title_color": "#000000",
+            "description_color": "#000000",
+            "animation_type": "flip",
+            "animation_speed": 800,
+            "animation_style": "cubic-bezier(0.4, 0, 0.2, 1)",
+            "animation_delay": 0
+          }
+        },
+        "feature_RGtrUV": {
+          "type": "feature",
+          "settings": {
+            "feature_image": "shopify://shop_images/ELement_2.png",
+            "feature_icon": "",
+            "feature_title": "Feature Title",
+            "feature_description": "Describe your feature here",
+            "feature_description_2": "",
+            "title_size": 2,
+            "description_size": 1.5,
+            "image_position": "top",
+            "right_offset_value": 20,
+            "center_image_position": "center",
+            "desc1_position": "left",
+            "desc2_position": "right",
+            "desc1_alignment": "left",
+            "desc2_alignment": "right",
+            "desc1_size": 1.5,
+            "desc2_size": 1.5,
+            "desc1_bold": false,
+            "desc2_bold": false,
+            "image_size": 220,
+            "image_padding": 0,
+            "box_width": 0,
+            "box_height": 0,
+            "title_color": "#000000",
+            "description_color": "#000000",
+            "animation_type": "fade-left",
+            "animation_speed": 800,
+            "animation_style": "cubic-bezier(0.4, 0, 0.2, 1)",
+            "animation_delay": 0
+          }
+        },
+        "feature_BjimTf": {
+          "type": "feature",
+          "settings": {
+            "feature_image": "shopify://shop_images/ELement_3.png",
+            "feature_icon": "",
+            "feature_title": "",
+            "feature_description": "Describe your feature here",
+            "feature_description_2": "",
+            "title_size": 2,
+            "description_size": 1.5,
+            "image_position": "bottom",
+            "right_offset_value": 20,
+            "center_image_position": "center",
+            "desc1_position": "left",
+            "desc2_position": "right",
+            "desc1_alignment": "center",
+            "desc2_alignment": "right",
+            "desc1_size": 1.5,
+            "desc2_size": 1.5,
+            "desc1_bold": false,
+            "desc2_bold": false,
+            "image_size": 220,
+            "image_padding": 0,
+            "box_width": 0,
+            "box_height": 0,
+            "title_color": "#000000",
+            "description_color": "#000000",
+            "animation_type": "fade-right",
+            "animation_speed": 800,
+            "animation_style": "cubic-bezier(0.4, 0, 0.2, 1)",
+            "animation_delay": 0
+          }
+        }
+      },
+      "block_order": [
+        "feature_WaC7m8",
+        "feature_RGtrUV",
+        "feature_BjimTf"
+      ],
+      "name": "Split Hero & Features",
+      "settings": {
+        "top_heading": "",
+        "top_heading_size": 4.8,
+        "top_subheading": "",
+        "top_button_text": "Buy Now",
+        "top_button_url": "shopify://products/dinoboo",
+        "top_button_text_2": "Similar Items",
+        "top_button_url_2": "shopify://collections/all",
+        "button_location": "center",
+        "button_radius": 5,
+        "button_primary_bg": "#ffffff",
+        "button_primary_text": "#000000",
+        "button_primary_border": "",
+        "button_secondary_bg": "",
+        "button_secondary_text": "",
+        "button_secondary_border": "",
+        "top_bg_type": "image",
+        "top_bg_image": "shopify://shop_images/WhatsApp_Image_2026-02-02_at_19.25.15.jpg",
+        "top_bg_gradient": "",
+        "top_logo": "shopify://shop_images/LOGO_-_White.png",
+        "top_logo_width": 90,
+        "top_center_image_width": 360,
+        "top_center_image_position": "center",
+        "top_center_image_y_offset": 0,
+        "top_min_height": 60,
+        "bottom_bg_color": "#0d4c07",
+        "bottom_padding": 4,
+        "features_layout": "1-top-2-bottom",
+        "features_container_width": 1000,
+        "section_width": 2000,
+        "section_radius": 24
+      }
+    },
+    "split_hero_features_NGzTkQ": {
+      "type": "split-hero-features",
+      "blocks": {
+        "feature_BgAGCC": {
+          "type": "feature",
+          "settings": {
+            "feature_icon": "",
+            "feature_title": "",
+            "feature_description": "",
+            "feature_description_2": "",
+            "title_size": 2,
+            "description_size": 1.5,
+            "image_position": "top",
+            "right_offset_value": 20,
+            "center_image_position": "center",
+            "desc1_position": "left",
+            "desc2_position": "right",
+            "desc1_alignment": "left",
+            "desc2_alignment": "right",
+            "desc1_size": 1.5,
+            "desc2_size": 1.5,
+            "desc1_bold": false,
+            "desc2_bold": false,
+            "image_size": 120,
+            "image_padding": 0,
+            "box_width": 0,
+            "box_height": 0,
+            "title_color": "",
+            "description_color": "",
+            "animation_type": "fade-up",
+            "animation_speed": 800,
+            "animation_style": "cubic-bezier(0.4, 0, 0.2, 1)",
+            "animation_delay": 0
+          }
+        },
+        "feature_X9FbNh": {
+          "type": "feature",
+          "settings": {
+            "feature_image": "shopify://shop_images/Element_1_1.png",
+            "feature_icon": "",
+            "feature_title": "",
+            "feature_description": "",
+            "feature_description_2": "",
+            "title_size": 2,
+            "description_size": 1.5,
+            "image_position": "right-offset",
+            "right_offset_value": 95,
+            "center_image_position": "center",
+            "desc1_position": "left",
+            "desc2_position": "right",
+            "desc1_alignment": "left",
+            "desc2_alignment": "right",
+            "desc1_size": 1.5,
+            "desc2_size": 1.5,
+            "desc1_bold": false,
+            "desc2_bold": false,
+            "image_size": 100,
+            "image_padding": 0,
+            "box_width": 0,
+            "box_height": 0,
+            "title_color": "",
+            "description_color": "",
+            "animation_type": "fade-up",
+            "animation_speed": 800,
+            "animation_style": "cubic-bezier(0.4, 0, 0.2, 1)",
+            "animation_delay": 0
+          }
+        }
+      },
+      "block_order": [
+        "feature_BgAGCC",
+        "feature_X9FbNh"
+      ],
+      "name": "Split Hero & Features",
+      "settings": {
+        "top_heading": "BUN BOO",
+        "top_heading_size": 6,
+        "top_subheading": "",
+        "top_button_text": "Buy Now",
+        "top_button_url": "shopify://products/griboo-copy-4",
+        "top_button_text_2": "Similar items",
+        "top_button_url_2": "shopify://collections/all",
+        "button_location": "center",
+        "button_radius": 5,
+        "button_primary_bg": "#ffffff",
+        "button_primary_text": "#000000",
+        "button_primary_border": "",
+        "button_secondary_bg": "",
+        "button_secondary_text": "",
+        "button_secondary_border": "",
+        "top_bg_type": "image",
+        "top_bg_image": "shopify://shop_images/BunBoo_Background.png",
+        "top_bg_gradient": "",
+        "top_logo": "shopify://shop_images/3_LOGO_Alone.png",
+        "top_logo_width": 90,
+        "top_center_image": "shopify://shop_images/Bunboo_Kid.png",
+        "top_center_image_width": 780,
+        "top_center_image_position": "bottom-left",
+        "top_center_image_y_offset": 30,
+        "top_min_height": 85,
+        "bottom_bg_color": "#d71ad7",
+        "bottom_padding": 4,
+        "features_layout": "side-by-side",
+        "features_container_width": 1000,
+        "section_width": 2000,
+        "section_radius": 24
+      }
+    },
+    "split_hero_features_UiVxDf": {
+      "type": "split-hero-features",
+      "blocks": {
+        "feature_fwYXmY": {
+          "type": "feature",
+          "settings": {
+            "feature_image": "shopify://shop_images/Element_1.1.png",
+            "feature_icon": "",
+            "feature_title": "Feature Title",
+            "feature_description": "Describe your feature here",
+            "feature_description_2": "",
+            "title_size": 2,
+            "description_size": 1.5,
+            "image_position": "bottom",
+            "right_offset_value": 20,
+            "center_image_position": "center",
+            "desc1_position": "left",
+            "desc2_position": "right",
+            "desc1_alignment": "left",
+            "desc2_alignment": "right",
+            "desc1_size": 1.5,
+            "desc2_size": 1.5,
+            "desc1_bold": false,
+            "desc2_bold": false,
+            "image_size": 120,
+            "image_padding": 0,
+            "box_width": 0,
+            "box_height": 0,
+            "title_color": "",
+            "description_color": "",
+            "animation_type": "fade-up",
+            "animation_speed": 800,
+            "animation_style": "cubic-bezier(0.4, 0, 0.2, 1)",
+            "animation_delay": 0
+          }
+        },
+        "feature_xBKHmW": {
+          "type": "feature",
+          "settings": {
+            "feature_image": "shopify://shop_images/Element_2.1.png",
+            "feature_icon": "",
+            "feature_title": "",
+            "feature_description": "",
+            "feature_description_2": "",
+            "title_size": 2,
+            "description_size": 1.5,
+            "image_position": "right",
+            "right_offset_value": 20,
+            "center_image_position": "center",
+            "desc1_position": "left",
+            "desc2_position": "right",
+            "desc1_alignment": "left",
+            "desc2_alignment": "right",
+            "desc1_size": 1.5,
+            "desc2_size": 1.5,
+            "desc1_bold": false,
+            "desc2_bold": false,
+            "image_size": 40,
+            "image_padding": 0,
+            "box_width": 0,
+            "box_height": 420,
+            "title_color": "",
+            "description_color": "",
+            "animation_type": "fade-up",
+            "animation_speed": 800,
+            "animation_style": "cubic-bezier(0.4, 0, 0.2, 1)",
+            "animation_delay": 0
+          }
+        }
+      },
+      "block_order": [
+        "feature_fwYXmY",
+        "feature_xBKHmW"
+      ],
+      "name": "Split Hero & Features",
+      "settings": {
+        "top_heading": "",
+        "top_heading_size": 4.8,
+        "top_subheading": "",
+        "top_button_text": "Shop Now",
+        "top_button_url": "",
+        "top_button_text_2": "",
+        "top_button_url_2": "",
+        "button_location": "center",
+        "button_radius": 0.8,
+        "button_primary_bg": "",
+        "button_primary_text": "",
+        "button_primary_border": "",
+        "button_secondary_bg": "",
+        "button_secondary_text": "",
+        "button_secondary_border": "",
+        "top_bg_type": "image",
+        "top_bg_image": "shopify://shop_images/Shaboo_Background.png",
+        "top_bg_gradient": "",
+        "top_logo": "shopify://shop_images/LOGO_-_White.png",
+        "top_logo_width": 90,
+        "top_center_image": "shopify://shop_images/Shaboo_Foreground_Kid.png",
+        "top_center_image_width": 780,
+        "top_center_image_position": "center",
+        "top_center_image_y_offset": -135,
+        "top_min_height": 85,
+        "bottom_bg_color": "#36adb3",
+        "bottom_padding": 4,
+        "features_layout": "side-by-side",
+        "features_container_width": 1000,
+        "section_width": 2000,
+        "section_radius": 24
+      }
+    },
+    "split_hero_features_Ci3Yk4": {
+      "type": "split-hero-features",
+      "blocks": {
+        "feature_HVJddi": {
+          "type": "feature",
+          "settings": {
+            "feature_icon": "",
+            "feature_title": "",
+            "feature_description": "",
+            "feature_description_2": "",
+            "title_size": 2,
+            "description_size": 1.5,
+            "image_position": "top",
+            "right_offset_value": 20,
+            "center_image_position": "center",
+            "desc1_position": "left",
+            "desc2_position": "right",
+            "desc1_alignment": "left",
+            "desc2_alignment": "right",
+            "desc1_size": 1.5,
+            "desc2_size": 1.5,
+            "desc1_bold": false,
+            "desc2_bold": false,
+            "image_size": 120,
+            "image_padding": 0,
+            "box_width": 0,
+            "box_height": 0,
+            "title_color": "",
+            "description_color": "",
+            "animation_type": "fade-up",
+            "animation_speed": 800,
+            "animation_style": "cubic-bezier(0.4, 0, 0.2, 1)",
+            "animation_delay": 0
+          }
+        },
+        "feature_RrtP3w": {
+          "type": "feature",
+          "settings": {
+            "feature_icon": "",
+            "feature_title": "",
+            "feature_description": "",
+            "feature_description_2": "",
+            "title_size": 2,
+            "description_size": 1.5,
+            "image_position": "top",
+            "right_offset_value": 20,
+            "center_image_position": "center",
+            "desc1_position": "left",
+            "desc2_position": "right",
+            "desc1_alignment": "left",
+            "desc2_alignment": "right",
+            "desc1_size": 1.5,
+            "desc2_size": 1.5,
+            "desc1_bold": false,
+            "desc2_bold": false,
+            "image_size": 120,
+            "image_padding": 0,
+            "box_width": 0,
+            "box_height": 420,
+            "title_color": "",
+            "description_color": "",
+            "animation_type": "fade-up",
+            "animation_speed": 800,
+            "animation_style": "cubic-bezier(0.4, 0, 0.2, 1)",
+            "animation_delay": 0
+          }
+        }
+      },
+      "block_order": [
+        "feature_HVJddi",
+        "feature_RrtP3w"
+      ],
+      "name": "Split Hero & Features",
+      "settings": {
+        "top_heading": "Welcome to Our Store",
+        "top_heading_size": 4.8,
+        "top_subheading": "Discover amazing products and services",
+        "top_button_text": "Shop Now",
+        "top_button_url": "",
+        "top_button_text_2": "",
+        "top_button_url_2": "",
+        "button_location": "center",
+        "button_radius": 0.8,
+        "button_primary_bg": "",
+        "button_primary_text": "",
+        "button_primary_border": "",
+        "button_secondary_bg": "",
+        "button_secondary_text": "",
+        "button_secondary_border": "",
+        "top_bg_type": "image",
+        "top_bg_image": "shopify://shop_images/Shaboo_Background.png",
+        "top_bg_gradient": "",
+        "top_logo": "shopify://shop_images/LOGO_-_Black.png",
+        "top_logo_width": 90,
+        "top_center_image_width": 280,
+        "top_center_image_position": "center",
+        "top_center_image_y_offset": 0,
+        "top_min_height": 85,
+        "bottom_bg_color": "#760606",
+        "bottom_padding": 4,
+        "features_layout": "side-by-side",
+        "features_container_width": 1000,
+        "section_width": 2000,
+        "section_radius": 24
+      }
+    }
+  },
+  "order": [
+    "hex_prism_carousel_WDEgJy",
+    "best_sellers_on_sale_ygnM6X",
+    "hers_labs_hero_AAQ9WT",
+    "shop_color_grid_ifdnEa",
+    "split_hero_features_hJ4mnm",
+    "split_hero_features_NGzTkQ",
+    "split_hero_features_UiVxDf",
+    "split_hero_features_Ci3Yk4"
+  ]
+}

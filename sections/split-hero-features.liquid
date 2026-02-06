@@ -1,0 +1,2359 @@
+{%- liquid
+  assign section_id = section.id
+  assign top_heading = section.settings.top_heading
+  assign top_heading_size = section.settings.top_heading_size | default: 4.8
+  assign top_subheading = section.settings.top_subheading
+  assign top_button_text = section.settings.top_button_text
+  assign top_button_url = section.settings.top_button_url
+  assign top_button_text_2 = section.settings.top_button_text_2
+  assign top_button_url_2 = section.settings.top_button_url_2
+  assign top_bg_type = section.settings.top_bg_type | default: 'image'
+  assign top_bg_image = section.settings.top_bg_image
+  assign top_bg_gradient = section.settings.top_bg_gradient
+  assign top_min_height = section.settings.top_min_height | default: 60
+  assign top_logo = section.settings.top_logo
+  assign top_logo_width = section.settings.top_logo_width | default: 120
+  assign top_logo_width_2x = top_logo_width | times: 2
+  assign top_center_image = section.settings.top_center_image
+  assign top_center_image_width = section.settings.top_center_image_width | default: 280
+  assign top_center_image_width_2x = top_center_image_width | times: 2
+  assign top_center_image_position = section.settings.top_center_image_position | default: 'center'
+  assign top_center_image_y_offset = section.settings.top_center_image_y_offset | default: 0
+  assign bottom_bg_color = section.settings.bottom_bg_color
+  assign bottom_padding = section.settings.bottom_padding | default: 4
+  assign features_layout = section.settings.features_layout | default: '3-columns'
+  assign features_container_width = section.settings.features_container_width
+  assign section_width = section.settings.section_width
+  assign section_radius = section.settings.section_radius | default: 24
+  assign button_location = section.settings.button_location | default: 'center'
+  assign button_radius = section.settings.button_radius | default: 0.8
+  assign button_primary_bg = section.settings.button_primary_bg
+  assign button_primary_text = section.settings.button_primary_text
+  assign button_primary_border = section.settings.button_primary_border
+  assign button_secondary_bg = section.settings.button_secondary_bg
+  assign button_secondary_text = section.settings.button_secondary_text
+  assign button_secondary_border = section.settings.button_secondary_border
+  assign feature_blocks = section.blocks | where: 'type', 'feature'
+-%}
+
+<section
+  id="SplitHeroFeatures-{{ section_id }}"
+  class="split-section split-section--{{ section_id }}"
+  style="--split-section-radius: {{ section_radius }}px;--split-bottom-padding: {{ bottom_padding }}rem;--button-radius: {{ button_radius }}rem;--top-heading-size: {{ top_heading_size }}rem;{% if section_width != blank and section_width > 0 %} --split-section-width: {{ section_width }}px;{% endif %}{% if features_container_width != blank and features_container_width > 0 %} --features-container-width: {{ features_container_width }}px;{% endif %}{% if bottom_bg_color != blank %} --split-bottom-bg: {{ bottom_bg_color }};{% endif %}{% if button_primary_bg != blank %} --button-primary-bg: {{ button_primary_bg }};{% endif %}{% if button_primary_text != blank %} --button-primary-text: {{ button_primary_text }};{% endif %}{% if button_primary_border != blank %} --button-primary-border: {{ button_primary_border }};{% endif %}{% if button_secondary_bg != blank %} --button-secondary-bg: {{ button_secondary_bg }};{% endif %}{% if button_secondary_text != blank %} --button-secondary-text: {{ button_secondary_text }};{% endif %}{% if button_secondary_border != blank %} --button-secondary-border: {{ button_secondary_border }};{% endif %}{% if top_bg_type == 'gradient' and top_bg_gradient != blank %} --split-top-bg: {{ top_bg_gradient }};{% elsif top_bg_type == 'image' and top_bg_image != blank %} --split-top-bg-image: url({{ top_bg_image | image_url: width: 1600 }});{% endif %}"
+>
+  <div class="split-top {% if top_bg_type == 'gradient' and top_bg_gradient != blank %}split-top--gradient{% endif %}" {% if top_bg_type == 'gradient' and top_bg_gradient != blank %}style="background: {{ top_bg_gradient }}; background-image: none;"{% elsif top_bg_type == 'image' and top_bg_image != blank %}style="background-image: url({{ top_bg_image | image_url: width: 1600 }});"{% endif %}>
+    {%- if top_logo != blank -%}
+      <div class="split-top-logo" style="--top-logo-width: {{ top_logo_width }}px;">
+        <img
+          src="{{ top_logo | image_url: width: top_logo_width_2x }}"
+          srcset="{{ top_logo | image_url: width: top_logo_width }} 1x, {{ top_logo | image_url: width: top_logo_width_2x }} 2x"
+          alt="{{ top_logo.alt | default: 'Logo' | escape }}"
+          loading="lazy"
+          width="{{ top_logo_width }}"
+          height="{{ top_logo.height | times: top_logo_width | divided_by: top_logo.width }}"
+        >
+      </div>
+    {%- endif -%}
+    {%- if top_center_image != blank -%}
+      <div class="split-top-center-image split-top-center-image--{{ top_center_image_position }}" style="--top-center-image-width: {{ top_center_image_width }}px;--top-center-image-y-offset: {{ top_center_image_y_offset }}px;">
+        <img
+          src="{{ top_center_image | image_url: width: top_center_image_width_2x }}"
+          srcset="{{ top_center_image | image_url: width: top_center_image_width }} 1x, {{ top_center_image | image_url: width: top_center_image_width_2x }} 2x"
+          alt="{{ top_center_image.alt | default: '' | escape }}"
+          loading="lazy"
+          width="{{ top_center_image_width }}"
+          height="{{ top_center_image.height | times: top_center_image_width | divided_by: top_center_image.width }}"
+        >
+      </div>
+    {%- endif -%}
+    <div class="split-top-content">
+      {%- if top_heading != blank -%}
+        <h1 class="split-top-heading">{{ top_heading }}</h1>
+      {%- endif -%}
+      
+      {%- if top_subheading != blank -%}
+        <p class="split-top-subheading">{{ top_subheading }}</p>
+      {%- endif -%}
+      
+      {%- if top_button_text != blank or top_button_text_2 != blank -%}
+        <div class="split-top-buttons split-top-buttons--{{ button_location }}">
+          {%- if top_button_text != blank and top_button_url != blank -%}
+            <a href="{{ top_button_url }}" class="split-button split-button--primary">{{ top_button_text }}</a>
+          {%- endif -%}
+          {%- if top_button_text_2 != blank and top_button_url_2 != blank -%}
+            <a href="{{ top_button_url_2 }}" class="split-button split-button--secondary">{{ top_button_text_2 }}</a>
+          {%- endif -%}
+        </div>
+      {%- endif -%}
+    </div>
+  </div>
+
+  <div class="split-bottom">
+    <div class="split-bottom-container">
+      {%- if feature_blocks.size > 0 -%}
+        <div class="split-features-grid split-features-grid--{{ features_layout }}">
+          {%- for block in feature_blocks -%}
+            {%- liquid
+              assign image_position = block.settings.image_position | default: 'top'
+              assign title_color = block.settings.title_color
+              assign description_color = block.settings.description_color
+              assign image_size = block.settings.image_size | default: 120
+              assign image_padding = block.settings.image_padding | default: 0
+              assign box_width = block.settings.box_width
+              assign box_height = block.settings.box_height
+              assign animation_type = block.settings.animation_type | default: 'fade-up'
+              assign animation_speed = block.settings.animation_speed | default: 800
+              assign animation_style = block.settings.animation_style | default: 'ease-out'
+              assign animation_delay = block.settings.animation_delay | default: 0
+              assign feature_description_2 = block.settings.feature_description_2
+              assign desc1_size = block.settings.desc1_size | default: 1.5
+              assign desc2_size = block.settings.desc2_size | default: 1.5
+              assign desc1_bold = block.settings.desc1_bold | default: false
+              assign desc2_bold = block.settings.desc2_bold | default: false
+              assign desc1_position = block.settings.desc1_position | default: 'left'
+              assign desc2_position = block.settings.desc2_position | default: 'right'
+              assign desc1_alignment = block.settings.desc1_alignment | default: 'left'
+              assign desc2_alignment = block.settings.desc2_alignment | default: 'right'
+              assign center_image_position = block.settings.center_image_position | default: 'center'
+              assign right_offset_value = block.settings.right_offset_value | default: 20
+              assign title_size = block.settings.title_size | default: 2
+              assign description_size = block.settings.description_size | default: 1.5
+            -%}
+            <div 
+              class="split-feature-box split-feature-box--image-{{ image_position }} split-feature-box--animate split-feature-box--{{ animation_type }}" 
+              data-animation-type="{{ animation_type }}"
+              data-animation-speed="{{ animation_speed }}"
+              data-animation-style="{{ animation_style }}"
+              data-animation-delay="{{ animation_delay }}"
+              {{ block.shopify_attributes }}
+              style="{% if title_color != blank %}--feature-title-color: {{ title_color }};{% endif %}{% if description_color != blank %}--feature-description-color: {{ description_color }};{% endif %}{% if image_size != blank %}--feature-image-size: {{ image_size }}px;{% endif %}{% if image_padding != blank %}--feature-image-padding: {{ image_padding }}px;{% endif %}{% if box_width != blank and box_width > 0 %}--feature-box-width: {{ box_width }}px;{% endif %}{% if box_height != blank and box_height > 0 %}--feature-box-height: {{ box_height }}px;{% endif %}{% if image_position == 'middle' %}--desc1-size: {{ desc1_size }}rem;--desc2-size: {{ desc2_size }}rem;--desc1-weight: {% if desc1_bold %}700{% else %}400{% endif %};--desc2-weight: {% if desc2_bold %}700{% else %}400{% endif %};--desc1-align: {{ desc1_alignment }};--desc2-align: {{ desc2_alignment }};{% endif %}{% if image_position == 'right-offset' %}--right-offset-value: {{ right_offset_value }}px;{% endif %}--feature-title-size: {{ title_size }}rem;--feature-description-size: {{ description_size }}rem;--animation-duration: {{ animation_speed }}ms;--animation-timing: {{ animation_style }};transition: opacity {{ animation_speed }}ms {{ animation_style }}, transform {{ animation_speed }}ms {{ animation_style }}, box-shadow 0.3s ease;"
+            >
+              {%- if image_position == 'middle' -%}
+                {%- comment -%} Left side content {%- endcomment -%}
+                <div class="split-feature-middle-left">
+                  {%- if desc1_position == 'left' and block.settings.feature_description != blank -%}
+                    <p class="split-feature-description split-feature-description--middle split-feature-description--desc1">{{ block.settings.feature_description }}</p>
+                  {%- endif -%}
+                  {%- if desc2_position == 'left' and feature_description_2 != blank -%}
+                    <p class="split-feature-description split-feature-description--middle split-feature-description--desc2">{{ feature_description_2 }}</p>
+                  {%- endif -%}
+                </div>
+                
+                {%- comment -%} Middle image/icon {%- endcomment -%}
+                {%- if block.settings.feature_image != blank -%}
+                  <div class="split-feature-image split-feature-image--middle split-feature-image--middle-{{ center_image_position }}">
+                    <img
+                      src="{{ block.settings.feature_image | image_url: width: 400 }}"
+                      alt="{{ block.settings.feature_image.alt | default: block.settings.feature_title | escape }}"
+                      loading="lazy"
+                      width="{{ block.settings.feature_image.width }}"
+                      height="{{ block.settings.feature_image.height }}"
+                    >
+                  </div>
+                {%- elsif block.settings.feature_icon != blank -%}
+                  <div class="split-feature-icon split-feature-icon--middle split-feature-icon--middle-{{ center_image_position }}">
+                    {{ block.settings.feature_icon }}
+                  </div>
+                {%- endif -%}
+                
+                {%- comment -%} Right side content {%- endcomment -%}
+                <div class="split-feature-middle-right">
+                  {%- if desc1_position == 'right' and block.settings.feature_description != blank -%}
+                    <p class="split-feature-description split-feature-description--middle split-feature-description--desc1">{{ block.settings.feature_description }}</p>
+                  {%- endif -%}
+                  {%- if desc2_position == 'right' and feature_description_2 != blank -%}
+                    <p class="split-feature-description split-feature-description--middle split-feature-description--desc2">{{ feature_description_2 }}</p>
+                  {%- endif -%}
+                </div>
+              {%- elsif image_position == 'left-edge' or image_position == 'right-edge' -%}
+                {%- if block.settings.feature_image != blank -%}
+                  <div class="split-feature-image split-feature-image--{{ image_position }}">
+                    <img
+                      src="{{ block.settings.feature_image | image_url: width: 400 }}"
+                      alt="{{ block.settings.feature_image.alt | default: block.settings.feature_title | escape }}"
+                      loading="lazy"
+                      width="{{ block.settings.feature_image.width }}"
+                      height="{{ block.settings.feature_image.height }}"
+                    >
+                  </div>
+                {%- elsif block.settings.feature_icon != blank -%}
+                  <div class="split-feature-icon split-feature-icon--{{ image_position }}">
+                    {{ block.settings.feature_icon }}
+                  </div>
+                {%- endif -%}
+                
+                {%- if block.settings.feature_title != blank -%}
+                  <h3 class="split-feature-title">{{ block.settings.feature_title }}</h3>
+                {%- endif -%}
+                
+                {%- if block.settings.feature_description != blank -%}
+                  <p class="split-feature-description">{{ block.settings.feature_description }}</p>
+                {%- endif -%}
+              {%- else -%}
+                {%- if block.settings.feature_image != blank -%}
+                  <div class="split-feature-image">
+                    <img
+                      src="{{ block.settings.feature_image | image_url: width: 400 }}"
+                      alt="{{ block.settings.feature_image.alt | default: block.settings.feature_title | escape }}"
+                      loading="lazy"
+                      width="{{ block.settings.feature_image.width }}"
+                      height="{{ block.settings.feature_image.height }}"
+                    >
+                  </div>
+                {%- elsif block.settings.feature_icon != blank -%}
+                  <div class="split-feature-icon">
+                    {{ block.settings.feature_icon }}
+                  </div>
+                {%- endif -%}
+                
+                {%- if block.settings.feature_title != blank -%}
+                  <h3 class="split-feature-title">{{ block.settings.feature_title }}</h3>
+                {%- endif -%}
+                
+                {%- if block.settings.feature_description != blank -%}
+                  <p class="split-feature-description">{{ block.settings.feature_description }}</p>
+                {%- endif -%}
+              {%- endif -%}
+            </div>
+          {%- endfor -%}
+        </div>
+      {%- endif -%}
+    </div>
+  </div>
+</section>
+
+<style>
+  /* Split Section Base */
+  .split-section--{{ section_id }} {
+    width: 100%;
+    max-width: var(--split-section-width, var(--page-width, 120rem));
+    margin: 0 auto;
+    border-radius: var(--split-section-radius);
+    overflow-x: hidden;
+    overflow-y: visible;
+    background: var(--split-bottom-bg, rgba(var(--color-background), 1));
+    box-shadow: 0 4px 24px rgba(var(--color-foreground), 0.08);
+  }
+
+  /* Top Area (Hero) */
+  .split-section--{{ section_id }} .split-top {
+    width: 100%;
+    min-height: {{ top_min_height }}vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    padding: 4rem 2rem;
+    background: var(--split-top-bg, rgba(var(--color-foreground), 0.03));
+    background-image: var(--split-top-bg-image, none);
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    border-radius: var(--split-section-radius) var(--split-section-radius) 0 0;
+    overflow: visible;
+  }
+
+  /* Maintain 1600x684px aspect ratio when background image is present */
+  .split-section--{{ section_id }} .split-top[style*="background-image"] {
+    aspect-ratio: 1600 / 684;
+    min-height: auto;
+  }
+
+  /* Override for gradient background */
+  .split-section--{{ section_id }} .split-top[style*="background:"] {
+    background-image: none !important;
+  }
+
+  .split-section--{{ section_id }} .split-top::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(var(--color-foreground), 0.1);
+    z-index: 1;
+  }
+
+  /* Hide overlay when gradient is used */
+  .split-section--{{ section_id }} .split-top--gradient::before {
+    display: none;
+  }
+
+  /* Top Logo */
+  .split-section--{{ section_id }} .split-top-logo {
+    position: absolute;
+    top: 2rem;
+    right: 2rem;
+    z-index: 3;
+    width: var(--top-logo-width, 120px);
+    max-width: 200px;
+    height: auto;
+  }
+
+  .split-section--{{ section_id }} .split-top-logo img {
+    width: 100%;
+    height: auto;
+    display: block;
+    object-fit: contain;
+  }
+
+  /* Top center image (over background) */
+  .split-section--{{ section_id }} .split-top-center-image {
+    position: absolute;
+    z-index: 2;
+    width: var(--top-center-image-width, 280px);
+    max-width: 90%;
+    pointer-events: none;
+  }
+
+  /* Top positions */
+  .split-section--{{ section_id }} .split-top-center-image--top-left {
+    top: 2rem;
+    left: 2rem;
+    transform: translateY(var(--top-center-image-y-offset, 0px));
+  }
+
+  .split-section--{{ section_id }} .split-top-center-image--top-center {
+    top: 2rem;
+    left: 50%;
+    transform: translate(-50%, var(--top-center-image-y-offset, 0px));
+  }
+
+  .split-section--{{ section_id }} .split-top-center-image--top-right {
+    top: 2rem;
+    right: 2rem;
+    left: auto;
+    transform: translateY(var(--top-center-image-y-offset, 0px));
+  }
+
+  /* Center positions */
+  .split-section--{{ section_id }} .split-top-center-image--center-left {
+    top: 50%;
+    left: 2rem;
+    transform: translate(0, calc(-50% + var(--top-center-image-y-offset, 0px)));
+  }
+
+  .split-section--{{ section_id }} .split-top-center-image--center {
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, calc(-50% + var(--top-center-image-y-offset, 0px)));
+  }
+
+  .split-section--{{ section_id }} .split-top-center-image--center-right {
+    top: 50%;
+    right: 2rem;
+    left: auto;
+    transform: translate(0, calc(-50% + var(--top-center-image-y-offset, 0px)));
+  }
+
+  /* Bottom positions - at the bottom edge with 90px overflow */
+  .split-section--{{ section_id }} .split-top-center-image--bottom-left {
+    bottom: 0;
+    top: auto;
+    left: 0;
+    transform: translateY(calc(90px + var(--top-center-image-y-offset, 0px)));
+  }
+
+  .split-section--{{ section_id }} .split-top-center-image--bottom-center {
+    bottom: 0;
+    top: auto;
+    left: 50%;
+    transform: translate(-50%, calc(90px + var(--top-center-image-y-offset, 0px)));
+  }
+
+  .split-section--{{ section_id }} .split-top-center-image--bottom-right {
+    bottom: 0;
+    top: auto;
+    right: 0;
+    left: auto;
+    transform: translateY(calc(90px + var(--top-center-image-y-offset, 0px)));
+  }
+
+  .split-section--{{ section_id }} .split-top-center-image img {
+    width: 100%;
+    height: auto;
+    display: block;
+    object-fit: contain;
+  }
+
+  /* Mobile adjustments for top center image */
+  @media screen and (max-width: 768px) {
+    .split-section--{{ section_id }} .split-top-center-image {
+      max-width: 80%;
+    }
+
+    .split-section--{{ section_id }} .split-top-center-image--top-left,
+    .split-section--{{ section_id }} .split-top-center-image--bottom-left,
+    .split-section--{{ section_id }} .split-top-center-image--center-left {
+      left: 1rem;
+    }
+
+    .split-section--{{ section_id }} .split-top-center-image--top-right,
+    .split-section--{{ section_id }} .split-top-center-image--bottom-right,
+    .split-section--{{ section_id }} .split-top-center-image--center-right {
+      right: 1rem;
+    }
+
+    .split-section--{{ section_id }} .split-top-center-image--top-left,
+    .split-section--{{ section_id }} .split-top-center-image--top-center,
+    .split-section--{{ section_id }} .split-top-center-image--top-right {
+      top: 1rem;
+    }
+
+    .split-section--{{ section_id }} .split-top-center-image--bottom-left,
+    .split-section--{{ section_id }} .split-top-center-image--bottom-right {
+      bottom: 0;
+      transform: translateY(90px);
+    }
+
+    .split-section--{{ section_id }} .split-top-center-image--bottom-center {
+      bottom: 0;
+      transform: translate(-50%, 90px);
+    }
+
+    .split-section--{{ section_id }} .split-top-center-image--bottom-center {
+      transform: translate(-50%, 50%);
+    }
+  }
+
+  .split-section--{{ section_id }} .split-top-content {
+    position: relative;
+    z-index: 2;
+    text-align: center;
+    max-width: 800px;
+    width: 100%;
+  }
+
+  .split-section--{{ section_id }} .split-top-heading {
+    font-size: clamp(2.4rem, 5vw, var(--top-heading-size, 4.8rem));
+    font-weight: 700;
+    line-height: 1.2;
+    margin: 0 0 1.6rem;
+    color: rgba(var(--color-foreground), 1);
+  }
+
+  .split-section--{{ section_id }} .split-top-subheading {
+    font-size: clamp(1.6rem, 2.5vw, 2rem);
+    line-height: 1.6;
+    margin: 0 0 3.2rem;
+    color: rgba(var(--color-foreground), 0.9);
+  }
+
+  .split-section--{{ section_id }} .split-top-buttons {
+    display: flex;
+    gap: 1.6rem;
+    flex-wrap: wrap;
+  }
+
+  /* Button Location Styles */
+  .split-section--{{ section_id }} .split-top-buttons--center {
+    justify-content: center;
+  }
+
+  .split-section--{{ section_id }} .split-top-buttons--left {
+    justify-content: flex-start;
+  }
+
+  .split-section--{{ section_id }} .split-top-buttons--right {
+    justify-content: flex-end;
+  }
+
+  .split-section--{{ section_id }} .split-button {
+    display: inline-block;
+    padding: 1.4rem 3.2rem;
+    border-radius: var(--button-radius, 0.8rem);
+    font-size: 1.6rem;
+    font-weight: 600;
+    text-decoration: none;
+    transition: transform 0.2s ease, box-shadow 0.2s ease, background-color 0.2s ease, border-color 0.2s ease;
+    border: 2px solid transparent;
+  }
+
+  .split-section--{{ section_id }} .split-button--primary {
+    background: var(--button-primary-bg, rgba(var(--color-button), 1));
+    color: var(--button-primary-text, rgba(var(--color-button-text), 1));
+    border-color: var(--button-primary-border, var(--button-primary-bg, rgba(var(--color-button), 1)));
+  }
+
+  .split-section--{{ section_id }} .split-button--primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+    opacity: 0.9;
+  }
+
+  .split-section--{{ section_id }} .split-button--secondary {
+    background: var(--button-secondary-bg, transparent);
+    color: var(--button-secondary-text, rgba(var(--color-foreground), 1));
+    border-color: var(--button-secondary-border, rgba(var(--color-foreground), 0.3));
+  }
+
+  .split-section--{{ section_id }} .split-button--secondary:hover {
+    background: var(--button-secondary-bg, rgba(var(--color-foreground), 0.05));
+    transform: translateY(-2px);
+    opacity: 0.9;
+  }
+
+  /* Bottom Area */
+  .split-section--{{ section_id }} .split-bottom {
+    width: 100%;
+    background: var(--split-bottom-bg, rgba(var(--color-background), 1));
+    border-radius: 0 0 var(--split-section-radius) var(--split-section-radius);
+    padding: var(--split-bottom-padding, 4rem) 2rem;
+    overflow-x: visible;
+    overflow-y: hidden;
+  }
+
+  .split-section--{{ section_id }} .split-bottom-container {
+    max-width: 120rem;
+    margin: 0 auto;
+    overflow-x: visible;
+    overflow-y: visible;
+  }
+
+  /* Features Grid */
+  .split-section--{{ section_id }} .split-features-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 2.4rem;
+    width: 100%;
+    max-width: var(--features-container-width, 100%);
+    margin: 0 auto;
+    overflow: visible;
+  }
+
+  @media screen and (min-width: 750px) {
+    /* 2 Columns Layout (for 2 boxes) */
+    .split-section--{{ section_id }} .split-features-grid--2-columns {
+      grid-template-columns: repeat(2, 1fr);
+    }
+
+    /* 3 Columns Layout (for 3+ boxes) */
+    .split-section--{{ section_id }} .split-features-grid--3-columns {
+      grid-template-columns: repeat(3, 1fr);
+    }
+
+    /* 4 Columns Layout (for 4+ boxes) */
+    .split-section--{{ section_id }} .split-features-grid--4-columns {
+      grid-template-columns: repeat(4, 1fr);
+    }
+
+    /* Side by Side (for 2 boxes) */
+    .split-section--{{ section_id }} .split-features-grid--side-by-side {
+      grid-template-columns: 1fr 1fr;
+    }
+
+    /* Stacked (for 2 boxes) */
+    .split-section--{{ section_id }} .split-features-grid--stacked {
+      grid-template-columns: 1fr;
+    }
+
+    /* 1 Top, 2 Bottom Layout (for 3 boxes) */
+    .split-section--{{ section_id }} .split-features-grid--1-top-2-bottom {
+      grid-template-columns: repeat(2, 1fr);
+      grid-template-rows: auto auto;
+    }
+
+    .split-section--{{ section_id }} .split-features-grid--1-top-2-bottom .split-feature-box:first-child {
+      grid-column: 1 / -1;
+      grid-row: 1;
+      width: 100%;
+      max-width: 100%;
+      margin: 0 0 2.4rem 0;
+    }
+
+    .split-section--{{ section_id }} .split-features-grid--1-top-2-bottom .split-feature-box:nth-child(2),
+    .split-section--{{ section_id }} .split-features-grid--1-top-2-bottom .split-feature-box:nth-child(3) {
+      grid-row: 2;
+    }
+
+    /* 2 Top, 1 Bottom Layout (for 3 boxes) */
+    .split-section--{{ section_id }} .split-features-grid--2-top-1-bottom {
+      grid-template-columns: repeat(2, 1fr);
+      grid-template-rows: auto auto;
+    }
+
+    .split-section--{{ section_id }} .split-features-grid--2-top-1-bottom .split-feature-box:first-child,
+    .split-section--{{ section_id }} .split-features-grid--2-top-1-bottom .split-feature-box:nth-child(2) {
+      grid-row: 1;
+    }
+
+    .split-section--{{ section_id }} .split-features-grid--2-top-1-bottom .split-feature-box:last-child {
+      grid-column: 1 / -1;
+      grid-row: 2;
+      width: 100%;
+      max-width: 100%;
+      margin: 2.4rem 0 0 0;
+    }
+
+    /* 1 Left, 2 Right Layout (for 3 boxes) */
+    .split-section--{{ section_id }} .split-features-grid--1-left-2-right {
+      grid-template-columns: 1fr 1fr;
+      grid-template-rows: 1fr 1fr;
+    }
+
+    .split-section--{{ section_id }} .split-features-grid--1-left-2-right .split-feature-box:first-child {
+      grid-row: 1 / -1;
+    }
+
+    /* 2 Left, 1 Right Layout (for 3 boxes) */
+    .split-section--{{ section_id }} .split-features-grid--2-left-1-right {
+      grid-template-columns: 1fr 1fr;
+      grid-template-rows: 1fr 1fr;
+    }
+
+    .split-section--{{ section_id }} .split-features-grid--2-left-1-right .split-feature-box:last-child {
+      grid-row: 1 / -1;
+      grid-column: 2;
+    }
+
+    /* 2 Top, 2 Bottom Layout (for 4 boxes) */
+    .split-section--{{ section_id }} .split-features-grid--2-top-2-bottom {
+      grid-template-columns: repeat(2, 1fr);
+      grid-template-rows: auto auto;
+    }
+
+    .split-section--{{ section_id }} .split-features-grid--2-top-2-bottom .split-feature-box:nth-child(1),
+    .split-section--{{ section_id }} .split-features-grid--2-top-2-bottom .split-feature-box:nth-child(2) {
+      grid-row: 1;
+    }
+
+    .split-section--{{ section_id }} .split-features-grid--2-top-2-bottom .split-feature-box:nth-child(3),
+    .split-section--{{ section_id }} .split-features-grid--2-top-2-bottom .split-feature-box:nth-child(4) {
+      grid-row: 2;
+    }
+  }
+
+  /* Feature Box */
+  .split-section--{{ section_id }} .split-feature-box {
+    background: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 1.6rem;
+    padding: 0;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    text-align: center;
+    height: 100%;
+    width: 100%;
+    overflow: visible;
+  }
+
+  /* Animation States - Initially Hidden */
+  .split-section--{{ section_id }} .split-feature-box--animate {
+    opacity: 0;
+    transition: opacity var(--animation-duration, 800ms) var(--animation-timing, cubic-bezier(0.4, 0, 0.2, 1)), 
+                transform var(--animation-duration, 800ms) var(--animation-timing, cubic-bezier(0.4, 0, 0.2, 1)),
+                box-shadow 0.3s ease;
+  }
+
+  /* Animation Types */
+  /* Fade Up */
+  .split-section--{{ section_id }} .split-feature-box--fade-up {
+    transform: translateY(50px);
+  }
+
+  /* Fade Down */
+  .split-section--{{ section_id }} .split-feature-box--fade-down {
+    transform: translateY(-50px);
+  }
+
+  /* Fade Left */
+  .split-section--{{ section_id }} .split-feature-box--fade-left {
+    transform: translateX(-50px);
+  }
+
+  /* Fade Right */
+  .split-section--{{ section_id }} .split-feature-box--fade-right {
+    transform: translateX(50px);
+  }
+
+  /* Scale */
+  .split-section--{{ section_id }} .split-feature-box--scale {
+    transform: scale(0.7);
+  }
+
+  /* Scale Up */
+  .split-section--{{ section_id }} .split-feature-box--scale-up {
+    transform: scale(0.8) translateY(30px);
+  }
+
+  /* Rotate */
+  .split-section--{{ section_id }} .split-feature-box--rotate {
+    transform: rotate(-10deg) scale(0.9);
+  }
+
+  /* Flip */
+  .split-section--{{ section_id }} .split-feature-box--flip {
+    transform: rotateY(90deg);
+  }
+
+  /* Zoom In */
+  .split-section--{{ section_id }} .split-feature-box--zoom-in {
+    transform: scale(0.5);
+    opacity: 0;
+  }
+
+  /* Slide Up Rotate */
+  .split-section--{{ section_id }} .split-feature-box--slide-up-rotate {
+    transform: translateY(40px) rotate(5deg);
+  }
+
+  /* Fade Only */
+  .split-section--{{ section_id }} .split-feature-box--fade {
+    transform: none;
+  }
+
+  /* Animated State - When in view */
+  .split-section--{{ section_id }} .split-feature-box--animate.split-feature-box--visible {
+    opacity: 1;
+    transform: translateY(0) translateX(0) scale(1) rotate(0deg) rotateY(0deg);
+  }
+
+  .split-section--{{ section_id }} .split-feature-box[style*="--feature-box-height"] {
+    height: var(--feature-box-height);
+    min-height: var(--feature-box-height);
+  }
+
+  .split-section--{{ section_id }} .split-feature-box[style*="--feature-box-width"] {
+    width: var(--feature-box-width);
+    max-width: var(--feature-box-width);
+    margin-left: auto;
+    margin-right: auto;
+  }
+
+  /* Image Position: Top (default) - Image flush with top */
+  .split-section--{{ section_id }} .split-feature-box--image-top {
+    flex-direction: column;
+    align-items: stretch;
+    text-align: center;
+  }
+
+  .split-section--{{ section_id }} .split-feature-box--image-top .split-feature-image {
+    width: 100%;
+    max-width: 100%;
+    height: auto;
+    aspect-ratio: 16 / 9;
+    margin: 0;
+    border-radius: 0;
+    border-top-left-radius: 1.6rem;
+    border-top-right-radius: 1.6rem;
+  }
+
+  .split-section--{{ section_id }} .split-feature-box--image-top .split-feature-title,
+  .split-section--{{ section_id }} .split-feature-box--image-top .split-feature-description {
+    padding: 0 2.4rem;
+  }
+
+  .split-section--{{ section_id }} .split-feature-box--image-top .split-feature-title {
+    padding-top: 2.4rem;
+  }
+
+  .split-section--{{ section_id }} .split-feature-box--image-top .split-feature-description {
+    padding-bottom: 2.4rem;
+  }
+
+  /* Image Position: Bottom - Image flush with bottom */
+  .split-section--{{ section_id }} .split-feature-box--image-bottom {
+    flex-direction: column-reverse;
+    align-items: stretch;
+    text-align: center;
+  }
+
+  .split-section--{{ section_id }} .split-feature-box--image-bottom .split-feature-image {
+    width: 100%;
+    max-width: 100%;
+    height: auto;
+    aspect-ratio: 16 / 9;
+    margin: 0;
+    border-radius: 0;
+    border-bottom-left-radius: 1.6rem;
+    border-bottom-right-radius: 1.6rem;
+  }
+
+  .split-section--{{ section_id }} .split-feature-box--image-bottom .split-feature-title,
+  .split-section--{{ section_id }} .split-feature-box--image-bottom .split-feature-description {
+    padding: 0 2.4rem;
+  }
+
+  .split-section--{{ section_id }} .split-feature-box--image-bottom .split-feature-title {
+    padding-top: 2.4rem;
+  }
+
+  .split-section--{{ section_id }} .split-feature-box--image-bottom .split-feature-description {
+    padding-bottom: 2.4rem;
+  }
+
+  /* Image Position: Left - Image flush with left */
+  .split-section--{{ section_id }} .split-feature-box--image-left {
+    flex-direction: row;
+    align-items: stretch;
+    text-align: left;
+  }
+
+  .split-section--{{ section_id }} .split-feature-box--image-left .split-feature-image {
+    width: 40%;
+    max-width: 40%;
+    min-width: var(--feature-image-size, auto);
+    height: auto;
+    margin: 0;
+    border-radius: 0;
+    border-top-left-radius: 1.6rem;
+    border-bottom-left-radius: 1.6rem;
+    flex-shrink: 0;
+  }
+
+  .split-section--{{ section_id }} .split-feature-box--image-left .split-feature-title,
+  .split-section--{{ section_id }} .split-feature-box--image-left .split-feature-description {
+    padding: 2.4rem;
+    flex: 1;
+  }
+
+  .split-section--{{ section_id }} .split-feature-box--image-left .split-feature-icon {
+    margin: 0;
+    padding: 2.4rem;
+    border-radius: 0;
+    border-top-left-radius: 1.6rem;
+    border-bottom-left-radius: 1.6rem;
+    width: var(--feature-image-size, 40%);
+    height: 100%;
+    min-height: var(--feature-image-size, auto);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: calc(var(--feature-image-size, 120px) * 0.4);
+  }
+
+  /* Image Position: Right - Image flush with right */
+  .split-section--{{ section_id }} .split-feature-box--image-right {
+    flex-direction: row-reverse;
+    align-items: stretch;
+    text-align: right;
+  }
+
+  .split-section--{{ section_id }} .split-feature-box--image-right .split-feature-image {
+    width: 40%;
+    max-width: 40%;
+    min-width: var(--feature-image-size, auto);
+    height: auto;
+    margin: 0;
+    border-radius: 0;
+    border-top-right-radius: 1.6rem;
+    border-bottom-right-radius: 1.6rem;
+    flex-shrink: 0;
+  }
+
+  /* Right Offset - Same as right but with 20px X transform */
+  .split-section--{{ section_id }} .split-feature-box--image-right-offset {
+    flex-direction: row-reverse;
+    align-items: stretch;
+    text-align: right;
+  }
+
+  .split-section--{{ section_id }} .split-feature-box--image-right-offset .split-feature-image {
+    width: 40%;
+    max-width: 40%;
+    min-width: var(--feature-image-size, auto);
+    height: auto;
+    margin: 0;
+    border-radius: 0;
+    border-top-right-radius: 1.6rem;
+    border-bottom-right-radius: 1.6rem;
+    flex-shrink: 0;
+    transform: translateX(var(--right-offset-value, 20px));
+  }
+
+  .split-section--{{ section_id }} .split-feature-box--image-right-offset .split-feature-title,
+  .split-section--{{ section_id }} .split-feature-box--image-right-offset .split-feature-description {
+    padding: 2.4rem;
+    flex: 1;
+  }
+
+  .split-section--{{ section_id }} .split-feature-box--image-right-offset .split-feature-icon {
+    margin: 0;
+    padding: 2.4rem;
+    border-radius: 0;
+    border-top-right-radius: 1.6rem;
+    border-bottom-right-radius: 1.6rem;
+    transform: translateX(var(--right-offset-value, 20px));
+    width: var(--feature-image-size, 40%);
+    height: 100%;
+    min-height: var(--feature-image-size, auto);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: calc(var(--feature-image-size, 120px) * 0.4);
+  }
+
+  .split-section--{{ section_id }} .split-feature-box--image-right .split-feature-title,
+  .split-section--{{ section_id }} .split-feature-box--image-right .split-feature-description {
+    padding: 2.4rem;
+    flex: 1;
+  }
+
+  .split-section--{{ section_id }} .split-feature-box--image-right .split-feature-icon {
+    margin: 0;
+    padding: 2.4rem;
+    border-radius: 0;
+    border-top-right-radius: 1.6rem;
+    border-bottom-right-radius: 1.6rem;
+    width: var(--feature-image-size, 40%);
+    height: 100%;
+    min-height: var(--feature-image-size, auto);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: calc(var(--feature-image-size, 120px) * 0.4);
+  }
+
+  /* Image Position: Left Edge - Image on left box edge */
+  .split-section--{{ section_id }} .split-feature-box--image-left-edge {
+    flex-direction: row;
+    align-items: flex-start;
+    text-align: left;
+    position: relative;
+    overflow: hidden;
+    padding-left: calc(20% + 1.6rem);
+    min-height: 280px;
+    height: 280px;
+  }
+
+  .split-section--{{ section_id }} .split-feature-box--image-left-edge .split-feature-image--left-edge {
+    position: absolute;
+    top: 50%;
+    left: 0;
+    transform: translate(-50%, -50%);
+    width: 38%;
+    height: 280px;
+    min-height: 280px;
+    max-height: 280px;
+    border-radius: 0;
+    overflow: hidden;
+    z-index: 2;
+    background: transparent;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .split-section--{{ section_id }} .split-feature-box--image-left-edge .split-feature-image--left-edge img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    object-position: center center;
+    border-radius: 0;
+  }
+
+  .split-section--{{ section_id }} .split-feature-box--image-left-edge .split-feature-icon--left-edge {
+    position: absolute;
+    top: -7.5%;
+    left: -25%;
+    width: var(--feature-image-size, 50%);
+    height: var(--feature-image-size, 50%);
+    aspect-ratio: 1 / 1;
+    border-radius: 50%;
+    border: 4px solid rgba(255, 255, 255, 0.3);
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
+    z-index: 2;
+    background: rgba(var(--color-background), 1);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: calc(var(--feature-image-size, 120px) * 0.4);
+  }
+
+  .split-section--{{ section_id }} .split-feature-box--image-left-edge .split-feature-title,
+  .split-section--{{ section_id }} .split-feature-box--image-left-edge .split-feature-description {
+    padding: 2.4rem 2.4rem 2.4rem 0;
+    position: relative;
+    z-index: 1;
+    flex: 1;
+  }
+
+  /* Image Position: Right Edge - Image on right box edge */
+  .split-section--{{ section_id }} .split-feature-box--image-right-edge {
+    flex-direction: row-reverse;
+    align-items: flex-start;
+    text-align: right;
+    position: relative;
+    overflow: hidden;
+    padding-right: calc(20% + 1.6rem);
+    min-height: 280px;
+    height: 280px;
+  }
+
+  .split-section--{{ section_id }} .split-feature-box--image-right-edge .split-feature-image--right-edge {
+    position: absolute;
+    top: 50%;
+    right: 0;
+    left: auto;
+    transform: translate(50%, -50%);
+    width: 38%;
+    height: 280px;
+    min-height: 280px;
+    max-height: 280px;
+    border-radius: 0;
+    overflow: hidden;
+    z-index: 2;
+    background: transparent;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .split-section--{{ section_id }} .split-feature-box--image-right-edge .split-feature-image--right-edge img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    object-position: center center;
+    border-radius: 0;
+  }
+
+  .split-section--{{ section_id }} .split-feature-box--image-right-edge .split-feature-icon--right-edge {
+    position: absolute;
+    top: -7.5%;
+    right: -25%;
+    width: var(--feature-image-size, 50%);
+    height: var(--feature-image-size, 50%);
+    aspect-ratio: 1 / 1;
+    border-radius: 50%;
+    border: 4px solid rgba(255, 255, 255, 0.3);
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
+    z-index: 2;
+    background: rgba(var(--color-background), 1);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: calc(var(--feature-image-size, 120px) * 0.4);
+  }
+
+  .split-section--{{ section_id }} .split-feature-box--image-right-edge .split-feature-title,
+  .split-section--{{ section_id }} .split-feature-box--image-right-edge .split-feature-description {
+    padding: 2.4rem 0 2.4rem 2.4rem;
+    position: relative;
+    z-index: 1;
+    flex: 1;
+  }
+
+  /* Image Position: Middle (text on both sides) */
+  .split-section--{{ section_id }} .split-feature-box--image-middle {
+    flex-direction: row;
+    align-items: stretch;
+    justify-content: space-between;
+    text-align: left;
+    padding: 0;
+    position: relative;
+  }
+
+  .split-section--{{ section_id }} .split-feature-box--image-middle .split-feature-middle-left,
+  .split-section--{{ section_id }} .split-feature-box--image-middle .split-feature-middle-right {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    padding: 2.4rem;
+    position: relative;
+    z-index: 1;
+  }
+
+  /* When image is not centered, content areas take full width */
+  .split-section--{{ section_id }} .split-feature-box--image-middle:has(.split-feature-image--middle:not(.split-feature-image--middle-center)) .split-feature-middle-left,
+  .split-section--{{ section_id }} .split-feature-box--image-middle:has(.split-feature-icon--middle:not(.split-feature-icon--middle-center)) .split-feature-middle-left,
+  .split-section--{{ section_id }} .split-feature-box--image-middle:has(.split-feature-image--middle:not(.split-feature-image--middle-center)) .split-feature-middle-right,
+  .split-section--{{ section_id }} .split-feature-box--image-middle:has(.split-feature-icon--middle:not(.split-feature-icon--middle-center)) .split-feature-middle-right {
+    flex: 1 1 50%;
+  }
+
+  .split-section--{{ section_id }} .split-feature-box--image-middle .split-feature-middle-left {
+    padding-right: 1.6rem;
+  }
+
+  .split-section--{{ section_id }} .split-feature-box--image-middle .split-feature-middle-right {
+    padding-left: 1.6rem;
+  }
+
+  .split-section--{{ section_id }} .split-feature-box--image-middle .split-feature-description--middle {
+    margin: 0;
+    color: var(--feature-description-color, rgba(var(--color-foreground), 0.7));
+    line-height: 1.6;
+  }
+
+  .split-section--{{ section_id }} .split-feature-box--image-middle .split-feature-description--desc1 {
+    font-size: var(--desc1-size, 1.5rem);
+    font-weight: var(--desc1-weight, 400);
+    text-align: var(--desc1-align, left);
+  }
+
+  .split-section--{{ section_id }} .split-feature-box--image-middle .split-feature-description--desc2 {
+    font-size: var(--desc2-size, 1.5rem);
+    font-weight: var(--desc2-weight, 400);
+    text-align: var(--desc2-align, right);
+    margin-top: 1.2rem;
+  }
+
+  /* Default middle position (center) - keeps original layout */
+  .split-section--{{ section_id }} .split-feature-box--image-middle .split-feature-image--middle-center,
+  .split-section--{{ section_id }} .split-feature-box--image-middle .split-feature-icon--middle-center {
+    width: var(--feature-image-size, 120px);
+    max-width: var(--feature-image-size, 120px);
+    height: 100%;
+    min-height: 200px;
+    flex-shrink: 0;
+    margin: 0;
+    border-radius: 0;
+    padding: 0;
+    position: relative;
+    z-index: 2;
+  }
+
+  .split-section--{{ section_id }} .split-feature-box--image-middle .split-feature-image--middle-center img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .split-section--{{ section_id }} .split-feature-box--image-middle .split-feature-icon--middle-center {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: calc(var(--feature-image-size, 120px) * 0.4);
+  }
+
+  /* Absolute positioned images for other positions */
+  .split-section--{{ section_id }} .split-feature-box--image-middle .split-feature-image--middle:not(.split-feature-image--middle-center),
+  .split-section--{{ section_id }} .split-feature-box--image-middle .split-feature-icon--middle:not(.split-feature-icon--middle-center) {
+    position: absolute;
+    width: var(--feature-image-size, 120px);
+    height: var(--feature-image-size, 120px);
+    z-index: 2;
+    margin: 0;
+    padding: 0;
+  }
+
+  /* Top positions */
+  .split-section--{{ section_id }} .split-feature-box--image-middle .split-feature-image--middle-top-left,
+  .split-section--{{ section_id }} .split-feature-box--image-middle .split-feature-icon--middle-top-left {
+    top: 1.6rem;
+    left: 1.6rem;
+  }
+
+  .split-section--{{ section_id }} .split-feature-box--image-middle .split-feature-image--middle-top-center,
+  .split-section--{{ section_id }} .split-feature-box--image-middle .split-feature-icon--middle-top-center {
+    top: 1.6rem;
+    left: 50%;
+    transform: translateX(-50%);
+  }
+
+  .split-section--{{ section_id }} .split-feature-box--image-middle .split-feature-image--middle-top-right,
+  .split-section--{{ section_id }} .split-feature-box--image-middle .split-feature-icon--middle-top-right {
+    top: 1.6rem;
+    right: 1.6rem;
+  }
+
+  /* Center positions */
+  .split-section--{{ section_id }} .split-feature-box--image-middle .split-feature-image--middle-center-left,
+  .split-section--{{ section_id }} .split-feature-box--image-middle .split-feature-icon--middle-center-left {
+    top: 50%;
+    left: 1.6rem;
+    transform: translateY(-50%);
+  }
+
+  .split-section--{{ section_id }} .split-feature-box--image-middle .split-feature-image--middle-center-right,
+  .split-section--{{ section_id }} .split-feature-box--image-middle .split-feature-icon--middle-center-right {
+    top: 50%;
+    right: 1.6rem;
+    transform: translateY(-50%);
+  }
+
+  /* Bottom positions */
+  .split-section--{{ section_id }} .split-feature-box--image-middle .split-feature-image--middle-bottom-left,
+  .split-section--{{ section_id }} .split-feature-box--image-middle .split-feature-icon--middle-bottom-left {
+    bottom: 1.6rem;
+    left: 1.6rem;
+  }
+
+  .split-section--{{ section_id }} .split-feature-box--image-middle .split-feature-image--middle-bottom-center,
+  .split-section--{{ section_id }} .split-feature-box--image-middle .split-feature-icon--middle-bottom-center {
+    bottom: 1.6rem;
+    left: 50%;
+    transform: translateX(-50%);
+  }
+
+  .split-section--{{ section_id }} .split-feature-box--image-middle .split-feature-image--middle-bottom-right,
+  .split-section--{{ section_id }} .split-feature-box--image-middle .split-feature-icon--middle-bottom-right {
+    bottom: 1.6rem;
+    right: 1.6rem;
+  }
+
+  /* Image styling for absolute positioned images */
+  .split-section--{{ section_id }} .split-feature-box--image-middle .split-feature-image--middle:not(.split-feature-image--middle-center) img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: 0.8rem;
+  }
+
+  .split-section--{{ section_id }} .split-feature-box--image-middle .split-feature-icon--middle:not(.split-feature-icon--middle-center) {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: calc(var(--feature-image-size, 120px) * 0.4);
+    border-radius: 0.8rem;
+    background: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(10px);
+  }
+
+  .split-section--{{ section_id }} .split-feature-box:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.15);
+    border-color: rgba(255, 255, 255, 0.3);
+  }
+
+  .split-section--{{ section_id }} .split-feature-image {
+    width: 100%;
+    margin: 0;
+    border-radius: 0;
+    overflow: hidden;
+    padding: 0;
+    box-sizing: border-box;
+    flex-shrink: 0;
+  }
+
+  .split-section--{{ section_id }} .split-feature-image img {
+    width: 100%;
+    height: 100%;
+    display: block;
+    object-fit: cover;
+  }
+
+  .split-section--{{ section_id }} .split-feature-icon {
+    font-size: calc(var(--feature-image-size, 120px) * 0.4);
+    line-height: 1;
+    padding: 0;
+    box-sizing: border-box;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0;
+  }
+
+  /* Icon positioning for top/bottom - centered with padding */
+  .split-section--{{ section_id }} .split-feature-box--image-top .split-feature-icon,
+  .split-section--{{ section_id }} .split-feature-box--image-bottom .split-feature-icon {
+    padding: 2.4rem;
+    width: 100%;
+    height: var(--feature-image-size, auto);
+    min-height: var(--feature-image-size, auto);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: calc(var(--feature-image-size, 120px) * 0.4);
+  }
+
+  .split-section--{{ section_id }} .split-feature-box--image-top .split-feature-icon {
+    padding-bottom: 0;
+  }
+
+  .split-section--{{ section_id }} .split-feature-box--image-bottom .split-feature-icon {
+    padding-top: 0;
+  }
+
+  /* Middle position icon size */
+  .split-section--{{ section_id }} .split-feature-box--image-middle .split-feature-icon--middle {
+    width: var(--feature-image-size, 120px);
+    height: var(--feature-image-size, 120px);
+    font-size: calc(var(--feature-image-size, 120px) * 0.4);
+  }
+
+  .split-section--{{ section_id }} .split-feature-title {
+    font-size: var(--feature-title-size, 2rem);
+    font-weight: 600;
+    margin: 0 0 1.2rem;
+    color: var(--feature-title-color, rgba(var(--color-foreground), 1));
+    line-height: 1.3;
+  }
+
+  .split-section--{{ section_id }} .split-feature-description {
+    font-size: var(--feature-description-size, 1.5rem);
+    line-height: 1.6;
+    margin: 0;
+    color: var(--feature-description-color, rgba(var(--color-foreground), 0.7));
+    flex: 1;
+  }
+
+  /* Mobile Adjustments */
+  @media screen and (max-width: 749px) {
+    .split-section--{{ section_id }} .split-top {
+      min-height: 50vh;
+      padding: 3rem 1.5rem;
+    }
+
+    .split-section--{{ section_id }} .split-top-logo {
+      top: 1.5rem;
+      right: 1.5rem;
+      max-width: 120px;
+    }
+
+    .split-section--{{ section_id }} .split-bottom {
+      padding: 3rem 1.5rem;
+    }
+
+    .split-section--{{ section_id }} .split-top-buttons {
+      flex-direction: column;
+      width: 100%;
+      justify-content: center !important;
+    }
+
+    .split-section--{{ section_id }} .split-button {
+      width: 100%;
+      text-align: center;
+    }
+
+    /* Mobile: Force top image position for better mobile UX */
+    .split-section--{{ section_id }} .split-feature-box--image-left,
+    .split-section--{{ section_id }} .split-feature-box--image-right,
+    .split-section--{{ section_id }} .split-feature-box--image-right-offset,
+    .split-section--{{ section_id }} .split-feature-box--image-middle {
+      flex-direction: column;
+      align-items: stretch;
+      text-align: center;
+    }
+
+    .split-section--{{ section_id }} .split-feature-box--image-left .split-feature-image,
+    .split-section--{{ section_id }} .split-feature-box--image-right .split-feature-image,
+    .split-section--{{ section_id }} .split-feature-box--image-right-offset .split-feature-image {
+      width: 100%;
+      max-width: 100%;
+      height: auto;
+      aspect-ratio: 16 / 9;
+      margin: 0;
+      border-radius: 0;
+      border-top-left-radius: 1.6rem;
+      border-top-right-radius: 1.6rem;
+      transform: none;
+    }
+
+    .split-section--{{ section_id }} .split-feature-box--image-left .split-feature-title,
+    .split-section--{{ section_id }} .split-feature-box--image-right .split-feature-title,
+    .split-section--{{ section_id }} .split-feature-box--image-right-offset .split-feature-title,
+    .split-section--{{ section_id }} .split-feature-box--image-left .split-feature-description,
+    .split-section--{{ section_id }} .split-feature-box--image-right .split-feature-description,
+    .split-section--{{ section_id }} .split-feature-box--image-right-offset .split-feature-description {
+      padding: 0 2.4rem;
+    }
+
+    .split-section--{{ section_id }} .split-feature-box--image-left .split-feature-title,
+    .split-section--{{ section_id }} .split-feature-box--image-right .split-feature-title,
+    .split-section--{{ section_id }} .split-feature-box--image-right-offset .split-feature-title {
+      padding-top: 2.4rem;
+    }
+
+    .split-section--{{ section_id }} .split-feature-box--image-left .split-feature-description,
+    .split-section--{{ section_id }} .split-feature-box--image-right .split-feature-description,
+    .split-section--{{ section_id }} .split-feature-box--image-right-offset .split-feature-description {
+      padding-bottom: 2.4rem;
+    }
+
+    .split-section--{{ section_id }} .split-feature-box--image-left .split-feature-icon,
+    .split-section--{{ section_id }} .split-feature-box--image-right .split-feature-icon,
+    .split-section--{{ section_id }} .split-feature-box--image-right-offset .split-feature-icon {
+      padding: 2.4rem;
+      padding-bottom: 0;
+      transform: none;
+    }
+
+    .split-section--{{ section_id }} .split-feature-box--image-middle {
+      padding: 0;
+    }
+
+    .split-section--{{ section_id }} .split-feature-box--image-middle .split-feature-middle-left,
+    .split-section--{{ section_id }} .split-feature-box--image-middle .split-feature-middle-right {
+      padding: 0 2.4rem;
+      text-align: center;
+    }
+
+    .split-section--{{ section_id }} .split-feature-box--image-middle .split-feature-middle-left {
+      padding-top: 2.4rem;
+      padding-bottom: 1.2rem;
+    }
+
+    .split-section--{{ section_id }} .split-feature-box--image-middle .split-feature-middle-right {
+      padding-bottom: 2.4rem;
+      padding-top: 1.2rem;
+    }
+
+    .split-section--{{ section_id }} .split-feature-box--image-middle .split-feature-description--middle {
+      text-align: center !important;
+    }
+
+    .split-section--{{ section_id }} .split-feature-box--image-middle .split-feature-image--middle {
+      width: 100%;
+      max-width: 100%;
+      height: auto;
+      aspect-ratio: 16 / 9;
+      margin: 0;
+      border-radius: 0;
+    }
+
+    .split-section--{{ section_id }} .split-feature-box--image-middle .split-feature-icon--middle {
+      width: 100%;
+      padding: 2.4rem;
+      margin: 0;
+    }
+
+    /* Mobile: Left Edge position adjustments */
+    .split-section--{{ section_id }} .split-feature-box--image-left-edge {
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+      padding-left: 0;
+    }
+
+    .split-section--{{ section_id }} .split-feature-box--image-left-edge .split-feature-image--left-edge {
+      position: absolute;
+      top: -15px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 100px;
+      height: 100px;
+    }
+
+    .split-section--{{ section_id }} .split-feature-box--image-left-edge .split-feature-icon--left-edge {
+      position: absolute;
+      top: -15px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 100px;
+      height: 100px;
+      font-size: 4rem;
+    }
+
+    .split-section--{{ section_id }} .split-feature-box--image-left-edge .split-feature-title,
+    .split-section--{{ section_id }} .split-feature-box--image-left-edge .split-feature-description {
+      padding: 5rem 2.4rem 2.4rem;
+      text-align: center;
+    }
+
+    /* Mobile: Right Edge position adjustments */
+    .split-section--{{ section_id }} .split-feature-box--image-right-edge {
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+      padding-right: 0;
+    }
+
+    .split-section--{{ section_id }} .split-feature-box--image-right-edge .split-feature-image--right-edge {
+      position: absolute;
+      top: -15px;
+      right: 50%;
+      transform: translateX(50%);
+      width: 100px;
+      height: 100px;
+    }
+
+    .split-section--{{ section_id }} .split-feature-box--image-right-edge .split-feature-icon--right-edge {
+      position: absolute;
+      top: -15px;
+      right: 50%;
+      transform: translateX(50%);
+      width: 100px;
+      height: 100px;
+      font-size: 4rem;
+    }
+
+    .split-section--{{ section_id }} .split-feature-box--image-right-edge .split-feature-title,
+    .split-section--{{ section_id }} .split-feature-box--image-right-edge .split-feature-description {
+      padding: 5rem 2.4rem 2.4rem;
+      text-align: center;
+    }
+  }
+</style>
+
+<script>
+  (function() {
+    const sectionId = 'SplitHeroFeatures-{{ section_id }}';
+    const section = document.getElementById(sectionId);
+    
+    if (!section) return;
+
+    const featureBoxes = section.querySelectorAll('.split-feature-box--animate');
+    
+    if (featureBoxes.length === 0) return;
+
+    // Create Intersection Observer
+    const observerOptions = {
+      root: null,
+      rootMargin: '0px',
+      threshold: 0.2 // Trigger when 20% of the section is visible
+    };
+
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          // Add visible class to each box with custom delay
+          featureBoxes.forEach((box) => {
+            const customDelay = parseInt(box.dataset.animationDelay) || 0;
+            const baseDelay = 150; // Base delay between boxes
+            const index = Array.from(featureBoxes).indexOf(box);
+            const totalDelay = customDelay + (index * baseDelay);
+            
+            setTimeout(() => {
+              box.classList.add('split-feature-box--visible');
+            }, totalDelay);
+          });
+          
+          // Unobserve after animation triggers
+          observer.unobserve(entry.target);
+        }
+      });
+    }, observerOptions);
+
+    // Start observing the bottom section
+    const bottomSection = section.querySelector('.split-bottom');
+    if (bottomSection) {
+      observer.observe(bottomSection);
+    }
+  })();
+</script>
+
+{% schema %}
+{
+  "name": "Split Hero & Features",
+  "tag": "section",
+  "class": "section",
+  "settings": [
+    {
+      "type": "header",
+      "content": "Top Area (Hero)"
+    },
+    {
+      "type": "text",
+      "id": "top_heading",
+      "label": "Heading",
+      "default": "Welcome to Our Store"
+    },
+    {
+      "type": "range",
+      "id": "top_heading_size",
+      "label": "Heading Size",
+      "min": 2,
+      "max": 10,
+      "step": 0.2,
+      "default": 4.8,
+      "unit": "rem",
+      "info": "Font size for the top heading (desktop). Mobile uses responsive clamp."
+    },
+    {
+      "type": "textarea",
+      "id": "top_subheading",
+      "label": "Subheading",
+      "default": "Discover amazing products and services"
+    },
+    {
+      "type": "text",
+      "id": "top_button_text",
+      "label": "Primary Button Text",
+      "default": "Shop Now"
+    },
+    {
+      "type": "url",
+      "id": "top_button_url",
+      "label": "Primary Button URL"
+    },
+    {
+      "type": "text",
+      "id": "top_button_text_2",
+      "label": "Secondary Button Text"
+    },
+    {
+      "type": "url",
+      "id": "top_button_url_2",
+      "label": "Secondary Button URL"
+    },
+    {
+      "type": "header",
+      "content": "Button Customization"
+    },
+    {
+      "type": "select",
+      "id": "button_location",
+      "label": "Button Location",
+      "options": [
+        {
+          "value": "center",
+          "label": "Center"
+        },
+        {
+          "value": "left",
+          "label": "Left"
+        },
+        {
+          "value": "right",
+          "label": "Right"
+        }
+      ],
+      "default": "center",
+      "info": "Horizontal alignment of the buttons"
+    },
+    {
+      "type": "range",
+      "id": "button_radius",
+      "label": "Button Border Radius",
+      "min": 0,
+      "max": 5,
+      "step": 0.1,
+      "default": 0.8,
+      "unit": "rem",
+      "info": "Border radius for all buttons"
+    },
+    {
+      "type": "header",
+      "content": "Primary Button Colors"
+    },
+    {
+      "type": "color",
+      "id": "button_primary_bg",
+      "label": "Primary Button Background Color",
+      "info": "Leave empty to use theme default"
+    },
+    {
+      "type": "color",
+      "id": "button_primary_text",
+      "label": "Primary Button Text Color",
+      "info": "Leave empty to use theme default"
+    },
+    {
+      "type": "color",
+      "id": "button_primary_border",
+      "label": "Primary Button Border Color",
+      "info": "Leave empty to match background color"
+    },
+    {
+      "type": "header",
+      "content": "Secondary Button Colors"
+    },
+    {
+      "type": "color",
+      "id": "button_secondary_bg",
+      "label": "Secondary Button Background Color",
+      "info": "Leave empty for transparent"
+    },
+    {
+      "type": "color",
+      "id": "button_secondary_text",
+      "label": "Secondary Button Text Color",
+      "info": "Leave empty to use theme default"
+    },
+    {
+      "type": "color",
+      "id": "button_secondary_border",
+      "label": "Secondary Button Border Color",
+      "info": "Leave empty to use theme default"
+    },
+    {
+      "type": "select",
+      "id": "top_bg_type",
+      "label": "Top Background Type",
+      "options": [
+        {
+          "value": "image",
+          "label": "Image"
+        },
+        {
+          "value": "gradient",
+          "label": "Gradient"
+        }
+      ],
+      "default": "image"
+    },
+    {
+      "type": "image_picker",
+      "id": "top_bg_image",
+      "label": "Top Background Image",
+      "info": "Only used if background type is 'Image'"
+    },
+    {
+      "type": "text",
+      "id": "top_bg_gradient",
+      "label": "Top Background Gradient",
+      "info": "CSS gradient value (e.g., linear-gradient(135deg, #667eea 0%, #764ba2 100%))"
+    },
+    {
+      "type": "image_picker",
+      "id": "top_logo",
+      "label": "Top Logo",
+      "info": "Logo displayed at the top right of the hero section"
+    },
+    {
+      "type": "range",
+      "id": "top_logo_width",
+      "label": "Logo Width",
+      "min": 60,
+      "max": 300,
+      "step": 10,
+      "default": 120,
+      "unit": "px",
+      "info": "Width of the logo image"
+    },
+    {
+      "type": "image_picker",
+      "id": "top_center_image",
+      "label": "Center Image",
+      "info": "Image displayed in the top hero area (over the background)"
+    },
+    {
+      "type": "range",
+      "id": "top_center_image_width",
+      "label": "Center Image Width",
+      "min": 80,
+      "max": 1500,
+      "step": 20,
+      "default": 280,
+      "unit": "px",
+      "info": "Width of the center image"
+    },
+    {
+      "type": "select",
+      "id": "top_center_image_position",
+      "label": "Center Image Position",
+      "options": [
+        {
+          "value": "top-left",
+          "label": "Top Left"
+        },
+        {
+          "value": "top-center",
+          "label": "Top Center"
+        },
+        {
+          "value": "top-right",
+          "label": "Top Right"
+        },
+        {
+          "value": "center-left",
+          "label": "Center Left"
+        },
+        {
+          "value": "center",
+          "label": "Center (Default)"
+        },
+        {
+          "value": "center-right",
+          "label": "Center Right"
+        },
+        {
+          "value": "bottom-left",
+          "label": "Bottom Left"
+        },
+        {
+          "value": "bottom-center",
+          "label": "Bottom Center"
+        },
+        {
+          "value": "bottom-right",
+          "label": "Bottom Right"
+        }
+      ],
+      "default": "center",
+      "info": "Position of the center image in the top hero area"
+    },
+    {
+      "type": "range",
+      "id": "top_center_image_y_offset",
+      "label": "Center Image Y Offset",
+      "min": -200,
+      "max": 200,
+      "step": 5,
+      "default": 0,
+      "unit": "px",
+      "info": "Vertical offset for the center image. Positive values move it down, negative values move it up."
+    },
+    {
+      "type": "range",
+      "id": "top_min_height",
+      "label": "Top Area Minimum Height",
+      "min": 40,
+      "max": 90,
+      "step": 5,
+      "default": 60,
+      "unit": "vh"
+    },
+    {
+      "type": "header",
+      "content": "Bottom Area"
+    },
+    {
+      "type": "color",
+      "id": "bottom_bg_color",
+      "label": "Bottom Background Color",
+      "info": "Leave empty to use theme default"
+    },
+    {
+      "type": "range",
+      "id": "bottom_padding",
+      "label": "Bottom Area Padding",
+      "min": 2,
+      "max": 10,
+      "step": 0.5,
+      "default": 4,
+      "unit": "rem",
+      "info": "Controls the vertical padding of the bottom section"
+    },
+    {
+      "type": "select",
+      "id": "features_layout",
+      "label": "Features Layout",
+      "options": [
+        {
+          "value": "2-columns",
+          "label": "2 Columns (for 2 boxes)"
+        },
+        {
+          "value": "side-by-side",
+          "label": "Side by Side (for 2 boxes)"
+        },
+        {
+          "value": "stacked",
+          "label": "Stacked (for 2 boxes)"
+        },
+        {
+          "value": "3-columns",
+          "label": "3 Columns (for 3+ boxes)"
+        },
+        {
+          "value": "1-top-2-bottom",
+          "label": "1 on Top, 2 on Bottom (for 3 boxes)"
+        },
+        {
+          "value": "2-top-1-bottom",
+          "label": "2 on Top, 1 on Bottom (for 3 boxes)"
+        },
+        {
+          "value": "1-left-2-right",
+          "label": "1 on Left, 2 on Right (for 3 boxes)"
+        },
+        {
+          "value": "2-left-1-right",
+          "label": "2 on Left, 1 on Right (for 3 boxes)"
+        },
+        {
+          "value": "4-columns",
+          "label": "4 Columns (for 4+ boxes)"
+        },
+        {
+          "value": "2-top-2-bottom",
+          "label": "2 on Top, 2 on Bottom (for 4 boxes)"
+        }
+      ],
+      "default": "3-columns",
+      "info": "Layout arrangement for feature boxes. Choose based on number of boxes (desktop only)"
+    },
+    {
+      "type": "range",
+      "id": "features_container_width",
+      "label": "Features Container Width",
+      "min": 0,
+      "max": 1600,
+      "step": 50,
+      "default": 0,
+      "unit": "px",
+      "info": "Maximum width of the features grid container. Leave at 0 for full width (100%)"
+    },
+    {
+      "type": "header",
+      "content": "Section Settings"
+    },
+    {
+      "type": "range",
+      "id": "section_width",
+      "label": "Section Width",
+      "min": 0,
+      "max": 2000,
+      "step": 50,
+      "default": 0,
+      "unit": "px",
+      "info": "Maximum width of the entire section. Leave at 0 to use theme page width"
+    },
+    {
+      "type": "range",
+      "id": "section_radius",
+      "label": "Section Border Radius",
+      "min": 0,
+      "max": 50,
+      "step": 2,
+      "default": 24,
+      "unit": "px"
+    }
+  ],
+  "blocks": [
+    {
+      "type": "feature",
+      "name": "Feature Box",
+      "settings": [
+        {
+          "type": "image_picker",
+          "id": "feature_image",
+          "label": "Feature Image"
+        },
+        {
+          "type": "html",
+          "id": "feature_icon",
+          "label": "Feature Icon (HTML/SVG)",
+          "info": "Alternative to image. Paste SVG or icon HTML here."
+        },
+        {
+          "type": "text",
+          "id": "feature_title",
+          "label": "Feature Title",
+          "default": "Feature Title"
+        },
+        {
+          "type": "textarea",
+          "id": "feature_description",
+          "label": "Feature Description",
+          "default": "Describe your feature here"
+        },
+        {
+          "type": "textarea",
+          "id": "feature_description_2",
+          "label": "Feature Description 2",
+          "info": "Second description for middle position (text on both sides)"
+        },
+        {
+          "type": "range",
+          "id": "title_size",
+          "label": "Title Size",
+          "min": 1,
+          "max": 5,
+          "step": 0.1,
+          "default": 2,
+          "unit": "rem",
+          "info": "Font size for the feature title"
+        },
+        {
+          "type": "range",
+          "id": "description_size",
+          "label": "Description Size",
+          "min": 0.8,
+          "max": 3,
+          "step": 0.1,
+          "default": 1.5,
+          "unit": "rem",
+          "info": "Font size for the feature description"
+        },
+        {
+          "type": "select",
+          "id": "image_position",
+          "label": "Image/Icon Position",
+          "options": [
+            {
+              "value": "top",
+              "label": "Top"
+            },
+            {
+              "value": "bottom",
+              "label": "Bottom"
+            },
+            {
+              "value": "left",
+              "label": "Left"
+            },
+            {
+              "value": "right",
+              "label": "Right"
+            },
+            {
+              "value": "right-offset",
+              "label": "Right (Offset)"
+            },
+            {
+              "value": "middle",
+              "label": "Middle (Text on Both Sides)"
+            },
+            {
+              "value": "left-edge",
+              "label": "Left Edge (On Box Edge)"
+            },
+            {
+              "value": "right-edge",
+              "label": "Right Edge (On Box Edge)"
+            }
+          ],
+          "default": "top",
+          "info": "Position of the image or icon within the feature box"
+        },
+        {
+          "type": "range",
+          "id": "right_offset_value",
+          "label": "Right Offset Value",
+          "min": 0,
+          "max": 200,
+          "step": 5,
+          "default": 20,
+          "unit": "px",
+          "info": "Horizontal offset amount when Image/Icon Position is set to 'Right (Offset)'. Controls how far the image extends to the right."
+        },
+        {
+          "type": "header",
+          "content": "Middle Position Settings",
+          "info": "These settings only apply when Image/Icon Position is set to 'Middle'"
+        },
+        {
+          "type": "select",
+          "id": "center_image_position",
+          "label": "Center Image Position",
+          "options": [
+            {
+              "value": "top-left",
+              "label": "Top Left"
+            },
+            {
+              "value": "top-center",
+              "label": "Top Center"
+            },
+            {
+              "value": "top-right",
+              "label": "Top Right"
+            },
+            {
+              "value": "center-left",
+              "label": "Center Left"
+            },
+            {
+              "value": "center",
+              "label": "Center (Default)"
+            },
+            {
+              "value": "center-right",
+              "label": "Center Right"
+            },
+            {
+              "value": "bottom-left",
+              "label": "Bottom Left"
+            },
+            {
+              "value": "bottom-center",
+              "label": "Bottom Center"
+            },
+            {
+              "value": "bottom-right",
+              "label": "Bottom Right"
+            }
+          ],
+          "default": "center",
+          "info": "Position of the image/icon when Image/Icon Position is set to 'Middle'"
+        },
+        {
+          "type": "select",
+          "id": "desc1_position",
+          "label": "Description 1 Position",
+          "options": [
+            {
+              "value": "left",
+              "label": "Left"
+            },
+            {
+              "value": "right",
+              "label": "Right"
+            }
+          ],
+          "default": "left",
+          "info": "Which side to display the first description"
+        },
+        {
+          "type": "select",
+          "id": "desc2_position",
+          "label": "Description 2 Position",
+          "options": [
+            {
+              "value": "left",
+              "label": "Left"
+            },
+            {
+              "value": "right",
+              "label": "Right"
+            }
+          ],
+          "default": "right",
+          "info": "Which side to display the second description"
+        },
+        {
+          "type": "select",
+          "id": "desc1_alignment",
+          "label": "Description 1 Text Alignment",
+          "options": [
+            {
+              "value": "left",
+              "label": "Left"
+            },
+            {
+              "value": "center",
+              "label": "Center"
+            },
+            {
+              "value": "right",
+              "label": "Right"
+            }
+          ],
+          "default": "left",
+          "info": "Text alignment for the first description"
+        },
+        {
+          "type": "select",
+          "id": "desc2_alignment",
+          "label": "Description 2 Text Alignment",
+          "options": [
+            {
+              "value": "left",
+              "label": "Left"
+            },
+            {
+              "value": "center",
+              "label": "Center"
+            },
+            {
+              "value": "right",
+              "label": "Right"
+            }
+          ],
+          "default": "right",
+          "info": "Text alignment for the second description"
+        },
+        {
+          "type": "range",
+          "id": "desc1_size",
+          "label": "Description 1 Font Size",
+          "min": 0.8,
+          "max": 3,
+          "step": 0.1,
+          "default": 1.5,
+          "unit": "rem",
+          "info": "Font size for the first description"
+        },
+        {
+          "type": "range",
+          "id": "desc2_size",
+          "label": "Description 2 Font Size",
+          "min": 0.8,
+          "max": 3,
+          "step": 0.1,
+          "default": 1.5,
+          "unit": "rem",
+          "info": "Font size for the second description"
+        },
+        {
+          "type": "checkbox",
+          "id": "desc1_bold",
+          "label": "Description 1 Bold",
+          "default": false,
+          "info": "Make the first description bold"
+        },
+        {
+          "type": "checkbox",
+          "id": "desc2_bold",
+          "label": "Description 2 Bold",
+          "default": false,
+          "info": "Make the second description bold"
+        },
+        {
+          "type": "range",
+          "id": "image_size",
+          "label": "Image/Icon Size",
+          "min": 40,
+          "max": 300,
+          "step": 10,
+          "default": 120,
+          "unit": "px",
+          "info": "Size of the feature image or icon"
+        },
+        {
+          "type": "range",
+          "id": "image_padding",
+          "label": "Image/Icon Padding",
+          "min": 0,
+          "max": 40,
+          "step": 2,
+          "default": 0,
+          "unit": "px",
+          "info": "Padding around the image or icon"
+        },
+        {
+          "type": "range",
+          "id": "box_width",
+          "label": "Feature Box Width",
+          "min": 0,
+          "max": 2000,
+          "step": 20,
+          "default": 0,
+          "unit": "px",
+          "info": "Width of the feature box. Leave at 0 for auto width (100% of grid column)"
+        },
+        {
+          "type": "range",
+          "id": "box_height",
+          "label": "Feature Box Height",
+          "min": 0,
+          "max": 2000,
+          "step": 20,
+          "default": 0,
+          "unit": "px",
+          "info": "Height of the feature box. Leave at 0 for auto height (content-based)"
+        },
+        {
+          "type": "color",
+          "id": "title_color",
+          "label": "Title Color",
+          "info": "Leave empty to use theme default"
+        },
+        {
+          "type": "color",
+          "id": "description_color",
+          "label": "Description Color",
+          "info": "Leave empty to use theme default"
+        },
+        {
+          "type": "header",
+          "content": "Animation Settings"
+        },
+        {
+          "type": "select",
+          "id": "animation_type",
+          "label": "Animation Type",
+          "options": [
+            {
+              "value": "fade-up",
+              "label": "Fade Up"
+            },
+            {
+              "value": "fade-down",
+              "label": "Fade Down"
+            },
+            {
+              "value": "fade-left",
+              "label": "Fade Left"
+            },
+            {
+              "value": "fade-right",
+              "label": "Fade Right"
+            },
+            {
+              "value": "scale",
+              "label": "Scale"
+            },
+            {
+              "value": "scale-up",
+              "label": "Scale Up"
+            },
+            {
+              "value": "rotate",
+              "label": "Rotate"
+            },
+            {
+              "value": "flip",
+              "label": "Flip"
+            },
+            {
+              "value": "zoom-in",
+              "label": "Zoom In"
+            },
+            {
+              "value": "slide-up-rotate",
+              "label": "Slide Up Rotate"
+            },
+            {
+              "value": "fade",
+              "label": "Fade Only"
+            }
+          ],
+          "default": "fade-up",
+          "info": "Animation style when box comes into view"
+        },
+        {
+          "type": "range",
+          "id": "animation_speed",
+          "label": "Animation Speed",
+          "min": 300,
+          "max": 2000,
+          "step": 100,
+          "default": 800,
+          "unit": "ms",
+          "info": "Duration of the animation"
+        },
+        {
+          "type": "select",
+          "id": "animation_style",
+          "label": "Animation Easing Style",
+          "options": [
+            {
+              "value": "ease",
+              "label": "Ease"
+            },
+            {
+              "value": "ease-in",
+              "label": "Ease In"
+            },
+            {
+              "value": "ease-out",
+              "label": "Ease Out"
+            },
+            {
+              "value": "ease-in-out",
+              "label": "Ease In Out"
+            },
+            {
+              "value": "linear",
+              "label": "Linear"
+            },
+            {
+              "value": "cubic-bezier(0.4, 0, 0.2, 1)",
+              "label": "Smooth"
+            },
+            {
+              "value": "cubic-bezier(0.68, -0.55, 0.265, 1.55)",
+              "label": "Bounce"
+            },
+            {
+              "value": "cubic-bezier(0.25, 0.46, 0.45, 0.94)",
+              "label": "Ease Out Quad"
+            }
+          ],
+          "default": "cubic-bezier(0.4, 0, 0.2, 1)",
+          "info": "Easing function for the animation"
+        },
+        {
+          "type": "range",
+          "id": "animation_delay",
+          "label": "Animation Delay",
+          "min": 0,
+          "max": 1000,
+          "step": 50,
+          "default": 0,
+          "unit": "ms",
+          "info": "Additional delay before animation starts (in addition to automatic stagger)"
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "Split Hero & Features",
+      "blocks": [
+        {
+          "type": "feature"
+        },
+        {
+          "type": "feature"
+        },
+        {
+          "type": "feature"
+        }
+      ]
+    }
+  ]
+}
+{% endschema %}
+
