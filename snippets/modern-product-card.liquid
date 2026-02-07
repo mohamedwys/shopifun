@@ -1,0 +1,155 @@
+{%- comment -%}
+  Modern Product Card Snippet
+  ===========================
+  Renders a product card with:
+  - Image zoom on hover
+  - Secondary image swap on hover
+  - Quick add button overlay
+  - Wishlist icon
+  - Sale/Sold-out badges
+  - Color swatches
+  - Stagger animation support
+
+  Usage:
+    {% render 'modern-product-card', product: product, index: forloop.index %}
+
+  Parameters:
+    product     - Required. The product object.
+    index       - Optional. Used for stagger animations (1-8).
+    show_vendor - Optional. Show vendor name. Default: false.
+    lazy        - Optional. Lazy load images. Default: true.
+    animation   - Optional. Animation class. Default: 'animate--fade-up'.
+{%- endcomment -%}
+
+{%- liquid
+  assign show_vendor = show_vendor | default: false
+  assign lazy = lazy | default: true
+  assign animation = animation | default: 'animate--fade-up'
+  assign stagger = index | default: 1 | at_most: 8
+  assign card_product = product
+  assign on_sale = false
+  assign sold_out = false
+
+  if card_product.compare_at_price > card_product.price
+    assign on_sale = true
+  endif
+
+  if card_product.available == false
+    assign sold_out = true
+  endif
+
+  assign primary_image = card_product.featured_image
+  assign secondary_image = card_product.images[1]
+-%}
+
+<div
+  class="modern-product-card modern-animate {{ animation }}"
+  data-stagger="{{ stagger }}"
+  data-product-id="{{ card_product.id }}"
+>
+  {%- comment -%} Media {%- endcomment -%}
+  <div class="modern-product-card__media">
+    {%- if primary_image != blank -%}
+      <a href="{{ card_product.url }}" tabindex="-1" aria-hidden="true">
+        {{ primary_image | image_url: width: 800 | image_tag:
+          alt: primary_image.alt | default: card_product.title,
+          widths: '200, 300, 400, 500, 600, 700, 800',
+          sizes: '(min-width: 990px) 25vw, (min-width: 750px) 33vw, 50vw',
+          loading: lazy | default: true | ternary: 'lazy', 'eager'
+        }}
+      </a>
+    {%- else -%}
+      <a href="{{ card_product.url }}" tabindex="-1" aria-hidden="true">
+        {{ 'product-1' | placeholder_svg_tag: 'placeholder-svg' }}
+      </a>
+    {%- endif -%}
+
+    {%- comment -%} Secondary image on hover {%- endcomment -%}
+    {%- if secondary_image != blank -%}
+      <div class="modern-product-card__media-secondary">
+        {{ secondary_image | image_url: width: 800 | image_tag:
+          alt: secondary_image.alt | default: card_product.title,
+          widths: '200, 300, 400, 500, 600, 700, 800',
+          sizes: '(min-width: 990px) 25vw, (min-width: 750px) 33vw, 50vw',
+          loading: 'lazy'
+        }}
+      </div>
+    {%- endif -%}
+
+    {%- comment -%} Badges {%- endcomment -%}
+    {%- if sold_out -%}
+      <span class="modern-product-card__badge" style="background:#6b7280;color:#fff">
+        {{ 'products.product.sold_out' | t }}
+      </span>
+    {%- elsif on_sale -%}
+      {%- assign savings = card_product.compare_at_price | minus: card_product.price | times: 100 | divided_by: card_product.compare_at_price -%}
+      <span class="modern-product-card__badge" style="background:#ef4444;color:#fff">
+        -{{ savings }}%
+      </span>
+    {%- endif -%}
+
+    {%- comment -%} Wishlist button {%- endcomment -%}
+    <button class="modern-product-card__wishlist" aria-label="Add to wishlist">
+      <svg viewBox="0 0 24 24" aria-hidden="true">
+        <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
+      </svg>
+    </button>
+
+    {%- comment -%} Quick add {%- endcomment -%}
+    {%- if card_product.available -%}
+      <div class="modern-product-card__quick-add">
+        {%- if card_product.variants.size == 1 -%}
+          <form method="post" action="/cart/add">
+            <input type="hidden" name="id" value="{{ card_product.variants.first.id }}">
+            <input type="hidden" name="quantity" value="1">
+            <button type="submit" class="modern-product-card__quick-add-btn">
+              {{ 'products.product.add_to_cart' | t }}
+            </button>
+          </form>
+        {%- else -%}
+          <a href="{{ card_product.url }}" class="modern-product-card__quick-add-btn" style="display:block;text-align:center;text-decoration:none" data-quick-view="{{ card_product.url }}">
+            {{ 'products.product.choose_options' | t | default: 'Choose Options' }}
+          </a>
+        {%- endif -%}
+      </div>
+    {%- endif -%}
+  </div>
+
+  {%- comment -%} Product Info {%- endcomment -%}
+  <div class="modern-product-card__info">
+    {%- if show_vendor and card_product.vendor != blank -%}
+      <p class="modern-product-card__vendor">{{ card_product.vendor }}</p>
+    {%- endif -%}
+
+    <h3 class="modern-product-card__title">
+      <a href="{{ card_product.url }}">{{ card_product.title | escape }}</a>
+    </h3>
+
+    <div class="modern-product-card__price">
+      {%- if on_sale -%}
+        <span>{{ card_product.price | money }}</span>
+        <span class="modern-product-card__price--compare">{{ card_product.compare_at_price | money }}</span>
+      {%- else -%}
+        <span>{{ card_product.price | money }}</span>
+      {%- endif -%}
+    </div>
+
+    {%- comment -%} Color swatches (if color option exists) {%- endcomment -%}
+    {%- for option in card_product.options_with_values -%}
+      {%- assign option_name_downcase = option.name | downcase -%}
+      {%- if option_name_downcase == 'color' or option_name_downcase == 'colour' -%}
+        <div class="modern-product-card__swatches">
+          {%- for value in option.values -%}
+            {%- assign color_handle = value | handleize -%}
+            <button
+              class="modern-product-card__swatch{% if forloop.first %} is-active{% endif %}"
+              style="background-color: {{ value }}"
+              aria-label="{{ value }}"
+              title="{{ value }}"
+            ></button>
+          {%- endfor -%}
+        </div>
+      {%- endif -%}
+    {%- endfor -%}
+  </div>
+</div>

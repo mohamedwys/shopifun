@@ -1,0 +1,220 @@
+{%- comment -%}
+  Modern Trust Badges Section
+  ============================
+  Displays trust/feature badges in a responsive grid with icons,
+  animated on scroll.
+{%- endcomment -%}
+
+{%- style -%}
+  .section-{{ section.id }}-padding {
+    padding-top: {{ section.settings.padding_top | times: 0.75 | round: 0 }}px;
+    padding-bottom: {{ section.settings.padding_bottom | times: 0.75 | round: 0 }}px;
+  }
+
+  @media screen and (min-width: 750px) {
+    .section-{{ section.id }}-padding {
+      padding-top: {{ section.settings.padding_top }}px;
+      padding-bottom: {{ section.settings.padding_bottom }}px;
+    }
+  }
+
+  .modern-badges__grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: var(--space-xl);
+    text-align: center;
+  }
+
+  @media screen and (min-width: 750px) {
+    .modern-badges__grid {
+      grid-template-columns: repeat({{ section.blocks.size | at_most: 4 }}, 1fr);
+    }
+  }
+
+  .modern-badge {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--space-md);
+    padding: var(--space-xl);
+  }
+
+  .modern-badge__icon {
+    width: 56px;
+    height: 56px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(var(--color-button), 0.08);
+    border-radius: var(--radius-xl);
+    color: rgb(var(--color-button));
+    transition: transform var(--duration-normal) var(--ease-spring),
+      background var(--duration-normal) var(--ease-out);
+  }
+
+  .modern-badge:hover .modern-badge__icon {
+    transform: scale(1.1) translateY(-2px);
+    background: rgba(var(--color-button), 0.14);
+  }
+
+  .modern-badge__icon svg {
+    width: 28px;
+    height: 28px;
+    stroke: currentColor;
+    fill: none;
+    stroke-width: 1.5;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+  }
+
+  .modern-badge__title {
+    font-size: var(--text-base);
+    font-weight: 700;
+    margin: 0;
+    line-height: var(--leading-tight);
+  }
+
+  .modern-badge__text {
+    font-size: var(--text-sm);
+    opacity: 0.6;
+    margin: 0;
+    max-width: 22ch;
+    line-height: var(--leading-normal);
+  }
+{%- endstyle -%}
+
+<section class="color-{{ section.settings.color_scheme }} gradient section-{{ section.id }}-padding">
+  <div class="page-width">
+    {%- if section.settings.title != blank -%}
+      <h2 class="modern-animate animate--fade-up" style="text-align:center;font-size:var(--text-2xl);font-weight:700;margin:0 0 var(--space-2xl);letter-spacing:var(--tracking-tight)">
+        {{ section.settings.title }}
+      </h2>
+    {%- endif -%}
+
+    <div class="modern-badges__grid">
+      {%- for block in section.blocks -%}
+        <div class="modern-badge modern-animate animate--fade-up" data-stagger="{{ forloop.index | at_most: 8 }}" {{ block.shopify_attributes }}>
+          <div class="modern-badge__icon">
+            {%- case block.settings.icon -%}
+              {%- when 'shipping' -%}
+                <svg viewBox="0 0 24 24"><path d="M5 18H3c-.6 0-1-.4-1-1V7c0-.6.4-1 1-1h10c.6 0 1 .4 1 1v11"/><path d="M14 9h4l4 4v4c0 .6-.4 1-1 1h-2"/><circle cx="7" cy="18" r="2"/><path d="M15 18H9"/><circle cx="17" cy="18" r="2"/></svg>
+              {%- when 'shield' -%}
+                <svg viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+              {%- when 'return' -%}
+                <svg viewBox="0 0 24 24"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"/></svg>
+              {%- when 'heart' -%}
+                <svg viewBox="0 0 24 24"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+              {%- when 'star' -%}
+                <svg viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+              {%- when 'clock' -%}
+                <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+              {%- when 'gift' -%}
+                <svg viewBox="0 0 24 24"><polyline points="20 12 20 22 4 22 4 12"/><rect x="2" y="7" width="20" height="5"/><line x1="12" y1="22" x2="12" y2="7"/><path d="M12 7H7.5a2.5 2.5 0 0 1 0-5C11 2 12 7 12 7z"/><path d="M12 7h4.5a2.5 2.5 0 0 0 0-5C13 2 12 7 12 7z"/></svg>
+              {%- when 'leaf' -%}
+                <svg viewBox="0 0 24 24"><path d="M11 20A7 7 0 0 1 9.8 6.9C15.5 4.9 17 3.5 19 1c1 2 2 4.5 2 8 0 5.5-3.8 10.7-9 11z"/><path d="M2 21c0-3 1.85-5.36 5.08-6C9.5 14.52 12 13 13 12"/></svg>
+              {%- else -%}
+                <svg viewBox="0 0 24 24"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+            {%- endcase -%}
+          </div>
+          {%- if block.settings.title != blank -%}
+            <h3 class="modern-badge__title">{{ block.settings.title | escape }}</h3>
+          {%- endif -%}
+          {%- if block.settings.text != blank -%}
+            <p class="modern-badge__text">{{ block.settings.text | escape }}</p>
+          {%- endif -%}
+        </div>
+      {%- endfor -%}
+    </div>
+  </div>
+</section>
+
+{% schema %}
+{
+  "name": "Modern Trust Badges",
+  "tag": "section",
+  "class": "section-modern-trust-badges",
+  "settings": [
+    {
+      "type": "inline_richtext",
+      "id": "title",
+      "label": "Heading",
+      "default": "Why choose us"
+    },
+    {
+      "type": "color_scheme",
+      "id": "color_scheme",
+      "label": "Color scheme",
+      "default": "background-1"
+    },
+    {
+      "type": "range",
+      "id": "padding_top",
+      "min": 0,
+      "max": 100,
+      "step": 4,
+      "default": 40,
+      "unit": "px",
+      "label": "Padding top"
+    },
+    {
+      "type": "range",
+      "id": "padding_bottom",
+      "min": 0,
+      "max": 100,
+      "step": 4,
+      "default": 52,
+      "unit": "px",
+      "label": "Padding bottom"
+    }
+  ],
+  "blocks": [
+    {
+      "type": "badge",
+      "name": "Badge",
+      "settings": [
+        {
+          "type": "select",
+          "id": "icon",
+          "label": "Icon",
+          "options": [
+            { "value": "shipping", "label": "Shipping truck" },
+            { "value": "shield", "label": "Shield / Security" },
+            { "value": "return", "label": "Return / Refund" },
+            { "value": "heart", "label": "Heart" },
+            { "value": "star", "label": "Star" },
+            { "value": "clock", "label": "Clock" },
+            { "value": "gift", "label": "Gift" },
+            { "value": "leaf", "label": "Leaf / Eco" },
+            { "value": "check", "label": "Checkmark" }
+          ],
+          "default": "check"
+        },
+        {
+          "type": "text",
+          "id": "title",
+          "label": "Title",
+          "default": "Feature title"
+        },
+        {
+          "type": "text",
+          "id": "text",
+          "label": "Description",
+          "default": "Brief description"
+        }
+      ]
+    }
+  ],
+  "max_blocks": 6,
+  "presets": [
+    {
+      "name": "Modern Trust Badges",
+      "blocks": [
+        { "type": "badge", "settings": { "icon": "shipping", "title": "Free Shipping", "text": "On orders over $50" } },
+        { "type": "badge", "settings": { "icon": "shield", "title": "Secure Payments", "text": "256-bit encryption" } },
+        { "type": "badge", "settings": { "icon": "return", "title": "Easy Returns", "text": "30-day return policy" } },
+        { "type": "badge", "settings": { "icon": "heart", "title": "Made with Love", "text": "Premium quality" } }
+      ]
+    }
+  ]
+}
+{% endschema %}

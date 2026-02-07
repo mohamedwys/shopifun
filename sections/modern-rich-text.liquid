@@ -1,0 +1,267 @@
+{%- comment -%}
+  Modern Rich Text Section
+  ========================
+  Flexible text content section with modern typography, animations,
+  and multiple layout options.
+{%- endcomment -%}
+
+{%- style -%}
+  .modern-rich-text--{{ section.id }} {
+    text-align: {{ section.settings.text_alignment }};
+  }
+
+  .section-{{ section.id }}-padding {
+    padding-top: {{ section.settings.padding_top | times: 0.75 | round: 0 }}px;
+    padding-bottom: {{ section.settings.padding_bottom | times: 0.75 | round: 0 }}px;
+  }
+
+  @media screen and (min-width: 750px) {
+    .section-{{ section.id }}-padding {
+      padding-top: {{ section.settings.padding_top }}px;
+      padding-bottom: {{ section.settings.padding_bottom }}px;
+    }
+  }
+{%- endstyle -%}
+
+<section class="modern-rich-text--{{ section.id }} color-{{ section.settings.color_scheme }} gradient section-{{ section.id }}-padding">
+  <div class="page-width{% if section.settings.narrow_width %} page-width--narrow{% endif %}">
+    {%- for block in section.blocks -%}
+      {%- case block.type -%}
+        {%- when 'heading' -%}
+          <h2
+            class="modern-animate animate--fade-up"
+            data-stagger="{{ forloop.index | at_most: 8 }}"
+            style="font-size:var(--text-{{ block.settings.heading_size }});font-weight:700;line-height:var(--leading-tight);letter-spacing:var(--tracking-tight);margin:0 0 var(--space-md)"
+            {{ block.shopify_attributes }}
+          >
+            {{ block.settings.heading }}
+          </h2>
+
+        {%- when 'text' -%}
+          <div
+            class="modern-animate animate--fade-up rte"
+            data-stagger="{{ forloop.index | at_most: 8 }}"
+            style="font-size:var(--text-{{ block.settings.text_size }});line-height:var(--leading-relaxed);opacity:0.8;margin:0 0 var(--space-lg);max-width:65ch;{% if section.settings.text_alignment == 'center' %}margin-inline:auto{% endif %}"
+            {{ block.shopify_attributes }}
+          >
+            {{ block.settings.text }}
+          </div>
+
+        {%- when 'button' -%}
+          <div
+            class="modern-animate animate--fade-up"
+            data-stagger="{{ forloop.index | at_most: 8 }}"
+            style="margin-top:var(--space-lg)"
+            {{ block.shopify_attributes }}
+          >
+            <a href="{{ block.settings.button_link }}" class="modern-btn modern-btn--{{ block.settings.button_style }} modern-btn--magnetic">
+              {{ block.settings.button_label | escape }}
+            </a>
+          </div>
+
+        {%- when 'image' -%}
+          <div
+            class="modern-animate animate--scale-in"
+            data-stagger="{{ forloop.index | at_most: 8 }}"
+            style="margin:var(--space-xl) auto;max-width:{{ block.settings.image_width }}px;border-radius:var(--radius-xl);overflow:hidden"
+            {{ block.shopify_attributes }}
+          >
+            {%- if block.settings.image != blank -%}
+              {{ block.settings.image | image_url: width: 1200 | image_tag:
+                alt: block.settings.image.alt,
+                widths: '300, 500, 700, 900, 1200',
+                sizes: '(min-width: 990px) 50vw, 90vw',
+                loading: 'lazy',
+                style: 'width:100%;height:auto;display:block'
+              }}
+            {%- endif -%}
+          </div>
+
+        {%- when 'divider' -%}
+          <hr
+            class="modern-animate animate--fade-in"
+            data-stagger="{{ forloop.index | at_most: 8 }}"
+            style="border:none;border-top:1px solid rgba(var(--color-foreground),0.1);margin:var(--space-2xl) auto;max-width:{{ block.settings.divider_width }}%"
+            {{ block.shopify_attributes }}
+          >
+      {%- endcase -%}
+    {%- endfor -%}
+  </div>
+</section>
+
+{% schema %}
+{
+  "name": "Modern Rich Text",
+  "tag": "section",
+  "class": "section-modern-rich-text",
+  "settings": [
+    {
+      "type": "select",
+      "id": "text_alignment",
+      "label": "Text alignment",
+      "options": [
+        { "value": "left", "label": "Left" },
+        { "value": "center", "label": "Center" },
+        { "value": "right", "label": "Right" }
+      ],
+      "default": "center"
+    },
+    {
+      "type": "checkbox",
+      "id": "narrow_width",
+      "default": true,
+      "label": "Narrow width"
+    },
+    {
+      "type": "color_scheme",
+      "id": "color_scheme",
+      "label": "Color scheme",
+      "default": "background-1"
+    },
+    {
+      "type": "range",
+      "id": "padding_top",
+      "min": 0,
+      "max": 100,
+      "step": 4,
+      "default": 40,
+      "unit": "px",
+      "label": "Padding top"
+    },
+    {
+      "type": "range",
+      "id": "padding_bottom",
+      "min": 0,
+      "max": 100,
+      "step": 4,
+      "default": 52,
+      "unit": "px",
+      "label": "Padding bottom"
+    }
+  ],
+  "blocks": [
+    {
+      "type": "heading",
+      "name": "Heading",
+      "settings": [
+        {
+          "type": "inline_richtext",
+          "id": "heading",
+          "label": "Heading",
+          "default": "Section Heading"
+        },
+        {
+          "type": "select",
+          "id": "heading_size",
+          "label": "Heading size",
+          "options": [
+            { "value": "xl", "label": "Small" },
+            { "value": "2xl", "label": "Medium" },
+            { "value": "3xl", "label": "Large" },
+            { "value": "4xl", "label": "Extra large" }
+          ],
+          "default": "3xl"
+        }
+      ]
+    },
+    {
+      "type": "text",
+      "name": "Text",
+      "settings": [
+        {
+          "type": "richtext",
+          "id": "text",
+          "label": "Text",
+          "default": "<p>Share information about your brand with your customers.</p>"
+        },
+        {
+          "type": "select",
+          "id": "text_size",
+          "label": "Text size",
+          "options": [
+            { "value": "sm", "label": "Small" },
+            { "value": "base", "label": "Medium" },
+            { "value": "lg", "label": "Large" }
+          ],
+          "default": "base"
+        }
+      ]
+    },
+    {
+      "type": "button",
+      "name": "Button",
+      "settings": [
+        {
+          "type": "text",
+          "id": "button_label",
+          "label": "Button label",
+          "default": "Learn more"
+        },
+        {
+          "type": "url",
+          "id": "button_link",
+          "label": "Button link"
+        },
+        {
+          "type": "select",
+          "id": "button_style",
+          "label": "Button style",
+          "options": [
+            { "value": "primary", "label": "Primary" },
+            { "value": "outline", "label": "Outline" },
+            { "value": "ghost", "label": "Ghost" }
+          ],
+          "default": "primary"
+        }
+      ]
+    },
+    {
+      "type": "image",
+      "name": "Image",
+      "settings": [
+        {
+          "type": "image_picker",
+          "id": "image",
+          "label": "Image"
+        },
+        {
+          "type": "range",
+          "id": "image_width",
+          "min": 200,
+          "max": 1200,
+          "step": 50,
+          "default": 600,
+          "unit": "px",
+          "label": "Max image width"
+        }
+      ]
+    },
+    {
+      "type": "divider",
+      "name": "Divider",
+      "settings": [
+        {
+          "type": "range",
+          "id": "divider_width",
+          "min": 10,
+          "max": 100,
+          "step": 5,
+          "default": 30,
+          "unit": "%",
+          "label": "Divider width"
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "Modern Rich Text",
+      "blocks": [
+        { "type": "heading" },
+        { "type": "text" },
+        { "type": "button" }
+      ]
+    }
+  ]
+}
+{% endschema %}

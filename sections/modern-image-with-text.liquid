@@ -1,0 +1,302 @@
+{%- comment -%}
+  Modern Image with Text Section
+  ===============================
+  Side-by-side image and text layout with parallax, animations,
+  and multiple layout variants.
+{%- endcomment -%}
+
+{%- style -%}
+  .modern-iwt--{{ section.id }} {
+    --iwt-gap: var(--space-3xl);
+  }
+
+  .section-{{ section.id }}-padding {
+    padding-top: {{ section.settings.padding_top | times: 0.75 | round: 0 }}px;
+    padding-bottom: {{ section.settings.padding_bottom | times: 0.75 | round: 0 }}px;
+  }
+
+  @media screen and (min-width: 750px) {
+    .section-{{ section.id }}-padding {
+      padding-top: {{ section.settings.padding_top }}px;
+      padding-bottom: {{ section.settings.padding_bottom }}px;
+    }
+  }
+
+  .modern-iwt__grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: var(--iwt-gap);
+    align-items: center;
+  }
+
+  @media screen and (min-width: 750px) {
+    .modern-iwt__grid {
+      grid-template-columns: 1fr 1fr;
+    }
+
+    .modern-iwt__grid--reverse .modern-iwt__media {
+      order: 2;
+    }
+  }
+
+  .modern-iwt__media {
+    border-radius: var(--radius-2xl);
+    overflow: hidden;
+    position: relative;
+  }
+
+  .modern-iwt__media img {
+    width: 100%;
+    height: auto;
+    display: block;
+    transition: transform var(--duration-slow) var(--ease-out);
+  }
+
+  .modern-iwt__media:hover img {
+    transform: scale(1.03);
+  }
+
+  .modern-iwt__content {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-lg);
+  }
+
+  .modern-iwt__label {
+    font-size: var(--text-xs);
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: var(--tracking-widest);
+    opacity: 0.6;
+    margin: 0;
+  }
+
+  .modern-iwt__title {
+    font-size: var(--text-3xl);
+    font-weight: 700;
+    line-height: var(--leading-tight);
+    letter-spacing: var(--tracking-tight);
+    margin: 0;
+  }
+
+  .modern-iwt__text {
+    font-size: var(--text-base);
+    line-height: var(--leading-relaxed);
+    opacity: 0.75;
+    margin: 0;
+    max-width: 50ch;
+  }
+
+  .modern-iwt__features {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-md);
+    margin-top: var(--space-sm);
+  }
+
+  .modern-iwt__feature {
+    display: flex;
+    align-items: flex-start;
+    gap: var(--space-md);
+  }
+
+  .modern-iwt__feature-icon {
+    flex-shrink: 0;
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(var(--color-button), 0.1);
+    border-radius: var(--radius-lg);
+    color: rgb(var(--color-button));
+  }
+
+  .modern-iwt__feature-icon svg {
+    width: 20px;
+    height: 20px;
+    stroke: currentColor;
+    fill: none;
+    stroke-width: 2;
+  }
+{%- endstyle -%}
+
+<section class="modern-iwt--{{ section.id }} color-{{ section.settings.color_scheme }} gradient section-{{ section.id }}-padding">
+  <div class="page-width">
+    <div class="modern-iwt__grid{% if section.settings.image_position == 'right' %} modern-iwt__grid--reverse{% endif %}">
+      {%- comment -%} Image {%- endcomment -%}
+      <div class="modern-iwt__media modern-animate animate--{% if section.settings.image_position == 'right' %}fade-right{% else %}fade-left{% endif %}">
+        {%- if section.settings.image != blank -%}
+          {{ section.settings.image | image_url: width: 1200 | image_tag:
+            alt: section.settings.image.alt | default: section.settings.title,
+            widths: '400, 600, 800, 1000, 1200',
+            sizes: '(min-width: 750px) 50vw, 100vw',
+            loading: 'lazy'
+          }}
+        {%- else -%}
+          {{ 'lifestyle-1' | placeholder_svg_tag: 'placeholder-svg' }}
+        {%- endif -%}
+      </div>
+
+      {%- comment -%} Content {%- endcomment -%}
+      <div class="modern-iwt__content">
+        {%- if section.settings.label != blank -%}
+          <p class="modern-iwt__label modern-animate animate--fade-up">{{ section.settings.label | escape }}</p>
+        {%- endif -%}
+
+        {%- if section.settings.title != blank -%}
+          <h2 class="modern-iwt__title modern-animate animate--fade-up" data-stagger="2">
+            {{ section.settings.title }}
+          </h2>
+        {%- endif -%}
+
+        {%- if section.settings.text != blank -%}
+          <p class="modern-iwt__text modern-animate animate--fade-up" data-stagger="3">
+            {{ section.settings.text | escape }}
+          </p>
+        {%- endif -%}
+
+        {%- if section.blocks.size > 0 -%}
+          <div class="modern-iwt__features">
+            {%- for block in section.blocks -%}
+              <div class="modern-iwt__feature modern-animate animate--fade-up" data-stagger="{{ forloop.index | plus: 3 | at_most: 8 }}" {{ block.shopify_attributes }}>
+                <div class="modern-iwt__feature-icon">
+                  <svg viewBox="0 0 24 24" aria-hidden="true">
+                    <path d="M20 6L9 17l-5-5" stroke-linecap="round" stroke-linejoin="round"/>
+                  </svg>
+                </div>
+                <div>
+                  {%- if block.settings.feature_title != blank -%}
+                    <strong style="display:block;margin-bottom:2px">{{ block.settings.feature_title | escape }}</strong>
+                  {%- endif -%}
+                  {%- if block.settings.feature_text != blank -%}
+                    <span style="font-size:var(--text-sm);opacity:0.65">{{ block.settings.feature_text | escape }}</span>
+                  {%- endif -%}
+                </div>
+              </div>
+            {%- endfor -%}
+          </div>
+        {%- endif -%}
+
+        {%- if section.settings.button_label != blank -%}
+          <div class="modern-animate animate--fade-up" data-stagger="7" style="margin-top:var(--space-sm)">
+            <a href="{{ section.settings.button_link }}" class="modern-btn modern-btn--primary modern-btn--magnetic">
+              {{ section.settings.button_label | escape }}
+            </a>
+          </div>
+        {%- endif -%}
+      </div>
+    </div>
+  </div>
+</section>
+
+{% schema %}
+{
+  "name": "Modern Image with Text",
+  "tag": "section",
+  "class": "section-modern-iwt",
+  "settings": [
+    {
+      "type": "image_picker",
+      "id": "image",
+      "label": "Image"
+    },
+    {
+      "type": "select",
+      "id": "image_position",
+      "label": "Image position",
+      "options": [
+        { "value": "left", "label": "Left" },
+        { "value": "right", "label": "Right" }
+      ],
+      "default": "left"
+    },
+    {
+      "type": "text",
+      "id": "label",
+      "label": "Label",
+      "default": "About Us"
+    },
+    {
+      "type": "inline_richtext",
+      "id": "title",
+      "label": "Heading",
+      "default": "Crafted with <em>passion</em> and purpose"
+    },
+    {
+      "type": "textarea",
+      "id": "text",
+      "label": "Description",
+      "default": "We believe in creating products that make a difference. Every detail is carefully considered."
+    },
+    {
+      "type": "text",
+      "id": "button_label",
+      "label": "Button label",
+      "default": "Learn More"
+    },
+    {
+      "type": "url",
+      "id": "button_link",
+      "label": "Button link"
+    },
+    {
+      "type": "color_scheme",
+      "id": "color_scheme",
+      "label": "Color scheme",
+      "default": "background-1"
+    },
+    {
+      "type": "range",
+      "id": "padding_top",
+      "min": 0,
+      "max": 100,
+      "step": 4,
+      "default": 40,
+      "unit": "px",
+      "label": "Padding top"
+    },
+    {
+      "type": "range",
+      "id": "padding_bottom",
+      "min": 0,
+      "max": 100,
+      "step": 4,
+      "default": 52,
+      "unit": "px",
+      "label": "Padding bottom"
+    }
+  ],
+  "blocks": [
+    {
+      "type": "feature",
+      "name": "Feature",
+      "settings": [
+        {
+          "type": "text",
+          "id": "feature_title",
+          "label": "Title",
+          "default": "Feature name"
+        },
+        {
+          "type": "text",
+          "id": "feature_text",
+          "label": "Description",
+          "default": "Brief description of this feature."
+        }
+      ]
+    }
+  ],
+  "max_blocks": 4,
+  "presets": [
+    {
+      "name": "Modern Image with Text",
+      "blocks": [
+        { "type": "feature", "settings": { "feature_title": "Premium Quality", "feature_text": "Crafted with the finest materials" } },
+        { "type": "feature", "settings": { "feature_title": "Free Shipping", "feature_text": "On all orders over $50" } },
+        { "type": "feature", "settings": { "feature_title": "Easy Returns", "feature_text": "30-day hassle-free returns" } }
+      ]
+    }
+  ]
+}
+{% endschema %}

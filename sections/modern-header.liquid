@@ -1,0 +1,538 @@
+{%- comment -%}
+  Modern Header Section
+  =====================
+  Sticky header with scroll-aware visibility, glass morphism background on scroll,
+  dark mode toggle, animated mobile menu, and smooth transitions.
+  Compatible with Shopify 2.0 section groups.
+{%- endcomment -%}
+
+<link rel="stylesheet" href="{{ 'component-list-menu.css' | asset_url }}" media="print" onload="this.media='all'">
+<link rel="stylesheet" href="{{ 'component-menu-drawer.css' | asset_url }}" media="print" onload="this.media='all'">
+<link rel="stylesheet" href="{{ 'component-search.css' | asset_url }}" media="print" onload="this.media='all'">
+
+{%- style -%}
+  .modern-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: var(--space-md) var(--space-xl);
+    max-width: var(--page-width);
+    margin: 0 auto;
+    gap: var(--space-lg);
+    min-height: 64px;
+  }
+
+  @media screen and (min-width: 990px) {
+    .modern-header {
+      padding: var(--space-md) var(--space-2xl);
+    }
+  }
+
+  .modern-header__logo {
+    flex-shrink: 0;
+  }
+
+  .modern-header__logo-img {
+    display: block;
+    max-width: {{ section.settings.logo_width }}px;
+    height: auto;
+    transition: opacity var(--duration-fast) var(--ease-out);
+  }
+
+  .modern-header__logo-img:hover {
+    opacity: 0.8;
+  }
+
+  .modern-header__logo-text {
+    font-size: var(--text-xl);
+    font-weight: 800;
+    letter-spacing: var(--tracking-tight);
+    text-decoration: none;
+    color: inherit;
+  }
+
+  .modern-header__nav {
+    display: none;
+  }
+
+  @media screen and (min-width: 990px) {
+    .modern-header__nav {
+      display: flex;
+      align-items: center;
+      gap: var(--space-xl);
+      flex: 1;
+      justify-content: center;
+    }
+  }
+
+  .modern-header__nav-link {
+    position: relative;
+    font-size: var(--text-sm);
+    font-weight: 500;
+    color: inherit;
+    text-decoration: none;
+    padding: var(--space-xs) 0;
+    white-space: nowrap;
+    transition: opacity var(--duration-fast) var(--ease-out);
+  }
+
+  .modern-header__nav-link::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 2px;
+    background: currentColor;
+    transform: scaleX(0);
+    transform-origin: right;
+    transition: transform var(--duration-normal) var(--ease-out);
+  }
+
+  .modern-header__nav-link:hover::after {
+    transform: scaleX(1);
+    transform-origin: left;
+  }
+
+  .modern-header__actions {
+    display: flex;
+    align-items: center;
+    gap: var(--space-sm);
+    flex-shrink: 0;
+  }
+
+  .modern-header__icon-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    background: none;
+    border: none;
+    border-radius: 50%;
+    cursor: pointer;
+    color: inherit;
+    transition: background var(--duration-fast) var(--ease-out);
+    position: relative;
+  }
+
+  .modern-header__icon-btn:hover {
+    background: rgba(var(--color-foreground), 0.06);
+  }
+
+  .modern-header__icon-btn svg {
+    width: 22px;
+    height: 22px;
+    stroke: currentColor;
+    fill: none;
+    stroke-width: 1.5;
+  }
+
+  .modern-header__cart-count {
+    position: absolute;
+    top: 4px;
+    right: 4px;
+    min-width: 18px;
+    height: 18px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0 4px;
+    background: rgb(var(--color-button));
+    color: rgb(var(--color-button-text));
+    font-size: 10px;
+    font-weight: 700;
+    border-radius: var(--radius-full);
+    line-height: 1;
+  }
+
+  .modern-header__menu-toggle {
+    display: flex;
+  }
+
+  @media screen and (min-width: 990px) {
+    .modern-header__menu-toggle {
+      display: none;
+    }
+  }
+
+  /* Mobile Menu */
+  .modern-mobile-nav {
+    position: fixed;
+    inset: 0;
+    z-index: var(--z-overlay);
+    pointer-events: none;
+    visibility: hidden;
+  }
+
+  .modern-mobile-nav.is-open {
+    pointer-events: auto;
+    visibility: visible;
+  }
+
+  .modern-mobile-nav__backdrop {
+    position: absolute;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.4);
+    backdrop-filter: blur(4px);
+    -webkit-backdrop-filter: blur(4px);
+    opacity: 0;
+    transition: opacity var(--duration-slow) var(--ease-out);
+  }
+
+  .modern-mobile-nav.is-open .modern-mobile-nav__backdrop {
+    opacity: 1;
+  }
+
+  .modern-mobile-nav__panel {
+    position: absolute;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    width: min(360px, 85vw);
+    background: rgb(var(--color-background));
+    padding: var(--space-xl);
+    transform: translateX(-100%);
+    transition: transform var(--duration-slow) var(--ease-out);
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  [data-theme="dark"] .modern-mobile-nav__panel {
+    background: var(--dm-bg);
+  }
+
+  .modern-mobile-nav.is-open .modern-mobile-nav__panel {
+    transform: translateX(0);
+  }
+
+  .modern-mobile-nav__close {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    background: rgba(var(--color-foreground), 0.05);
+    border: none;
+    border-radius: 50%;
+    cursor: pointer;
+    color: inherit;
+    margin-bottom: var(--space-xl);
+    transition: background var(--duration-fast) var(--ease-out);
+  }
+
+  .modern-mobile-nav__close:hover {
+    background: rgba(var(--color-foreground), 0.1);
+  }
+
+  .modern-mobile-nav__link {
+    display: block;
+    padding: var(--space-md) 0;
+    font-size: var(--text-lg);
+    font-weight: 500;
+    color: inherit;
+    text-decoration: none;
+    border-bottom: 1px solid rgba(var(--color-foreground), 0.08);
+    transition: opacity var(--duration-fast) var(--ease-out),
+      transform var(--duration-fast) var(--ease-out);
+  }
+
+  .modern-mobile-nav__link:hover {
+    opacity: 0.7;
+    transform: translateX(4px);
+  }
+
+  /* Search overlay */
+  .modern-header__search-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    background: rgb(var(--color-background));
+    padding: var(--space-lg) var(--space-xl);
+    box-shadow: var(--elevation-3);
+    z-index: calc(var(--z-sticky) + 10);
+    transform: translateY(-100%);
+    opacity: 0;
+    transition: transform var(--duration-normal) var(--ease-out),
+      opacity var(--duration-normal) var(--ease-out);
+  }
+
+  [data-theme="dark"] .modern-header__search-overlay {
+    background: var(--dm-bg-elevated);
+  }
+
+  .modern-header__search-overlay.is-open {
+    transform: translateY(0);
+    opacity: 1;
+  }
+
+  .modern-header__search-form {
+    display: flex;
+    align-items: center;
+    gap: var(--space-md);
+    max-width: 600px;
+    margin: 0 auto;
+  }
+
+  .modern-header__search-input {
+    flex: 1;
+    padding: var(--space-md) var(--space-lg);
+    font-size: var(--text-lg);
+    border: none;
+    background: rgba(var(--color-foreground), 0.04);
+    border-radius: var(--radius-full);
+    color: inherit;
+    font-family: inherit;
+    outline: none;
+  }
+
+  .modern-header__search-input:focus {
+    box-shadow: 0 0 0 2px rgb(var(--color-button));
+  }
+{%- endstyle -%}
+
+{%- liquid
+  assign cart_count = cart.item_count
+-%}
+
+<div class="modern-header-wrapper" data-section-id="{{ section.id }}">
+  <header class="modern-header">
+    {%- comment -%} Mobile menu toggle {%- endcomment -%}
+    <button class="modern-header__icon-btn modern-header__menu-toggle" aria-label="{{ 'sections.header.menu' | t }}" data-mobile-menu-toggle>
+      <svg viewBox="0 0 24 24" aria-hidden="true">
+        <line x1="3" y1="6" x2="21" y2="6" stroke-linecap="round"/>
+        <line x1="3" y1="12" x2="21" y2="12" stroke-linecap="round"/>
+        <line x1="3" y1="18" x2="21" y2="18" stroke-linecap="round"/>
+      </svg>
+    </button>
+
+    {%- comment -%} Logo {%- endcomment -%}
+    <div class="modern-header__logo">
+      <a href="{{ routes.root_url }}" class="modern-header__logo-text">
+        {%- if settings.logo != blank -%}
+          {%- assign logo_alt = settings.logo.alt | default: shop.name | escape -%}
+          {{ settings.logo | image_url: width: 300 | image_tag:
+            class: 'modern-header__logo-img',
+            alt: logo_alt,
+            widths: '100, 150, 200, 250, 300',
+            loading: 'eager',
+            fetchpriority: 'high'
+          }}
+        {%- else -%}
+          {{ shop.name }}
+        {%- endif -%}
+      </a>
+    </div>
+
+    {%- comment -%} Desktop navigation {%- endcomment -%}
+    <nav class="modern-header__nav" aria-label="{{ 'sections.header.navigation' | t | default: 'Main navigation' }}">
+      {%- for link in section.settings.menu.links -%}
+        {%- if link.links != blank -%}
+          <details-disclosure>
+            <details>
+              <summary class="modern-header__nav-link" aria-expanded="false">
+                {{ link.title | escape }}
+                <svg width="10" height="6" viewBox="0 0 10 6" fill="none" stroke="currentColor" stroke-width="1.5" style="margin-left:4px;vertical-align:middle">
+                  <path d="M1 1l4 4 4-4"/>
+                </svg>
+              </summary>
+              <div class="modern-header__dropdown" style="position:absolute;top:100%;left:0;min-width:200px;background:rgb(var(--color-background));border-radius:var(--radius-lg);box-shadow:var(--elevation-3);padding:var(--space-sm) 0;z-index:var(--z-dropdown)">
+                {%- for child_link in link.links -%}
+                  <a href="{{ child_link.url }}" class="modern-header__nav-link" style="display:block;padding:var(--space-xs) var(--space-lg)">
+                    {{ child_link.title | escape }}
+                  </a>
+                {%- endfor -%}
+              </div>
+            </details>
+          </details-disclosure>
+        {%- else -%}
+          <a href="{{ link.url }}" class="modern-header__nav-link"{% if link.current %} aria-current="page"{% endif %}>
+            {{ link.title | escape }}
+          </a>
+        {%- endif -%}
+      {%- endfor -%}
+    </nav>
+
+    {%- comment -%} Action buttons {%- endcomment -%}
+    <div class="modern-header__actions">
+      {%- comment -%} Dark mode toggle {%- endcomment -%}
+      {%- if settings.modern_enable_dark_mode -%}
+        <button class="dark-mode-toggle" aria-label="Toggle dark mode">
+          <span class="dark-mode-toggle__thumb">
+            <svg class="dark-mode-toggle__icon dark-mode-toggle__icon--sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+              <circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/>
+            </svg>
+            <svg class="dark-mode-toggle__icon dark-mode-toggle__icon--moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+              <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>
+            </svg>
+          </span>
+        </button>
+      {%- endif -%}
+
+      {%- comment -%} Search {%- endcomment -%}
+      <button class="modern-header__icon-btn" aria-label="{{ 'general.search.search' | t }}" data-search-toggle>
+        <svg viewBox="0 0 24 24" aria-hidden="true">
+          <circle cx="11" cy="11" r="7"/><line x1="16.5" y1="16.5" x2="21" y2="21" stroke-linecap="round"/>
+        </svg>
+      </button>
+
+      {%- comment -%} Account {%- endcomment -%}
+      {%- if shop.customer_accounts_enabled -%}
+        <a href="{%- if customer -%}{{ routes.account_url }}{%- else -%}{{ routes.account_login_url }}{%- endif -%}" class="modern-header__icon-btn" aria-label="{{ 'customer.account.title' | t }}">
+          <svg viewBox="0 0 24 24" aria-hidden="true">
+            <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/>
+          </svg>
+        </a>
+      {%- endif -%}
+
+      {%- comment -%} Cart {%- endcomment -%}
+      <a href="{{ routes.cart_url }}" class="modern-header__icon-btn" aria-label="{{ 'sections.cart.title' | t }}">
+        <svg viewBox="0 0 24 24" aria-hidden="true">
+          <path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/>
+        </svg>
+        {%- if cart_count > 0 -%}
+          <span class="modern-header__cart-count" data-cart-count>{{ cart_count }}</span>
+        {%- endif -%}
+      </a>
+    </div>
+  </header>
+</div>
+
+{%- comment -%} Mobile Navigation Drawer {%- endcomment -%}
+<div class="modern-mobile-nav" id="MobileNav" aria-label="{{ 'sections.header.menu' | t }}">
+  <div class="modern-mobile-nav__backdrop" data-mobile-menu-close></div>
+  <div class="modern-mobile-nav__panel">
+    <button class="modern-mobile-nav__close" aria-label="{{ 'accessibility.close' | t }}" data-mobile-menu-close>
+      <svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+        <line x1="4" y1="4" x2="16" y2="16"/><line x1="16" y1="4" x2="4" y2="16"/>
+      </svg>
+    </button>
+    <nav>
+      {%- for link in section.settings.menu.links -%}
+        <a href="{{ link.url }}" class="modern-mobile-nav__link"{% if link.current %} aria-current="page"{% endif %}>
+          {{ link.title | escape }}
+        </a>
+        {%- if link.links != blank -%}
+          {%- for child_link in link.links -%}
+            <a href="{{ child_link.url }}" class="modern-mobile-nav__link" style="padding-left:var(--space-xl);font-size:var(--text-base)">
+              {{ child_link.title | escape }}
+            </a>
+          {%- endfor -%}
+        {%- endif -%}
+      {%- endfor -%}
+    </nav>
+  </div>
+</div>
+
+{%- comment -%} Search Overlay {%- endcomment -%}
+<div class="modern-header__search-overlay" id="SearchOverlay" aria-label="{{ 'general.search.search' | t }}">
+  <form action="{{ routes.search_url }}" method="get" class="modern-header__search-form" role="search">
+    <input
+      type="search"
+      name="q"
+      class="modern-header__search-input"
+      placeholder="{{ 'general.search.placeholder' | t | default: 'Search...' }}"
+      autocomplete="off"
+      aria-label="{{ 'general.search.search' | t }}"
+    >
+    <button type="button" class="modern-header__icon-btn" data-search-close aria-label="{{ 'accessibility.close' | t }}">
+      <svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+        <line x1="4" y1="4" x2="16" y2="16"/><line x1="16" y1="4" x2="4" y2="16"/>
+      </svg>
+    </button>
+  </form>
+</div>
+
+<script>
+  (function() {
+    /* Mobile menu */
+    const mobileNav = document.getElementById('MobileNav');
+    document.querySelectorAll('[data-mobile-menu-toggle]').forEach(function(btn) {
+      btn.addEventListener('click', function() {
+        mobileNav.classList.add('is-open');
+        document.body.style.overflow = 'hidden';
+      });
+    });
+    document.querySelectorAll('[data-mobile-menu-close]').forEach(function(btn) {
+      btn.addEventListener('click', function() {
+        mobileNav.classList.remove('is-open');
+        document.body.style.overflow = '';
+      });
+    });
+
+    /* Search overlay */
+    const searchOverlay = document.getElementById('SearchOverlay');
+    document.querySelectorAll('[data-search-toggle]').forEach(function(btn) {
+      btn.addEventListener('click', function() {
+        searchOverlay.classList.add('is-open');
+        var input = searchOverlay.querySelector('input');
+        if (input) input.focus();
+      });
+    });
+    document.querySelectorAll('[data-search-close]').forEach(function(btn) {
+      btn.addEventListener('click', function() {
+        searchOverlay.classList.remove('is-open');
+      });
+    });
+
+    /* Close on Escape */
+    document.addEventListener('keydown', function(e) {
+      if (e.key === 'Escape') {
+        mobileNav.classList.remove('is-open');
+        searchOverlay.classList.remove('is-open');
+        document.body.style.overflow = '';
+      }
+    });
+  })();
+</script>
+
+{% schema %}
+{
+  "name": "Modern Header",
+  "tag": "section",
+  "class": "section-modern-header",
+  "settings": [
+    {
+      "type": "header",
+      "content": "Logo"
+    },
+    {
+      "type": "range",
+      "id": "logo_width",
+      "min": 50,
+      "max": 300,
+      "step": 10,
+      "default": 120,
+      "unit": "px",
+      "label": "Logo width"
+    },
+    {
+      "type": "header",
+      "content": "Navigation"
+    },
+    {
+      "type": "link_list",
+      "id": "menu",
+      "default": "main-menu",
+      "label": "Menu"
+    },
+    {
+      "type": "header",
+      "content": "Features"
+    },
+    {
+      "type": "checkbox",
+      "id": "enable_sticky",
+      "default": true,
+      "label": "Enable sticky header"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_search",
+      "default": true,
+      "label": "Show search icon"
+    }
+  ]
+}
+{% endschema %}

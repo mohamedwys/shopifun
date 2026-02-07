@@ -1,11 +1,15 @@
 <!doctype html>
-<html class="js" lang="{{ request.locale.iso_code }}">
+<html class="js" lang="{{ request.locale.iso_code }}" data-theme="light">
   <head>
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width,initial-scale=1">
-    <meta name="theme-color" content="">
+    <meta name="theme-color" content="{{ settings.modern_theme_color | default: '' }}">
     <link rel="canonical" href="{{ canonical_url }}">
+
+    {%- comment -%} Preload critical modern assets {%- endcomment -%}
+    <link rel="preload" href="{{ 'modern-design-system.css' | asset_url }}" as="style">
+    <link rel="preload" href="{{ 'modern-animations.js' | asset_url }}" as="script">
 
     {%- if settings.favicon != blank -%}
       <link rel="icon" type="image/png" href="{{ settings.favicon | image_url: width: 32, height: 32 }}">
@@ -37,6 +41,23 @@
 
     {%- if settings.animations_reveal_on_scroll -%}
       <script src="{{ 'animations.js' | asset_url }}" defer="defer"></script>
+    {%- endif -%}
+
+    {%- comment -%} Modern Animation Engine {%- endcomment -%}
+    {%- unless settings.modern_performance_mode -%}
+      <script src="{{ 'modern-animations.js' | asset_url }}" defer="defer"></script>
+    {%- endunless -%}
+
+    {%- comment -%} Dark mode: restore preference before paint to avoid FOUC {%- endcomment -%}
+    {%- if settings.modern_enable_dark_mode -%}
+      <script>
+        (function(){
+          var d=localStorage.getItem('theme-dark-mode');
+          if(d==='true'||(d===null&&window.matchMedia('(prefers-color-scheme:dark)').matches)){
+            document.documentElement.setAttribute('data-theme','dark');
+          }
+        })();
+      </script>
     {%- endif -%}
 
     {{ content_for_header }}
@@ -283,6 +304,7 @@
     {%- endif -%}
 
     {{ 'base.css' | asset_url | stylesheet_tag }}
+    {{ 'modern-design-system.css' | asset_url | stylesheet_tag }}
     <link rel="stylesheet" href="{{ 'component-cart-items.css' | asset_url }}" media="print" onload="this.media='all'">
 
     {%- if settings.cart_type == 'drawer' -%}
@@ -326,6 +348,16 @@
   </head>
 
   <body class="gradient{% if settings.animations_hover_elements != 'none' %} animate--hover-{{ settings.animations_hover_elements }}{% endif %}">
+    {%- comment -%} Scroll progress indicator {%- endcomment -%}
+    {%- unless settings.modern_performance_mode -%}
+      <div class="scroll-progress" aria-hidden="true"></div>
+    {%- endunless -%}
+
+    {%- comment -%} Page transition overlay {%- endcomment -%}
+    {%- if settings.modern_enable_page_transitions -%}
+      <div class="page-transition-overlay is-active" aria-hidden="true"></div>
+    {%- endif -%}
+
     <a class="skip-to-content-link button visually-hidden" href="#MainContent">
       {{ 'accessibility.skip_to_text' | t }}
     </a>
@@ -341,6 +373,17 @@
     </main>
 
     {% sections 'footer-group' %}
+
+    {%- comment -%} Quick View Modal Shell {%- endcomment -%}
+    <div class="quick-view-overlay" aria-hidden="true"></div>
+    <div class="quick-view-modal" role="dialog" aria-modal="true" aria-label="{{ 'products.product.quick_view' | t | default: 'Quick view' }}">
+      <button class="quick-view__close" aria-label="{{ 'accessibility.close' | t }}">
+        <svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+          <line x1="4" y1="4" x2="16" y2="16"/><line x1="16" y1="4" x2="4" y2="16"/>
+        </svg>
+      </button>
+      <div class="quick-view__body"></div>
+    </div>
 
     <ul hidden>
       <li id="a11y-refresh-page-message">{{ 'accessibility.refresh_page' | t }}</li>

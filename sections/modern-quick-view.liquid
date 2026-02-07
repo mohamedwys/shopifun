@@ -1,0 +1,238 @@
+{%- comment -%}
+  Modern Quick View Section
+  =========================
+  This section is loaded via fetch into the quick-view modal.
+  It renders a simplified product page with gallery and add-to-cart form.
+{%- endcomment -%}
+
+{%- style -%}
+  .quick-view__product {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 0;
+  }
+
+  @media screen and (min-width: 750px) {
+    .quick-view__product {
+      grid-template-columns: 1fr 1fr;
+    }
+  }
+
+  .quick-view__gallery {
+    position: relative;
+    aspect-ratio: 1;
+    overflow: hidden;
+    background: rgba(var(--color-foreground), 0.03);
+  }
+
+  .quick-view__gallery img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform var(--duration-slow) var(--ease-out);
+  }
+
+  .quick-view__gallery:hover img {
+    transform: scale(1.05);
+  }
+
+  .quick-view__details {
+    padding: var(--space-2xl);
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-md);
+    overflow-y: auto;
+    max-height: 85vh;
+  }
+
+  .quick-view__vendor {
+    font-size: var(--text-xs);
+    text-transform: uppercase;
+    letter-spacing: var(--tracking-widest);
+    opacity: 0.5;
+    margin: 0;
+  }
+
+  .quick-view__title {
+    font-size: var(--text-2xl);
+    font-weight: 700;
+    margin: 0;
+    line-height: var(--leading-tight);
+  }
+
+  .quick-view__price-wrapper {
+    display: flex;
+    align-items: baseline;
+    gap: var(--space-sm);
+    font-size: var(--text-xl);
+    font-weight: 700;
+  }
+
+  .quick-view__compare-price {
+    font-size: var(--text-base);
+    font-weight: 400;
+    text-decoration: line-through;
+    opacity: 0.5;
+  }
+
+  .quick-view__description {
+    font-size: var(--text-sm);
+    line-height: var(--leading-relaxed);
+    opacity: 0.7;
+  }
+
+  .quick-view__variants {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-md);
+  }
+
+  .quick-view__option-label {
+    font-size: var(--text-sm);
+    font-weight: 600;
+    margin: 0 0 var(--space-xs);
+  }
+
+  .quick-view__option-values {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-xs);
+  }
+
+  .quick-view__option-btn {
+    padding: var(--space-xs) var(--space-md);
+    border: 1.5px solid rgba(var(--color-foreground), 0.2);
+    border-radius: var(--radius-md);
+    background: transparent;
+    font-family: inherit;
+    font-size: var(--text-sm);
+    color: inherit;
+    cursor: pointer;
+    transition: border-color var(--duration-fast) var(--ease-out),
+      background var(--duration-fast) var(--ease-out);
+  }
+
+  .quick-view__option-btn:hover,
+  .quick-view__option-btn.is-selected {
+    border-color: rgb(var(--color-foreground));
+    background: rgba(var(--color-foreground), 0.05);
+  }
+
+  .quick-view__add-form {
+    display: flex;
+    gap: var(--space-sm);
+    margin-top: var(--space-md);
+  }
+
+  .quick-view__qty {
+    width: 70px;
+    padding: var(--space-sm);
+    border: 1.5px solid rgba(var(--color-foreground), 0.2);
+    border-radius: var(--radius-md);
+    font-family: inherit;
+    font-size: var(--text-base);
+    text-align: center;
+    color: inherit;
+    background: transparent;
+  }
+
+  .quick-view__full-link {
+    display: block;
+    text-align: center;
+    font-size: var(--text-sm);
+    color: inherit;
+    opacity: 0.6;
+    margin-top: var(--space-sm);
+    transition: opacity var(--duration-fast);
+  }
+
+  .quick-view__full-link:hover {
+    opacity: 1;
+  }
+{%- endstyle -%}
+
+{%- if product != blank -%}
+  <div class="quick-view__product">
+    <div class="quick-view__gallery">
+      {%- if product.featured_image != blank -%}
+        {{ product.featured_image | image_url: width: 800 | image_tag:
+          alt: product.featured_image.alt | default: product.title,
+          widths: '400, 600, 800',
+          sizes: '(min-width: 750px) 450px, 100vw',
+          loading: 'eager'
+        }}
+      {%- else -%}
+        {{ 'product-1' | placeholder_svg_tag: 'placeholder-svg' }}
+      {%- endif -%}
+    </div>
+
+    <div class="quick-view__details">
+      {%- if product.vendor != blank -%}
+        <p class="quick-view__vendor">{{ product.vendor }}</p>
+      {%- endif -%}
+
+      <h2 class="quick-view__title">{{ product.title | escape }}</h2>
+
+      <div class="quick-view__price-wrapper">
+        <span>{{ product.price | money }}</span>
+        {%- if product.compare_at_price > product.price -%}
+          <span class="quick-view__compare-price">{{ product.compare_at_price | money }}</span>
+        {%- endif -%}
+      </div>
+
+      {%- if product.description != blank -%}
+        <div class="quick-view__description">
+          {{ product.description | strip_html | truncatewords: 30 }}
+        </div>
+      {%- endif -%}
+
+      {%- if product.has_only_default_variant == false -%}
+        <div class="quick-view__variants">
+          {%- for option in product.options_with_values -%}
+            <div>
+              <p class="quick-view__option-label">{{ option.name }}</p>
+              <div class="quick-view__option-values">
+                {%- for value in option.values -%}
+                  <button
+                    type="button"
+                    class="quick-view__option-btn{% if forloop.first %} is-selected{% endif %}"
+                    data-option-index="{{ forloop.parentloop.index0 }}"
+                    data-value="{{ value | escape }}"
+                  >
+                    {{ value }}
+                  </button>
+                {%- endfor -%}
+              </div>
+            </div>
+          {%- endfor -%}
+        </div>
+      {%- endif -%}
+
+      {%- if product.available -%}
+        <form method="post" action="/cart/add" class="quick-view__add-form">
+          <input type="hidden" name="id" value="{{ product.selected_or_first_available_variant.id }}">
+          <input type="number" name="quantity" value="1" min="1" class="quick-view__qty" aria-label="Quantity">
+          <button type="submit" class="modern-btn modern-btn--primary" style="flex:1">
+            {{ 'products.product.add_to_cart' | t }} - {{ product.price | money }}
+          </button>
+        </form>
+      {%- else -%}
+        <button class="modern-btn modern-btn--primary" disabled style="width:100%;opacity:0.5">
+          {{ 'products.product.sold_out' | t }}
+        </button>
+      {%- endif -%}
+
+      <a href="{{ product.url }}" class="quick-view__full-link">
+        View full details &rarr;
+      </a>
+    </div>
+  </div>
+{%- endif -%}
+
+{% schema %}
+{
+  "name": "Modern Quick View",
+  "tag": "div",
+  "settings": []
+}
+{% endschema %}

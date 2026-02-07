@@ -1,0 +1,333 @@
+{%- comment -%}
+  Modern Hero Section
+  ===================
+  Full-screen hero section with parallax background, text reveal animations,
+  gradient overlays, and scroll indicator. Supports image, video, and gradient
+  backgrounds.
+{%- endcomment -%}
+
+{%- style -%}
+  .modern-hero--{{ section.id }} {
+    min-height: {{ section.settings.min_height }}vh;
+    min-height: {{ section.settings.min_height }}svh;
+    color: {{ section.settings.text_color }};
+  }
+
+  .modern-hero--{{ section.id }} .modern-hero__overlay {
+    background: {{ section.settings.overlay_gradient | default: 'linear-gradient(180deg, rgba(0,0,0,0.1) 0%, rgba(0,0,0,0.5) 100%)' }};
+    opacity: {{ section.settings.overlay_opacity | divided_by: 100.0 }};
+  }
+
+  .section-{{ section.id }}-padding {
+    padding-top: {{ section.settings.padding_top | times: 0.75 | round: 0 }}px;
+    padding-bottom: {{ section.settings.padding_bottom | times: 0.75 | round: 0 }}px;
+  }
+
+  @media screen and (min-width: 750px) {
+    .section-{{ section.id }}-padding {
+      padding-top: {{ section.settings.padding_top }}px;
+      padding-bottom: {{ section.settings.padding_bottom }}px;
+    }
+  }
+
+  .modern-hero--{{ section.id }} .modern-hero__title {
+    font-size: {{ section.settings.heading_size }}rem;
+  }
+
+  @media screen and (max-width: 749px) {
+    .modern-hero--{{ section.id }} .modern-hero__title {
+      font-size: {{ section.settings.heading_size | times: 0.55 }}rem;
+    }
+  }
+
+  .modern-hero--{{ section.id }} .modern-hero__subtitle {
+    font-size: {{ section.settings.subheading_size }}rem;
+  }
+
+  @media screen and (max-width: 749px) {
+    .modern-hero--{{ section.id }} .modern-hero__subtitle {
+      font-size: {{ section.settings.subheading_size | times: 0.7 }}rem;
+    }
+  }
+
+  .modern-hero__content--{{ section.settings.content_alignment }} {
+    text-align: {{ section.settings.content_alignment }};
+  }
+
+  .modern-hero__content--{{ section.settings.content_alignment }} .modern-hero__cta {
+    justify-content: {{ section.settings.content_alignment }};
+  }
+{%- endstyle -%}
+
+<section
+  class="modern-hero modern-hero--{{ section.id }} section-{{ section.id }}-padding"
+  data-section-id="{{ section.id }}"
+>
+  {%- comment -%} Background {%- endcomment -%}
+  <div class="modern-hero__bg parallax-container">
+    {%- if section.settings.background_image != blank -%}
+      {{ section.settings.background_image | image_url: width: 3840 | image_tag:
+        class: 'parallax-bg modern-img',
+        alt: section.settings.background_image.alt | default: 'Hero background',
+        widths: '750, 1100, 1500, 1920, 2560, 3840',
+        sizes: '100vw',
+        loading: 'eager',
+        fetchpriority: 'high',
+        data-parallax: section.settings.parallax_speed,
+        data-src: section.settings.background_image | image_url: width: 1920
+      }}
+    {%- elsif section.settings.background_video != blank -%}
+      <video
+        class="parallax-bg"
+        autoplay
+        muted
+        loop
+        playsinline
+        preload="auto"
+        poster="{{ section.settings.background_image | image_url: width: 1920 }}"
+      >
+        {{ section.settings.background_video | video_tag }}
+      </video>
+    {%- else -%}
+      <div class="parallax-bg" style="background: {{ section.settings.background_gradient | default: 'var(--gradient-primary)' }}; inset: 0; position: absolute;"></div>
+    {%- endif -%}
+  </div>
+
+  {%- comment -%} Overlay {%- endcomment -%}
+  <div class="modern-hero__overlay"></div>
+
+  {%- comment -%} Content {%- endcomment -%}
+  <div class="modern-hero__content modern-hero__content--{{ section.settings.content_alignment }}">
+    {%- if section.settings.subheading != blank -%}
+      <p class="modern-hero__label modern-animate animate--fade-up" style="font-size:var(--text-sm);font-weight:600;letter-spacing:var(--tracking-widest);text-transform:uppercase;margin:0 0 var(--space-md);opacity:0.8">
+        {{ section.settings.subheading | escape }}
+      </p>
+    {%- endif -%}
+
+    {%- if section.settings.heading != blank -%}
+      <h1 class="modern-hero__title modern-animate animate--fade-up" data-stagger="2">
+        {{ section.settings.heading }}
+      </h1>
+    {%- endif -%}
+
+    {%- if section.settings.description != blank -%}
+      <p class="modern-hero__subtitle modern-animate animate--fade-up" data-stagger="3">
+        {{ section.settings.description | escape }}
+      </p>
+    {%- endif -%}
+
+    <div class="modern-hero__cta modern-animate animate--fade-up" data-stagger="4">
+      {%- if section.settings.button_label != blank -%}
+        <a href="{{ section.settings.button_link }}" class="modern-btn modern-btn--primary modern-btn--magnetic">
+          {{ section.settings.button_label | escape }}
+        </a>
+      {%- endif -%}
+
+      {%- if section.settings.button_label_2 != blank -%}
+        <a href="{{ section.settings.button_link_2 }}" class="modern-btn modern-btn--outline modern-btn--magnetic" style="border-color:currentColor;color:inherit">
+          {{ section.settings.button_label_2 | escape }}
+        </a>
+      {%- endif -%}
+    </div>
+  </div>
+
+  {%- comment -%} Scroll indicator {%- endcomment -%}
+  {%- if section.settings.show_scroll_indicator -%}
+    <div class="modern-hero__scroll-indicator modern-animate animate--fade-in" data-stagger="5">
+      <span style="font-size:var(--text-xs);letter-spacing:var(--tracking-widest);text-transform:uppercase">Scroll</span>
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+        <path d="M12 5v14M5 12l7 7 7-7"/>
+      </svg>
+    </div>
+  {%- endif -%}
+</section>
+
+{% schema %}
+{
+  "name": "Modern Hero",
+  "tag": "section",
+  "class": "section-modern-hero",
+  "settings": [
+    {
+      "type": "header",
+      "content": "Background"
+    },
+    {
+      "type": "image_picker",
+      "id": "background_image",
+      "label": "Background image"
+    },
+    {
+      "type": "video",
+      "id": "background_video",
+      "label": "Background video"
+    },
+    {
+      "type": "text",
+      "id": "background_gradient",
+      "label": "Background gradient (CSS)",
+      "info": "Fallback if no image/video. Example: linear-gradient(135deg, #667eea, #764ba2)"
+    },
+    {
+      "type": "range",
+      "id": "parallax_speed",
+      "min": 0,
+      "max": 10,
+      "step": 1,
+      "default": 3,
+      "label": "Parallax speed",
+      "info": "0 = disabled"
+    },
+    {
+      "type": "header",
+      "content": "Overlay"
+    },
+    {
+      "type": "text",
+      "id": "overlay_gradient",
+      "label": "Overlay gradient (CSS)",
+      "default": "linear-gradient(180deg, rgba(0,0,0,0.15) 0%, rgba(0,0,0,0.55) 100%)"
+    },
+    {
+      "type": "range",
+      "id": "overlay_opacity",
+      "min": 0,
+      "max": 100,
+      "step": 5,
+      "default": 100,
+      "unit": "%",
+      "label": "Overlay opacity"
+    },
+    {
+      "type": "header",
+      "content": "Content"
+    },
+    {
+      "type": "text",
+      "id": "subheading",
+      "label": "Subheading (above title)",
+      "default": "Welcome to our store"
+    },
+    {
+      "type": "inline_richtext",
+      "id": "heading",
+      "label": "Heading",
+      "default": "Discover <em>Amazing</em> Products"
+    },
+    {
+      "type": "textarea",
+      "id": "description",
+      "label": "Description",
+      "default": "Explore our curated collection of premium products designed for you."
+    },
+    {
+      "type": "range",
+      "id": "heading_size",
+      "min": 2,
+      "max": 8,
+      "step": 0.5,
+      "default": 5,
+      "unit": "rem",
+      "label": "Heading size"
+    },
+    {
+      "type": "range",
+      "id": "subheading_size",
+      "min": 1,
+      "max": 3,
+      "step": 0.1,
+      "default": 1.4,
+      "unit": "rem",
+      "label": "Description size"
+    },
+    {
+      "type": "color",
+      "id": "text_color",
+      "label": "Text color",
+      "default": "#ffffff"
+    },
+    {
+      "type": "select",
+      "id": "content_alignment",
+      "label": "Content alignment",
+      "options": [
+        { "value": "left", "label": "Left" },
+        { "value": "center", "label": "Center" },
+        { "value": "right", "label": "Right" }
+      ],
+      "default": "center"
+    },
+    {
+      "type": "header",
+      "content": "Buttons"
+    },
+    {
+      "type": "text",
+      "id": "button_label",
+      "label": "Primary button label",
+      "default": "Shop Now"
+    },
+    {
+      "type": "url",
+      "id": "button_link",
+      "label": "Primary button link"
+    },
+    {
+      "type": "text",
+      "id": "button_label_2",
+      "label": "Secondary button label",
+      "default": "Learn More"
+    },
+    {
+      "type": "url",
+      "id": "button_link_2",
+      "label": "Secondary button link"
+    },
+    {
+      "type": "header",
+      "content": "Layout"
+    },
+    {
+      "type": "range",
+      "id": "min_height",
+      "min": 40,
+      "max": 100,
+      "step": 5,
+      "default": 100,
+      "unit": "vh",
+      "label": "Minimum height"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_scroll_indicator",
+      "default": true,
+      "label": "Show scroll indicator"
+    },
+    {
+      "type": "range",
+      "id": "padding_top",
+      "min": 0,
+      "max": 100,
+      "step": 4,
+      "default": 0,
+      "unit": "px",
+      "label": "Padding top"
+    },
+    {
+      "type": "range",
+      "id": "padding_bottom",
+      "min": 0,
+      "max": 100,
+      "step": 4,
+      "default": 0,
+      "unit": "px",
+      "label": "Padding bottom"
+    }
+  ],
+  "presets": [
+    {
+      "name": "Modern Hero"
+    }
+  ]
+}
+{% endschema %}

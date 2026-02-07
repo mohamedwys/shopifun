@@ -1458,5 +1458,97 @@
         "default": "scheme-1"
       }
     ]
+  },
+  {
+    "name": "Modern Theme Settings",
+    "settings": [
+      {
+        "type": "header",
+        "content": "Dark Mode"
+      },
+      {
+        "type": "checkbox",
+        "id": "modern_enable_dark_mode",
+        "label": "Enable dark mode toggle",
+        "default": true,
+        "info": "Shows a dark mode toggle in the header. Respects user system preference."
+      },
+      {
+        "type": "header",
+        "content": "Animations"
+      },
+      {
+        "type": "checkbox",
+        "id": "modern_enable_scroll_animations",
+        "label": "Enable scroll reveal animations",
+        "default": true,
+        "info": "Elements animate into view as you scroll. Automatically disabled for users who prefer reduced motion."
+      },
+      {
+        "type": "checkbox",
+        "id": "modern_enable_parallax",
+        "label": "Enable parallax effects",
+        "default": true,
+        "info": "Parallax scrolling on hero sections and backgrounds."
+      },
+      {
+        "type": "checkbox",
+        "id": "modern_enable_page_transitions",
+        "label": "Enable page transitions",
+        "default": false,
+        "info": "Smooth fade transitions when navigating between pages."
+      },
+      {
+        "type": "checkbox",
+        "id": "modern_performance_mode",
+        "label": "Performance mode",
+        "default": false,
+        "info": "Disables all modern animations and effects for maximum performance."
+      },
+      {
+        "type": "header",
+        "content": "Visual Effects"
+      },
+      {
+        "type": "checkbox",
+        "id": "modern_show_scroll_progress",
+        "label": "Show scroll progress bar",
+        "default": true,
+        "info": "Shows a progress indicator at the top of the page."
+      },
+      {
+        "type": "select",
+        "id": "modern_card_hover_effect",
+        "label": "Product card hover effect",
+        "options": [
+          { "value": "lift", "label": "Lift" },
+          { "value": "tilt", "label": "3D Tilt" },
+          { "value": "none", "label": "None" }
+        ],
+        "default": "lift"
+      },
+      {
+        "type": "select",
+        "id": "modern_button_style",
+        "label": "Button effects",
+        "options": [
+          { "value": "ripple", "label": "Ripple effect" },
+          { "value": "magnetic", "label": "Magnetic hover" },
+          { "value": "none", "label": "Standard" }
+        ],
+        "default": "ripple"
+      },
+      {
+        "type": "header",
+        "content": "Branding"
+      },
+      {
+        "type": "color",
+        "id": "modern_theme_color",
+        "label": "Theme color (browser)",
+        "default": "#ffffff",
+        "info": "Sets the browser tab color on mobile devices."
+      }
+    ]
   }
 ]
