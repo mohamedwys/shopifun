@@ -1,0 +1,559 @@
+{%- comment -%}
+  Modern Flexible Content Section (Page Builder)
+  ================================================
+  A versatile section with 15+ block types for building custom page layouts.
+  Supports: text, images, buttons, spacers, dividers, videos, HTML, icons,
+  feature cards, accordions, and more.
+{%- endcomment -%}
+
+{%- style -%}
+  .section-{{ section.id }}-padding {
+    padding-top: {{ section.settings.padding_top | times: 0.75 | round: 0 }}px;
+    padding-bottom: {{ section.settings.padding_bottom | times: 0.75 | round: 0 }}px;
+  }
+  @media screen and (min-width: 750px) {
+    .section-{{ section.id }}-padding {
+      padding-top: {{ section.settings.padding_top }}px;
+      padding-bottom: {{ section.settings.padding_bottom }}px;
+    }
+  }
+
+  .modern-flex {
+    max-width: {{ section.settings.max_width | default: 800 }}px;
+    margin: 0 auto;
+  }
+  .modern-flex--full { max-width: none; }
+  .modern-flex--left { text-align: left; }
+  .modern-flex--center { text-align: center; }
+  .modern-flex--right { text-align: right; }
+
+  /* Block: Heading */
+  .modern-flex__heading {
+    margin: 0;
+    letter-spacing: var(--tracking-tight, -0.025em);
+  }
+  .modern-flex__heading--h1 { font-size: var(--text-4xl, 36px); }
+  .modern-flex__heading--h2 { font-size: var(--text-3xl, 30px); }
+  .modern-flex__heading--h3 { font-size: var(--text-2xl, 24px); }
+  .modern-flex__heading--h4 { font-size: var(--text-xl, 20px); }
+
+  /* Block: Rich Text */
+  .modern-flex__text {
+    font-size: var(--text-base, 16px);
+    line-height: var(--leading-relaxed, 1.6);
+  }
+  .modern-flex__text--large { font-size: var(--text-lg, 18px); }
+  .modern-flex__text--small { font-size: var(--text-sm, 14px); opacity: 0.7; }
+
+  /* Block: Image */
+  .modern-flex__image {
+    border-radius: var(--radius-lg, 12px);
+    overflow: hidden;
+  }
+  .modern-flex__image img {
+    width: 100%;
+    height: auto;
+    display: block;
+  }
+  .modern-flex__image--rounded { border-radius: var(--radius-xl, 16px); }
+  .modern-flex__image--circle { border-radius: 50%; max-width: 300px; margin: 0 auto; }
+
+  /* Block: Button Group */
+  .modern-flex__buttons {
+    display: flex;
+    gap: var(--space-md, 16px);
+    flex-wrap: wrap;
+  }
+  .modern-flex--center .modern-flex__buttons { justify-content: center; }
+  .modern-flex--right .modern-flex__buttons { justify-content: flex-end; }
+
+  /* Block: Spacer */
+  .modern-flex__spacer--sm { height: 16px; }
+  .modern-flex__spacer--md { height: 32px; }
+  .modern-flex__spacer--lg { height: 48px; }
+  .modern-flex__spacer--xl { height: 80px; }
+
+  /* Block: Divider */
+  .modern-flex__divider {
+    border: none;
+    height: 1px;
+    background: rgba(128, 128, 128, 0.12);
+    margin: var(--space-xl, 24px) 0;
+  }
+  .modern-flex__divider--thick { height: 3px; }
+  .modern-flex__divider--dashed { background: none; border-top: 2px dashed rgba(128, 128, 128, 0.15); height: auto; }
+
+  /* Block: Quote */
+  .modern-flex__quote {
+    padding: var(--space-xl, 24px) var(--space-2xl, 32px);
+    border-left: 4px solid var(--color-button, #667eea);
+    background: rgba(128, 128, 128, 0.03);
+    border-radius: 0 var(--radius-lg, 12px) var(--radius-lg, 12px) 0;
+    font-size: var(--text-lg, 18px);
+    font-style: italic;
+    line-height: var(--leading-relaxed, 1.6);
+    margin: 0;
+  }
+  .modern-flex__quote-author {
+    font-size: var(--text-sm, 14px);
+    font-style: normal;
+    font-weight: 600;
+    opacity: 0.6;
+    margin-top: var(--space-md, 16px);
+    display: block;
+  }
+
+  /* Block: Icon + Text */
+  .modern-flex__icon-text {
+    display: flex;
+    align-items: flex-start;
+    gap: var(--space-lg, 20px);
+  }
+  .modern-flex--center .modern-flex__icon-text {
+    flex-direction: column;
+    align-items: center;
+  }
+  .modern-flex__icon-text-icon {
+    width: 48px;
+    height: 48px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: var(--radius-lg, 12px);
+    background: rgba(102, 126, 234, 0.1);
+    color: var(--color-button, #667eea);
+    flex-shrink: 0;
+  }
+  .modern-flex__icon-text-icon svg { width: 24px; height: 24px; }
+  .modern-flex__icon-text-body { flex: 1; }
+  .modern-flex__icon-text-title {
+    font-size: var(--text-base, 16px);
+    font-weight: 700;
+    margin: 0 0 var(--space-xs, 4px);
+  }
+  .modern-flex__icon-text-desc {
+    font-size: var(--text-sm, 14px);
+    opacity: 0.6;
+    margin: 0;
+    line-height: var(--leading-relaxed, 1.6);
+  }
+
+  /* Block: Two Columns */
+  .modern-flex__columns {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: var(--space-2xl, 32px);
+    align-items: center;
+  }
+  @media screen and (max-width: 749px) {
+    .modern-flex__columns { grid-template-columns: 1fr; }
+  }
+
+  /* Block: Accordion */
+  .modern-flex__accordion {
+    border: 1px solid rgba(128, 128, 128, 0.1);
+    border-radius: var(--radius-lg, 12px);
+    overflow: hidden;
+  }
+  .modern-flex__accordion-item + .modern-flex__accordion-item {
+    border-top: 1px solid rgba(128, 128, 128, 0.1);
+  }
+  .modern-flex__accordion-trigger {
+    width: 100%;
+    padding: var(--space-lg, 20px);
+    background: none;
+    border: none;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    font-size: var(--text-base, 16px);
+    font-weight: 600;
+    color: inherit;
+    cursor: pointer;
+    text-align: left;
+    font-family: inherit;
+  }
+  .modern-flex__accordion-trigger svg {
+    width: 18px;
+    height: 18px;
+    transition: transform 0.3s ease;
+    flex-shrink: 0;
+  }
+  .modern-flex__accordion-trigger[aria-expanded="true"] svg {
+    transform: rotate(180deg);
+  }
+  .modern-flex__accordion-content {
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.3s ease;
+  }
+  .modern-flex__accordion-content-inner {
+    padding: 0 var(--space-lg, 20px) var(--space-lg, 20px);
+    font-size: var(--text-sm, 14px);
+    line-height: var(--leading-relaxed, 1.6);
+    opacity: 0.7;
+  }
+
+  /* Block: Code */
+  .modern-flex__code {
+    padding: var(--space-xl, 24px);
+    background: #1e1e2e;
+    color: #cdd6f4;
+    border-radius: var(--radius-lg, 12px);
+    font-family: 'SF Mono', 'Fira Code', monospace;
+    font-size: var(--text-sm, 14px);
+    line-height: 1.6;
+    overflow-x: auto;
+    white-space: pre;
+  }
+
+  /* Block: Video Embed */
+  .modern-flex__video {
+    position: relative;
+    padding-bottom: 56.25%;
+    border-radius: var(--radius-lg, 12px);
+    overflow: hidden;
+  }
+  .modern-flex__video iframe {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    border: none;
+  }
+
+  /* Stagger animations */
+  .modern-flex > * {
+    margin-bottom: var(--space-lg, 20px);
+  }
+  .modern-flex > *:last-child { margin-bottom: 0; }
+{%- endstyle -%}
+
+<div class="color-{{ section.settings.color_scheme }} gradient">
+  <div class="{% if section.settings.full_width %}page-width--full{% else %}page-width{% endif %} section-{{ section.id }}-padding">
+    <div class="modern-flex modern-flex--{{ section.settings.text_alignment | default: 'left' }} {% if section.settings.full_width %}modern-flex--full{% endif %}" style="max-width: {{ section.settings.max_width | default: 800 }}px; margin: 0 auto;">
+
+      {%- assign stagger = 1 -%}
+      {%- for block in section.blocks -%}
+        {%- assign stagger = stagger | plus: 1 -%}
+
+        <div class="modern-animate animate--fade-up" data-stagger="{{ stagger }}" {{ block.shopify_attributes }}>
+          {%- case block.type -%}
+
+            {%- when 'heading' -%}
+              <{{ block.settings.tag | default: 'h2' }} class="modern-flex__heading modern-flex__heading--{{ block.settings.tag | default: 'h2' }}">
+                {{ block.settings.text | default: 'Heading' }}
+              </{{ block.settings.tag | default: 'h2' }}>
+
+            {%- when 'text' -%}
+              <div class="modern-flex__text modern-flex__text--{{ block.settings.size | default: 'default' }}">
+                {{ block.settings.text }}
+              </div>
+
+            {%- when 'rich_text' -%}
+              <div class="modern-flex__text rte">
+                {{ block.settings.content }}
+              </div>
+
+            {%- when 'image' -%}
+              <div class="modern-flex__image modern-flex__image--{{ block.settings.shape | default: 'default' }}">
+                {%- if block.settings.image != blank -%}
+                  <img
+                    src="{{ block.settings.image | image_url: width: 1200 }}"
+                    alt="{{ block.settings.image.alt | escape }}"
+                    width="{{ block.settings.image.width }}"
+                    height="{{ block.settings.image.height }}"
+                    loading="lazy"
+                  >
+                {%- else -%}
+                  {{ 'image' | placeholder_svg_tag: 'placeholder-svg' }}
+                {%- endif -%}
+              </div>
+
+            {%- when 'button' -%}
+              <div class="modern-flex__buttons">
+                {%- if block.settings.button_label != blank -%}
+                  <a href="{{ block.settings.button_url }}" class="modern-btn modern-btn--{{ block.settings.button_style | default: 'primary' }}">
+                    {{ block.settings.button_label }}
+                  </a>
+                {%- endif -%}
+                {%- if block.settings.button_2_label != blank -%}
+                  <a href="{{ block.settings.button_2_url }}" class="modern-btn modern-btn--{{ block.settings.button_2_style | default: 'outline' }}">
+                    {{ block.settings.button_2_label }}
+                  </a>
+                {%- endif -%}
+              </div>
+
+            {%- when 'spacer' -%}
+              <div class="modern-flex__spacer--{{ block.settings.size | default: 'md' }}"></div>
+
+            {%- when 'divider' -%}
+              <hr class="modern-flex__divider modern-flex__divider--{{ block.settings.style | default: 'default' }}">
+
+            {%- when 'quote' -%}
+              <blockquote class="modern-flex__quote">
+                {{ block.settings.text }}
+                {%- if block.settings.author != blank -%}
+                  <span class="modern-flex__quote-author">&mdash; {{ block.settings.author }}</span>
+                {%- endif -%}
+              </blockquote>
+
+            {%- when 'icon_text' -%}
+              <div class="modern-flex__icon-text">
+                <div class="modern-flex__icon-text-icon">
+                  {%- case block.settings.icon -%}
+                    {%- when 'star' -%}<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+                    {%- when 'heart' -%}<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z"/></svg>
+                    {%- when 'check' -%}<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M22 11.08V12a10 10 0 11-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+                    {%- when 'shield' -%}<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+                    {%- when 'zap' -%}<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+                    {%- when 'globe' -%}<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 014 10 15.3 15.3 0 01-4 10 15.3 15.3 0 01-4-10 15.3 15.3 0 014-10z"/></svg>
+                    {%- else -%}<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+                  {%- endcase -%}
+                </div>
+                <div class="modern-flex__icon-text-body">
+                  <h3 class="modern-flex__icon-text-title">{{ block.settings.title | default: 'Feature' }}</h3>
+                  {%- if block.settings.description != blank -%}
+                    <p class="modern-flex__icon-text-desc">{{ block.settings.description }}</p>
+                  {%- endif -%}
+                </div>
+              </div>
+
+            {%- when 'accordion' -%}
+              <details class="modern-flex__accordion-item">
+                <summary class="modern-flex__accordion-trigger">
+                  {{ block.settings.title | default: 'Question' }}
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+                </summary>
+                <div class="modern-flex__accordion-content-inner">
+                  {{ block.settings.content }}
+                </div>
+              </details>
+
+            {%- when 'video' -%}
+              {%- if block.settings.video_url != blank -%}
+                <div class="modern-flex__video">
+                  {%- assign video_url = block.settings.video_url -%}
+                  {%- if video_url contains 'youtube.com' or video_url contains 'youtu.be' -%}
+                    {%- assign yt_id = video_url | split: 'v=' | last | split: '&' | first -%}
+                    {%- if video_url contains 'youtu.be' -%}
+                      {%- assign yt_id = video_url | split: 'youtu.be/' | last | split: '?' | first -%}
+                    {%- endif -%}
+                    <iframe src="https://www.youtube.com/embed/{{ yt_id }}" allowfullscreen loading="lazy" title="Video"></iframe>
+                  {%- elsif video_url contains 'vimeo.com' -%}
+                    {%- assign vm_id = video_url | split: 'vimeo.com/' | last | split: '?' | first -%}
+                    <iframe src="https://player.vimeo.com/video/{{ vm_id }}" allowfullscreen loading="lazy" title="Video"></iframe>
+                  {%- endif -%}
+                </div>
+              {%- endif -%}
+
+            {%- when 'custom_html' -%}
+              <div class="modern-flex__html">
+                {{ block.settings.html }}
+              </div>
+
+            {%- when 'collection' -%}
+              {%- if block.settings.collection != blank -%}
+                <div style="display:grid;grid-template-columns:repeat({{ block.settings.columns | default: 4 }},1fr);gap:var(--space-lg,20px);">
+                  {%- for product in block.settings.collection.products limit: block.settings.limit -%}
+                    {%- render 'modern-product-card', product: product -%}
+                  {%- endfor -%}
+                </div>
+              {%- endif -%}
+
+            {%- when 'page' -%}
+              {%- if block.settings.page != blank -%}
+                <div class="modern-flex__text rte">
+                  {{ block.settings.page.content }}
+                </div>
+              {%- endif -%}
+
+          {%- endcase -%}
+        </div>
+      {%- endfor -%}
+
+    </div>
+  </div>
+</div>
+
+{% schema %}
+{
+  "name": "Flexible Content",
+  "tag": "section",
+  "class": "section-modern-flex",
+  "settings": [
+    { "type": "select", "id": "text_alignment", "label": "Text alignment", "default": "left", "options": [
+      { "value": "left", "label": "Left" },
+      { "value": "center", "label": "Center" },
+      { "value": "right", "label": "Right" }
+    ]},
+    { "type": "range", "id": "max_width", "min": 400, "max": 1400, "step": 50, "default": 800, "unit": "px", "label": "Content max width" },
+    { "type": "checkbox", "id": "full_width", "default": false, "label": "Full width" },
+    { "type": "color_scheme", "id": "color_scheme", "label": "Color scheme", "default": "background-1" },
+    { "type": "range", "id": "padding_top", "min": 0, "max": 200, "step": 4, "default": 60, "unit": "px", "label": "Padding top" },
+    { "type": "range", "id": "padding_bottom", "min": 0, "max": 200, "step": 4, "default": 60, "unit": "px", "label": "Padding bottom" }
+  ],
+  "blocks": [
+    {
+      "type": "heading",
+      "name": "Heading",
+      "settings": [
+        { "type": "text", "id": "text", "label": "Heading", "default": "Section Heading" },
+        { "type": "select", "id": "tag", "label": "Size", "default": "h2", "options": [
+          { "value": "h1", "label": "H1 - Extra Large" },
+          { "value": "h2", "label": "H2 - Large" },
+          { "value": "h3", "label": "H3 - Medium" },
+          { "value": "h4", "label": "H4 - Small" }
+        ]}
+      ]
+    },
+    {
+      "type": "text",
+      "name": "Text",
+      "settings": [
+        { "type": "textarea", "id": "text", "label": "Text", "default": "Add your content here." },
+        { "type": "select", "id": "size", "label": "Size", "default": "default", "options": [
+          { "value": "small", "label": "Small" },
+          { "value": "default", "label": "Default" },
+          { "value": "large", "label": "Large" }
+        ]}
+      ]
+    },
+    {
+      "type": "rich_text",
+      "name": "Rich Text",
+      "settings": [
+        { "type": "richtext", "id": "content", "label": "Content", "default": "<p>Rich text content with <strong>formatting</strong>.</p>" }
+      ]
+    },
+    {
+      "type": "image",
+      "name": "Image",
+      "settings": [
+        { "type": "image_picker", "id": "image", "label": "Image" },
+        { "type": "select", "id": "shape", "label": "Shape", "default": "default", "options": [
+          { "value": "default", "label": "Default" },
+          { "value": "rounded", "label": "Rounded" },
+          { "value": "circle", "label": "Circle" }
+        ]}
+      ]
+    },
+    {
+      "type": "button",
+      "name": "Button(s)",
+      "settings": [
+        { "type": "text", "id": "button_label", "label": "Button 1 label", "default": "Learn More" },
+        { "type": "url", "id": "button_url", "label": "Button 1 link" },
+        { "type": "select", "id": "button_style", "label": "Button 1 style", "default": "primary", "options": [
+          { "value": "primary", "label": "Primary" },
+          { "value": "outline", "label": "Outline" },
+          { "value": "ghost", "label": "Ghost" }
+        ]},
+        { "type": "text", "id": "button_2_label", "label": "Button 2 label" },
+        { "type": "url", "id": "button_2_url", "label": "Button 2 link" },
+        { "type": "select", "id": "button_2_style", "label": "Button 2 style", "default": "outline", "options": [
+          { "value": "primary", "label": "Primary" },
+          { "value": "outline", "label": "Outline" },
+          { "value": "ghost", "label": "Ghost" }
+        ]}
+      ]
+    },
+    {
+      "type": "spacer",
+      "name": "Spacer",
+      "settings": [
+        { "type": "select", "id": "size", "label": "Size", "default": "md", "options": [
+          { "value": "sm", "label": "Small" },
+          { "value": "md", "label": "Medium" },
+          { "value": "lg", "label": "Large" },
+          { "value": "xl", "label": "Extra Large" }
+        ]}
+      ]
+    },
+    {
+      "type": "divider",
+      "name": "Divider",
+      "settings": [
+        { "type": "select", "id": "style", "label": "Style", "default": "default", "options": [
+          { "value": "default", "label": "Thin line" },
+          { "value": "thick", "label": "Thick line" },
+          { "value": "dashed", "label": "Dashed" }
+        ]}
+      ]
+    },
+    {
+      "type": "quote",
+      "name": "Quote",
+      "settings": [
+        { "type": "textarea", "id": "text", "label": "Quote", "default": "This is an inspirational quote." },
+        { "type": "text", "id": "author", "label": "Author" }
+      ]
+    },
+    {
+      "type": "icon_text",
+      "name": "Icon + Text",
+      "settings": [
+        { "type": "select", "id": "icon", "label": "Icon", "default": "star", "options": [
+          { "value": "star", "label": "Star" },
+          { "value": "heart", "label": "Heart" },
+          { "value": "check", "label": "Check" },
+          { "value": "shield", "label": "Shield" },
+          { "value": "zap", "label": "Lightning" },
+          { "value": "globe", "label": "Globe" }
+        ]},
+        { "type": "text", "id": "title", "label": "Title", "default": "Feature Title" },
+        { "type": "textarea", "id": "description", "label": "Description", "default": "Describe this feature." }
+      ]
+    },
+    {
+      "type": "accordion",
+      "name": "Accordion Item",
+      "settings": [
+        { "type": "text", "id": "title", "label": "Title", "default": "Accordion Title" },
+        { "type": "richtext", "id": "content", "label": "Content", "default": "<p>Accordion content goes here.</p>" }
+      ]
+    },
+    {
+      "type": "video",
+      "name": "Video",
+      "settings": [
+        { "type": "url", "id": "video_url", "label": "YouTube or Vimeo URL" }
+      ]
+    },
+    {
+      "type": "custom_html",
+      "name": "Custom HTML",
+      "settings": [
+        { "type": "html", "id": "html", "label": "HTML content" }
+      ]
+    },
+    {
+      "type": "collection",
+      "name": "Product Grid",
+      "settings": [
+        { "type": "collection", "id": "collection", "label": "Collection" },
+        { "type": "range", "id": "limit", "min": 2, "max": 12, "step": 1, "default": 4, "label": "Products" },
+        { "type": "range", "id": "columns", "min": 2, "max": 6, "step": 1, "default": 4, "label": "Columns" }
+      ]
+    },
+    {
+      "type": "page",
+      "name": "Page Content",
+      "settings": [
+        { "type": "page", "id": "page", "label": "Page" }
+      ]
+    },
+    {
+      "type": "@app"
+    }
+  ],
+  "presets": [{
+    "name": "Flexible Content",
+    "blocks": [
+      { "type": "heading", "settings": { "text": "Build Your Page" }},
+      { "type": "text", "settings": { "text": "Use the blocks below to construct any layout you need. Mix headings, text, images, buttons, and more." }},
+      { "type": "button", "settings": { "button_label": "Get Started" }}
+    ]
+  }]
+}
+{% endschema %}

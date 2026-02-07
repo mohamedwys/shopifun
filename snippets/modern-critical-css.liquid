@@ -1,0 +1,155 @@
+{%- comment -%}
+  Modern Critical CSS
+  ====================
+  Inline critical CSS for above-the-fold content to prevent render-blocking.
+  This snippet should be included in <head> of theme.liquid.
+
+  It contains:
+  - Reset/base styles for immediate rendering
+  - Header/navigation critical path
+  - Hero section above-fold styles
+  - Font display optimizations
+  - Layout shift prevention
+{%- endcomment -%}
+
+<style>
+  /* ==========================================================================
+     Critical Base - Prevent Layout Shifts
+     ========================================================================== */
+  *, *::before, *::after { box-sizing: border-box; }
+  html { -webkit-text-size-adjust: 100%; text-size-adjust: 100%; }
+  body { margin: 0; }
+
+  /* Font display swap for custom fonts */
+  @font-face { font-display: swap; }
+
+  /* Prevent CLS for images */
+  img, video, svg { max-width: 100%; height: auto; display: block; }
+  img { content-visibility: auto; }
+
+  /* Reserve space for common elements */
+  .modern-header {
+    min-height: 64px;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    background: var(--color-background, #fff);
+  }
+
+  /* Hero section - prevent layout shift */
+  .section-modern-hero {
+    min-height: 60vh;
+    contain: layout style;
+  }
+
+  /* Product card aspect ratio reservation */
+  .modern-product-card__image-wrapper {
+    aspect-ratio: 1;
+    overflow: hidden;
+    contain: content;
+  }
+
+  /* ==========================================================================
+     Resource Hints
+     ========================================================================== */
+</style>
+
+{%- comment -%} DNS Prefetch and Preconnect for third-party resources {%- endcomment -%}
+<link rel="dns-prefetch" href="https://cdn.shopify.com">
+<link rel="preconnect" href="https://cdn.shopify.com" crossorigin>
+<link rel="dns-prefetch" href="https://fonts.shopifycdn.com">
+<link rel="preconnect" href="https://fonts.shopifycdn.com" crossorigin>
+
+{%- comment -%} Preload critical assets {%- endcomment -%}
+<link rel="preload" href="{{ 'modern-design-system.css' | asset_url }}" as="style">
+<link rel="preload" href="{{ 'modern-animations.js' | asset_url }}" as="script">
+
+{%- comment -%} Preload hero image if available {%- endcomment -%}
+{%- if template.name == 'index' -%}
+  {%- for section in content_for_layout -%}
+    {%- comment -%} Hero images will be picked up by the section itself {%- endcomment -%}
+  {%- endfor -%}
+{%- endif -%}
+
+<script>
+  /* ==========================================================================
+     Performance: Defer Non-Critical CSS
+     ========================================================================== */
+  (function() {
+    /* Mark load time for performance tracking */
+    if (window.performance && window.performance.mark) {
+      window.performance.mark('modern-theme-start');
+    }
+
+    /* Async CSS loader for non-critical styles */
+    window.ModernPerf = {
+      loadCSS: function(href) {
+        var link = document.createElement('link');
+        link.rel = 'stylesheet';
+        link.href = href;
+        link.media = 'print';
+        document.head.appendChild(link);
+        /* Switch to screen once loaded */
+        link.onload = function() { link.media = 'all'; };
+      },
+
+      /* Defer heavy assets until after interaction */
+      deferUntilIdle: function(callback) {
+        if ('requestIdleCallback' in window) {
+          requestIdleCallback(callback, { timeout: 3000 });
+        } else {
+          setTimeout(callback, 200);
+        }
+      },
+
+      /* Connection-aware loading */
+      isSlowConnection: function() {
+        if (navigator.connection) {
+          var conn = navigator.connection;
+          return conn.saveData || (conn.effectiveType && conn.effectiveType.includes('2g'));
+        }
+        return false;
+      },
+
+      /* Mark performance entry */
+      mark: function(name) {
+        if (window.performance && window.performance.mark) {
+          window.performance.mark('modern-' + name);
+        }
+      },
+
+      /* Measure between marks */
+      measure: function(name, startMark, endMark) {
+        if (window.performance && window.performance.measure) {
+          try {
+            window.performance.measure('modern-' + name, 'modern-' + startMark, 'modern-' + endMark);
+          } catch (e) { /* marks may not exist */ }
+        }
+      }
+    };
+
+    /* Disable animations on slow connections */
+    if (window.ModernPerf.isSlowConnection()) {
+      document.documentElement.classList.add('modern-perf-lite');
+    }
+  })();
+</script>
+
+<style>
+  /* Performance-lite mode: disable heavy effects on slow connections */
+  .modern-perf-lite .modern-animate { opacity: 1 !important; transform: none !important; }
+  .modern-perf-lite .modern-parallax { transform: none !important; }
+  .modern-perf-lite * { animation: none !important; transition-duration: 0.01ms !important; }
+
+  /* Content visibility for off-screen sections */
+  .section-modern-testimonials,
+  .section-modern-features-grid,
+  .section-modern-faq,
+  .section-modern-newsletter,
+  .section-modern-instagram,
+  .section-modern-trust,
+  .section-modern-recs {
+    content-visibility: auto;
+    contain-intrinsic-size: 0 400px;
+  }
+</style>

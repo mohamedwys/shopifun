@@ -1,0 +1,484 @@
+{%- comment -%}
+  Modern Urgency Bar
+  ===================
+  Conversion-driving urgency elements: countdown deals, low stock warnings,
+  recent purchase notifications, and free shipping progress.
+{%- endcomment -%}
+
+{%- style -%}
+  .section-{{ section.id }}-padding {
+    padding-top: {{ section.settings.padding_top | times: 0.75 | round: 0 }}px;
+    padding-bottom: {{ section.settings.padding_bottom | times: 0.75 | round: 0 }}px;
+  }
+  @media screen and (min-width: 750px) {
+    .section-{{ section.id }}-padding {
+      padding-top: {{ section.settings.padding_top }}px;
+      padding-bottom: {{ section.settings.padding_bottom }}px;
+    }
+  }
+
+  .modern-urgency {
+    max-width: 800px;
+    margin: 0 auto;
+  }
+
+  /* Countdown Deal Banner */
+  .modern-urgency__deal {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--space-md, 16px);
+    padding: var(--space-md, 16px) var(--space-xl, 24px);
+    background: {{ section.settings.deal_bg_color | default: '#fef3c7' }};
+    color: {{ section.settings.deal_text_color | default: '#92400e' }};
+    border-radius: var(--radius-lg, 12px);
+    font-size: var(--text-sm, 14px);
+    font-weight: 600;
+    flex-wrap: wrap;
+    text-align: center;
+  }
+  .modern-urgency__deal-icon {
+    font-size: var(--text-xl, 20px);
+    line-height: 1;
+  }
+  .modern-urgency__deal-timer {
+    display: inline-flex;
+    gap: var(--space-xs, 4px);
+    font-variant-numeric: tabular-nums;
+    font-weight: 800;
+  }
+  .modern-urgency__deal-timer span {
+    background: {{ section.settings.deal_text_color | default: '#92400e' }};
+    color: {{ section.settings.deal_bg_color | default: '#fef3c7' }};
+    padding: 2px 6px;
+    border-radius: var(--radius-sm, 4px);
+    min-width: 28px;
+    text-align: center;
+    font-size: var(--text-xs, 12px);
+  }
+  .modern-urgency__deal-sep {
+    font-weight: 800;
+    opacity: 0.5;
+  }
+
+  /* Low Stock Warning */
+  .modern-urgency__stock {
+    display: flex;
+    align-items: center;
+    gap: var(--space-sm, 8px);
+    padding: var(--space-md, 16px);
+    border-radius: var(--radius-lg, 12px);
+    background: rgba(239, 68, 68, 0.06);
+    border: 1px solid rgba(239, 68, 68, 0.15);
+    font-size: var(--text-sm, 14px);
+  }
+  .modern-urgency__stock-dot {
+    width: 8px;
+    height: 8px;
+    background: #ef4444;
+    border-radius: 50%;
+    flex-shrink: 0;
+    animation: modernUrgencyPulse 2s ease-in-out infinite;
+  }
+  @keyframes modernUrgencyPulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.3; }
+  }
+  .modern-urgency__stock-count {
+    font-weight: 700;
+    color: #dc2626;
+  }
+  .modern-urgency__stock-bar {
+    flex: 1;
+    max-width: 120px;
+    height: 4px;
+    background: rgba(239, 68, 68, 0.15);
+    border-radius: 2px;
+    overflow: hidden;
+    margin-left: auto;
+  }
+  .modern-urgency__stock-bar-fill {
+    height: 100%;
+    background: #ef4444;
+    border-radius: 2px;
+    transition: width 1s ease;
+  }
+
+  /* Recent Purchases (Social Proof) */
+  .modern-urgency__social-proof {
+    position: fixed;
+    bottom: var(--space-xl, 24px);
+    left: var(--space-xl, 24px);
+    z-index: 9990;
+    max-width: 320px;
+    padding: var(--space-md, 16px);
+    background: var(--color-background, #fff);
+    border-radius: var(--radius-lg, 12px);
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.12);
+    display: flex;
+    align-items: center;
+    gap: var(--space-md, 16px);
+    transform: translateY(150%);
+    opacity: 0;
+    transition: transform 0.5s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.3s ease;
+  }
+  .modern-urgency__social-proof.is-visible {
+    transform: translateY(0);
+    opacity: 1;
+  }
+  .modern-urgency__social-proof-img {
+    width: 48px;
+    height: 48px;
+    border-radius: var(--radius-md, 8px);
+    object-fit: cover;
+    flex-shrink: 0;
+    background: rgba(128, 128, 128, 0.08);
+  }
+  .modern-urgency__social-proof-body {
+    flex: 1;
+    min-width: 0;
+    font-size: var(--text-xs, 12px);
+    line-height: 1.4;
+  }
+  .modern-urgency__social-proof-name {
+    font-weight: 600;
+    font-size: var(--text-sm, 14px);
+  }
+  .modern-urgency__social-proof-time {
+    opacity: 0.5;
+  }
+  .modern-urgency__social-proof-close {
+    position: absolute;
+    top: var(--space-xs, 4px);
+    right: var(--space-xs, 4px);
+    width: 24px;
+    height: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: none;
+    background: none;
+    cursor: pointer;
+    opacity: 0.3;
+    color: inherit;
+    padding: 0;
+  }
+  .modern-urgency__social-proof-close:hover { opacity: 0.7; }
+  .modern-urgency__social-proof-close svg { width: 12px; height: 12px; }
+
+  /* Free Shipping Progress */
+  .modern-urgency__shipping {
+    padding: var(--space-md, 16px);
+    background: rgba(16, 185, 129, 0.06);
+    border: 1px solid rgba(16, 185, 129, 0.15);
+    border-radius: var(--radius-lg, 12px);
+    text-align: center;
+    font-size: var(--text-sm, 14px);
+  }
+  .modern-urgency__shipping-text {
+    margin: 0 0 var(--space-sm, 8px);
+  }
+  .modern-urgency__shipping-text strong {
+    color: #059669;
+  }
+  .modern-urgency__shipping-bar {
+    height: 6px;
+    background: rgba(16, 185, 129, 0.15);
+    border-radius: 3px;
+    overflow: hidden;
+  }
+  .modern-urgency__shipping-bar-fill {
+    height: 100%;
+    background: linear-gradient(90deg, #10b981, #059669);
+    border-radius: 3px;
+    transition: width 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+  .modern-urgency__shipping.is-achieved {
+    background: rgba(16, 185, 129, 0.1);
+    border-color: rgba(16, 185, 129, 0.3);
+  }
+  .modern-urgency__shipping-icon {
+    display: inline-block;
+    margin-right: var(--space-xs, 4px);
+  }
+
+  /* Visitors count */
+  .modern-urgency__visitors {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--space-sm, 8px);
+    font-size: var(--text-sm, 14px);
+    opacity: 0.7;
+    padding: var(--space-sm, 8px) 0;
+  }
+  .modern-urgency__visitors-dot {
+    width: 6px;
+    height: 6px;
+    background: #10b981;
+    border-radius: 50%;
+    animation: modernUrgencyPulse 2s ease-in-out infinite;
+  }
+  .modern-urgency__visitors-count {
+    font-weight: 700;
+  }
+
+  .modern-urgency > * + * {
+    margin-top: var(--space-md, 16px);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .modern-urgency__stock-dot,
+    .modern-urgency__visitors-dot { animation: none; }
+    .modern-urgency__social-proof { transition: opacity 0.15s ease; transform: none; }
+  }
+
+  @media screen and (max-width: 549px) {
+    .modern-urgency__social-proof {
+      left: var(--space-md, 16px);
+      right: var(--space-md, 16px);
+      max-width: none;
+    }
+  }
+{%- endstyle -%}
+
+<div class="color-{{ section.settings.color_scheme }} gradient">
+  <div class="page-width section-{{ section.id }}-padding">
+    <div class="modern-urgency modern-animate animate--fade-up">
+
+      {%- if section.settings.show_deal and section.settings.deal_text != blank -%}
+        <div class="modern-urgency__deal" role="alert">
+          <span class="modern-urgency__deal-icon" aria-hidden="true">&#x1F525;</span>
+          <span>{{ section.settings.deal_text }}</span>
+          {%- if section.settings.deal_end_date != blank -%}
+            <div class="modern-urgency__deal-timer" id="UrgencyDeal-{{ section.id }}" aria-label="Time remaining">
+              <span id="UrgencyHr-{{ section.id }}">00</span>
+              <span class="modern-urgency__deal-sep">:</span>
+              <span id="UrgencyMin-{{ section.id }}">00</span>
+              <span class="modern-urgency__deal-sep">:</span>
+              <span id="UrgencySec-{{ section.id }}">00</span>
+            </div>
+          {%- endif -%}
+        </div>
+      {%- endif -%}
+
+      {%- if section.settings.show_stock_warning -%}
+        <div class="modern-urgency__stock" role="status">
+          <span class="modern-urgency__stock-dot" aria-hidden="true"></span>
+          <span>
+            Only <span class="modern-urgency__stock-count">{{ section.settings.stock_count | default: 5 }}</span> left in stock
+          </span>
+          <div class="modern-urgency__stock-bar" aria-hidden="true">
+            {%- assign stock_pct = section.settings.stock_count | default: 5 | times: 100 | divided_by: 50 -%}
+            <div class="modern-urgency__stock-bar-fill" style="width: {{ stock_pct | at_most: 100 }}%"></div>
+          </div>
+        </div>
+      {%- endif -%}
+
+      {%- if section.settings.show_shipping_progress -%}
+        <div class="modern-urgency__shipping" id="UrgencyShipping-{{ section.id }}">
+          <p class="modern-urgency__shipping-text">
+            <span class="modern-urgency__shipping-icon" aria-hidden="true">&#x1F69A;</span>
+            <span id="UrgencyShipMsg-{{ section.id }}">
+              Spend <strong>{{ section.settings.shipping_threshold | money }}</strong> more for <strong>FREE shipping</strong>
+            </span>
+          </p>
+          <div class="modern-urgency__shipping-bar">
+            <div class="modern-urgency__shipping-bar-fill" id="UrgencyShipBar-{{ section.id }}" style="width: 0%"></div>
+          </div>
+        </div>
+      {%- endif -%}
+
+      {%- if section.settings.show_visitors -%}
+        <div class="modern-urgency__visitors">
+          <span class="modern-urgency__visitors-dot" aria-hidden="true"></span>
+          <span><span class="modern-urgency__visitors-count" id="UrgencyVisitors-{{ section.id }}">{{ section.settings.base_visitors | default: 12 }}</span> people are viewing this right now</span>
+        </div>
+      {%- endif -%}
+
+    </div>
+  </div>
+</div>
+
+{%- if section.settings.show_social_proof -%}
+  <div class="modern-urgency__social-proof" id="UrgencySocialProof-{{ section.id }}" role="complementary" aria-label="Recent purchase notification">
+    <button class="modern-urgency__social-proof-close" aria-label="Dismiss">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+    </button>
+    <div class="modern-urgency__social-proof-img" id="UrgencySPImg-{{ section.id }}"></div>
+    <div class="modern-urgency__social-proof-body">
+      <div class="modern-urgency__social-proof-name" id="UrgencySPName-{{ section.id }}"></div>
+      <div id="UrgencySPProduct-{{ section.id }}"></div>
+      <div class="modern-urgency__social-proof-time" id="UrgencySPTime-{{ section.id }}"></div>
+    </div>
+  </div>
+{%- endif -%}
+
+<script>
+(function() {
+  'use strict';
+  var sid = '{{ section.id }}';
+
+  /* Deal countdown */
+  {%- if section.settings.show_deal and section.settings.deal_end_date != blank -%}
+  (function() {
+    var end = new Date('{{ section.settings.deal_end_date }}').getTime();
+    function pad(n) { return n < 10 ? '0' + n : n; }
+    function tick() {
+      var d = end - Date.now();
+      if (d <= 0) {
+        document.getElementById('UrgencyHr-' + sid).textContent = '00';
+        document.getElementById('UrgencyMin-' + sid).textContent = '00';
+        document.getElementById('UrgencySec-' + sid).textContent = '00';
+        return;
+      }
+      document.getElementById('UrgencyHr-' + sid).textContent = pad(Math.floor((d % 86400000) / 3600000));
+      document.getElementById('UrgencyMin-' + sid).textContent = pad(Math.floor((d % 3600000) / 60000));
+      document.getElementById('UrgencySec-' + sid).textContent = pad(Math.floor((d % 60000) / 1000));
+      setTimeout(tick, 1000);
+    }
+    if (!isNaN(end)) tick();
+  })();
+  {%- endif -%}
+
+  /* Visitor count fluctuation */
+  {%- if section.settings.show_visitors -%}
+  (function() {
+    var el = document.getElementById('UrgencyVisitors-' + sid);
+    if (!el) return;
+    var base = {{ section.settings.base_visitors | default: 12 }};
+    setInterval(function() {
+      var change = Math.floor(Math.random() * 5) - 2;
+      base = Math.max(3, Math.min(base + change, base + 8));
+      el.textContent = base;
+    }, 5000);
+  })();
+  {%- endif -%}
+
+  /* Shipping progress (read cart total) */
+  {%- if section.settings.show_shipping_progress -%}
+  (function() {
+    var threshold = {{ section.settings.shipping_threshold | default: 5000 }};
+    function updateShipping() {
+      fetch('/cart.js').then(function(r) { return r.json(); }).then(function(cart) {
+        var total = cart.total_price;
+        var remaining = Math.max(0, threshold - total);
+        var pct = Math.min(100, Math.round(total / threshold * 100));
+        var bar = document.getElementById('UrgencyShipBar-' + sid);
+        var msg = document.getElementById('UrgencyShipMsg-' + sid);
+        var wrapper = document.getElementById('UrgencyShipping-' + sid);
+        if (bar) bar.style.width = pct + '%';
+        if (remaining <= 0) {
+          if (msg) msg.innerHTML = '<strong>Congratulations!</strong> You qualify for <strong>FREE shipping</strong>!';
+          if (wrapper) wrapper.classList.add('is-achieved');
+        } else {
+          var formatted = (remaining / 100).toFixed(2);
+          if (msg) msg.innerHTML = 'Spend <strong>$' + formatted + '</strong> more for <strong>FREE shipping</strong>';
+        }
+      }).catch(function() {});
+    }
+    updateShipping();
+    document.addEventListener('cart:updated', updateShipping);
+  })();
+  {%- endif -%}
+
+  /* Social proof popup rotation */
+  {%- if section.settings.show_social_proof -%}
+  (function() {
+    var popup = document.getElementById('UrgencySocialProof-' + sid);
+    if (!popup) return;
+
+    var closeBtn = popup.querySelector('.modern-urgency__social-proof-close');
+    var dismissed = false;
+
+    if (closeBtn) {
+      closeBtn.addEventListener('click', function() {
+        popup.classList.remove('is-visible');
+        dismissed = true;
+      });
+    }
+
+    var names = ['Sarah', 'James', 'Emma', 'Michael', 'Olivia', 'David', 'Sophia', 'Alex'];
+    var cities = ['New York', 'London', 'Toronto', 'Sydney', 'Berlin', 'Paris', 'Tokyo', 'Dubai'];
+    var times = ['2 minutes ago', '5 minutes ago', '8 minutes ago', '12 minutes ago', '15 minutes ago'];
+
+    {%- assign sp_products = section.settings.social_proof_collection | default: collections.all -%}
+    var products = [];
+    {%- for product in sp_products.products limit: 10 -%}
+      products.push({
+        title: {{ product.title | json }},
+        image: '{{ product.featured_image | image_url: width: 96 }}'
+      });
+    {%- endfor -%}
+
+    if (!products.length) return;
+
+    function showNotification() {
+      if (dismissed) return;
+      var name = names[Math.floor(Math.random() * names.length)];
+      var city = cities[Math.floor(Math.random() * cities.length)];
+      var time = times[Math.floor(Math.random() * times.length)];
+      var product = products[Math.floor(Math.random() * products.length)];
+
+      var imgEl = document.getElementById('UrgencySPImg-' + sid);
+      var nameEl = document.getElementById('UrgencySPName-' + sid);
+      var prodEl = document.getElementById('UrgencySPProduct-' + sid);
+      var timeEl = document.getElementById('UrgencySPTime-' + sid);
+
+      if (imgEl) imgEl.style.backgroundImage = 'url(' + product.image + ')';
+      if (imgEl) imgEl.style.backgroundSize = 'cover';
+      if (nameEl) nameEl.textContent = name + ' from ' + city;
+      if (prodEl) prodEl.textContent = 'Purchased ' + product.title;
+      if (timeEl) timeEl.textContent = time;
+
+      popup.classList.add('is-visible');
+
+      setTimeout(function() {
+        popup.classList.remove('is-visible');
+      }, {{ section.settings.social_proof_display | default: 5 }}000);
+    }
+
+    /* First show after delay */
+    setTimeout(showNotification, {{ section.settings.social_proof_delay | default: 10 }}000);
+    /* Repeat */
+    setInterval(showNotification, {{ section.settings.social_proof_interval | default: 30 }}000);
+  })();
+  {%- endif -%}
+})();
+</script>
+
+{% schema %}
+{
+  "name": "Urgency Bar",
+  "tag": "section",
+  "class": "section-modern-urgency",
+  "settings": [
+    { "type": "header", "content": "Deal Countdown" },
+    { "type": "checkbox", "id": "show_deal", "default": false, "label": "Show deal countdown" },
+    { "type": "text", "id": "deal_text", "label": "Deal text", "default": "Flash Sale! 30% off everything" },
+    { "type": "text", "id": "deal_end_date", "label": "Deal end date", "info": "YYYY-MM-DD HH:MM", "default": "2026-12-31 23:59" },
+    { "type": "color", "id": "deal_bg_color", "label": "Deal background", "default": "#fef3c7" },
+    { "type": "color", "id": "deal_text_color", "label": "Deal text color", "default": "#92400e" },
+    { "type": "header", "content": "Stock Warning" },
+    { "type": "checkbox", "id": "show_stock_warning", "default": false, "label": "Show low stock warning" },
+    { "type": "range", "id": "stock_count", "min": 1, "max": 20, "step": 1, "default": 5, "label": "Stock count" },
+    { "type": "header", "content": "Free Shipping Progress" },
+    { "type": "checkbox", "id": "show_shipping_progress", "default": true, "label": "Show shipping progress" },
+    { "type": "range", "id": "shipping_threshold", "min": 1000, "max": 20000, "step": 500, "default": 5000, "unit": "cents", "label": "Free shipping threshold" },
+    { "type": "header", "content": "Visitor Count" },
+    { "type": "checkbox", "id": "show_visitors", "default": false, "label": "Show viewer count" },
+    { "type": "range", "id": "base_visitors", "min": 5, "max": 50, "step": 1, "default": 12, "label": "Base visitor count" },
+    { "type": "header", "content": "Social Proof Popup" },
+    { "type": "checkbox", "id": "show_social_proof", "default": false, "label": "Show purchase notifications" },
+    { "type": "collection", "id": "social_proof_collection", "label": "Product source collection" },
+    { "type": "range", "id": "social_proof_delay", "min": 5, "max": 60, "step": 5, "default": 10, "unit": "s", "label": "Initial delay" },
+    { "type": "range", "id": "social_proof_interval", "min": 15, "max": 120, "step": 5, "default": 30, "unit": "s", "label": "Show interval" },
+    { "type": "range", "id": "social_proof_display", "min": 3, "max": 10, "step": 1, "default": 5, "unit": "s", "label": "Display duration" },
+    { "type": "header", "content": "General" },
+    { "type": "color_scheme", "id": "color_scheme", "label": "Color scheme", "default": "background-1" },
+    { "type": "range", "id": "padding_top", "min": 0, "max": 100, "step": 4, "default": 16, "unit": "px", "label": "Padding top" },
+    { "type": "range", "id": "padding_bottom", "min": 0, "max": 100, "step": 4, "default": 16, "unit": "px", "label": "Padding bottom" }
+  ],
+  "presets": [{ "name": "Urgency Bar" }]
+}
+{% endschema %}

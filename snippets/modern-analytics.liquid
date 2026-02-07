@@ -1,0 +1,296 @@
+{%- comment -%}
+  Modern Analytics Integration
+  =============================
+  Custom event tracking for e-commerce actions.
+  Dispatches standardized events that any analytics tool can listen to.
+  Includes built-in support for Google Analytics 4 (GA4) via gtag.
+
+  Usage:
+    {% render 'modern-analytics' %}
+    (Include once in theme.liquid, before </body>)
+{%- endcomment -%}
+
+<script>
+(function() {
+  'use strict';
+
+  /**
+   * ModernAnalytics - Unified analytics event dispatcher
+   * Fires custom DOM events and sends to GA4 if available
+   */
+  window.ModernAnalytics = {
+    /* Track a custom event */
+    track: function(eventName, data) {
+      data = data || {};
+      data.timestamp = Date.now();
+      data.page = window.location.pathname;
+
+      /* Dispatch DOM event for any listeners */
+      document.dispatchEvent(new CustomEvent('modern:analytics', {
+        detail: { event: eventName, data: data }
+      }));
+
+      /* Send to GA4 if available */
+      if (typeof gtag === 'function') {
+        gtag('event', eventName, data);
+      }
+
+      /* Send to dataLayer if available (GTM) */
+      if (window.dataLayer) {
+        window.dataLayer.push(Object.assign({ event: eventName }, data));
+      }
+    },
+
+    /* ====================================================================
+       E-Commerce Events
+       ==================================================================== */
+
+    /* Product viewed */
+    viewProduct: function(product) {
+      this.track('view_item', {
+        currency: product.currency || 'USD',
+        value: product.price,
+        items: [{
+          item_id: product.id,
+          item_name: product.title,
+          item_brand: product.vendor,
+          item_category: product.type,
+          price: product.price,
+          item_variant: product.variant
+        }]
+      });
+    },
+
+    /* Product list viewed (collection page) */
+    viewProductList: function(listName, products) {
+      this.track('view_item_list', {
+        item_list_name: listName,
+        items: products.map(function(p, i) {
+          return {
+            item_id: p.id,
+            item_name: p.title,
+            item_brand: p.vendor,
+            price: p.price,
+            index: i
+          };
+        })
+      });
+    },
+
+    /* Product clicked in list */
+    selectProduct: function(product, listName) {
+      this.track('select_item', {
+        item_list_name: listName,
+        items: [{
+          item_id: product.id,
+          item_name: product.title,
+          price: product.price
+        }]
+      });
+    },
+
+    /* Add to cart */
+    addToCart: function(product, quantity) {
+      this.track('add_to_cart', {
+        currency: product.currency || 'USD',
+        value: product.price * (quantity || 1),
+        items: [{
+          item_id: product.id,
+          item_name: product.title,
+          item_brand: product.vendor,
+          item_variant: product.variant,
+          price: product.price,
+          quantity: quantity || 1
+        }]
+      });
+    },
+
+    /* Remove from cart */
+    removeFromCart: function(product, quantity) {
+      this.track('remove_from_cart', {
+        currency: product.currency || 'USD',
+        value: product.price * (quantity || 1),
+        items: [{
+          item_id: product.id,
+          item_name: product.title,
+          price: product.price,
+          quantity: quantity || 1
+        }]
+      });
+    },
+
+    /* View cart */
+    viewCart: function(cart) {
+      this.track('view_cart', {
+        currency: cart.currency || 'USD',
+        value: cart.total_price / 100,
+        items: (cart.items || []).map(function(item) {
+          return {
+            item_id: item.product_id,
+            item_name: item.product_title,
+            item_variant: item.variant_title,
+            price: item.price / 100,
+            quantity: item.quantity
+          };
+        })
+      });
+    },
+
+    /* Begin checkout */
+    beginCheckout: function(cart) {
+      this.track('begin_checkout', {
+        currency: cart.currency || 'USD',
+        value: cart.total_price / 100,
+        items: (cart.items || []).map(function(item) {
+          return {
+            item_id: item.product_id,
+            item_name: item.product_title,
+            price: item.price / 100,
+            quantity: item.quantity
+          };
+        })
+      });
+    },
+
+    /* ====================================================================
+       Engagement Events
+       ==================================================================== */
+
+    /* Search performed */
+    search: function(query, results_count) {
+      this.track('search', {
+        search_term: query,
+        results_count: results_count
+      });
+    },
+
+    /* Wishlist toggle */
+    wishlistToggle: function(product, added) {
+      this.track(added ? 'add_to_wishlist' : 'remove_from_wishlist', {
+        currency: product.currency || 'USD',
+        value: product.price,
+        items: [{
+          item_id: product.id,
+          item_name: product.title
+        }]
+      });
+    },
+
+    /* Newsletter signup */
+    newsletter: function(email_hash) {
+      this.track('sign_up', {
+        method: 'newsletter',
+        email_hash: email_hash
+      });
+    },
+
+    /* Share */
+    share: function(method, contentType, itemId) {
+      this.track('share', {
+        method: method,
+        content_type: contentType,
+        item_id: itemId
+      });
+    },
+
+    /* Quick view opened */
+    quickView: function(product) {
+      this.track('quick_view', {
+        item_id: product.id,
+        item_name: product.title
+      });
+    },
+
+    /* ====================================================================
+       Performance Events
+       ==================================================================== */
+
+    /* Report Web Vitals */
+    reportVitals: function() {
+      if (window.ModernPerformance && window.ModernPerformance.VitalsMonitor) {
+        var metrics = window.ModernPerformance.VitalsMonitor.getMetrics();
+        if (metrics.lcp) {
+          this.track('web_vitals', {
+            lcp: metrics.lcp,
+            fid: metrics.fid,
+            cls: metrics.cls,
+            ttfb: metrics.ttfb
+          });
+        }
+      }
+    }
+  };
+
+  /* ====================================================================
+     Auto-Track Common Events
+     ==================================================================== */
+
+  function initAutoTracking() {
+    /* Track product card clicks */
+    document.addEventListener('click', function(e) {
+      var card = e.target.closest('.modern-product-card a');
+      if (card) {
+        var productCard = card.closest('.modern-product-card');
+        if (productCard) {
+          ModernAnalytics.selectProduct({
+            id: productCard.dataset.productId,
+            title: productCard.dataset.productTitle,
+            price: parseFloat(productCard.dataset.productPrice) || 0
+          }, 'product_grid');
+        }
+      }
+
+      /* Track share clicks */
+      var shareBtn = e.target.closest('[data-share-platform]');
+      if (shareBtn) {
+        ModernAnalytics.share(shareBtn.dataset.sharePlatform, 'product', shareBtn.dataset.shareId);
+      }
+    });
+
+    /* Track newsletter signups */
+    document.addEventListener('submit', function(e) {
+      var form = e.target;
+      if (form.classList.contains('modern-newsletter__form') ||
+          form.querySelector('input[name="contact[tags]"][value*="newsletter"]')) {
+        var email = form.querySelector('input[type="email"]');
+        if (email && email.value) {
+          /* Simple hash for privacy */
+          var hash = email.value.toLowerCase().split('').reduce(function(a, b) {
+            a = ((a << 5) - a) + b.charCodeAt(0);
+            return a & a;
+          }, 0);
+          ModernAnalytics.newsletter(Math.abs(hash).toString(16));
+        }
+      }
+    });
+
+    /* Report vitals after page load */
+    window.addEventListener('load', function() {
+      setTimeout(function() {
+        ModernAnalytics.reportVitals();
+      }, 5000);
+    });
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initAutoTracking);
+  } else {
+    initAutoTracking();
+  }
+})();
+</script>
+
+{%- comment -%} Structured Data - Organization {%- endcomment -%}
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "WebSite",
+  "name": {{ shop.name | json }},
+  "url": {{ shop.url | json }},
+  "potentialAction": {
+    "@type": "SearchAction",
+    "target": "{{ shop.url }}/search?q={search_term_string}",
+    "query-input": "required name=search_term_string"
+  }
+}
+</script>

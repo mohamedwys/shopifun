@@ -1548,6 +1548,231 @@
         "label": "Theme color (browser)",
         "default": "#ffffff",
         "info": "Sets the browser tab color on mobile devices."
+      },
+      {
+        "type": "header",
+        "content": "Product Features"
+      },
+      {
+        "type": "checkbox",
+        "id": "modern_enable_wishlist",
+        "label": "Enable wishlist",
+        "default": true,
+        "info": "Heart icon on product cards, persists via localStorage."
+      },
+      {
+        "type": "checkbox",
+        "id": "modern_enable_quick_view",
+        "label": "Enable quick view",
+        "default": true,
+        "info": "Quick view modal on product cards."
+      },
+      {
+        "type": "checkbox",
+        "id": "modern_enable_cart_drawer",
+        "label": "Enable cart drawer",
+        "default": true,
+        "info": "Slide-in cart instead of redirecting to cart page."
+      },
+      {
+        "type": "checkbox",
+        "id": "modern_enable_live_search",
+        "label": "Enable live search",
+        "default": true,
+        "info": "Predictive search with product previews."
+      },
+      {
+        "type": "header",
+        "content": "Performance"
+      },
+      {
+        "type": "checkbox",
+        "id": "modern_enable_prefetch",
+        "label": "Enable link prefetching",
+        "default": true,
+        "info": "Prefetches links on hover for faster navigation. Disabled on slow connections."
+      },
+      {
+        "type": "checkbox",
+        "id": "modern_enable_service_worker",
+        "label": "Enable service worker",
+        "default": false,
+        "info": "Caches assets for offline support and faster repeat visits."
+      },
+      {
+        "type": "checkbox",
+        "id": "modern_lazy_animations",
+        "label": "Lazy load animations",
+        "default": true,
+        "info": "Only initialize animations when elements enter viewport."
+      }
+    ]
+  },
+  {
+    "name": "Modern Style Presets",
+    "settings": [
+      {
+        "type": "select",
+        "id": "modern_style_preset",
+        "label": "Style preset",
+        "info": "Quick-start presets that set default values for common settings. Individual settings still override.",
+        "options": [
+          { "value": "minimal", "label": "Minimal Clean" },
+          { "value": "bold", "label": "Bold & Modern" },
+          { "value": "luxury", "label": "Luxury Elegance" },
+          { "value": "playful", "label": "Playful & Vibrant" },
+          { "value": "custom", "label": "Custom" }
+        ],
+        "default": "custom"
+      },
+      {
+        "type": "header",
+        "content": "Border Radius"
+      },
+      {
+        "type": "select",
+        "id": "modern_border_radius",
+        "label": "Corner style",
+        "options": [
+          { "value": "sharp", "label": "Sharp (0px)" },
+          { "value": "subtle", "label": "Subtle (4px)" },
+          { "value": "rounded", "label": "Rounded (8px)" },
+          { "value": "pill", "label": "Pill (12px)" },
+          { "value": "full", "label": "Full Round (999px)" }
+        ],
+        "default": "rounded"
+      },
+      {
+        "type": "header",
+        "content": "Shadows"
+      },
+      {
+        "type": "select",
+        "id": "modern_shadow_style",
+        "label": "Shadow intensity",
+        "options": [
+          { "value": "none", "label": "None" },
+          { "value": "subtle", "label": "Subtle" },
+          { "value": "medium", "label": "Medium" },
+          { "value": "dramatic", "label": "Dramatic" }
+        ],
+        "default": "subtle"
+      },
+      {
+        "type": "header",
+        "content": "Spacing"
+      },
+      {
+        "type": "select",
+        "id": "modern_spacing_scale",
+        "label": "Spacing scale",
+        "options": [
+          { "value": "compact", "label": "Compact" },
+          { "value": "default", "label": "Default" },
+          { "value": "relaxed", "label": "Relaxed" },
+          { "value": "spacious", "label": "Spacious" }
+        ],
+        "default": "default"
+      },
+      {
+        "type": "header",
+        "content": "Typography Style"
+      },
+      {
+        "type": "select",
+        "id": "modern_heading_style",
+        "label": "Heading weight",
+        "options": [
+          { "value": "light", "label": "Light (300)" },
+          { "value": "normal", "label": "Normal (500)" },
+          { "value": "bold", "label": "Bold (700)" },
+          { "value": "black", "label": "Black (900)" }
+        ],
+        "default": "bold"
+      },
+      {
+        "type": "select",
+        "id": "modern_heading_transform",
+        "label": "Heading text transform",
+        "options": [
+          { "value": "none", "label": "None" },
+          { "value": "uppercase", "label": "UPPERCASE" },
+          { "value": "capitalize", "label": "Capitalize" }
+        ],
+        "default": "none"
+      },
+      {
+        "type": "header",
+        "content": "Color Accents"
+      },
+      {
+        "type": "color",
+        "id": "modern_accent_color",
+        "label": "Accent color",
+        "default": "#667eea",
+        "info": "Used for gradients, highlights, and interactive elements."
+      },
+      {
+        "type": "color",
+        "id": "modern_accent_secondary",
+        "label": "Accent secondary",
+        "default": "#764ba2",
+        "info": "Used as gradient end point."
+      },
+      {
+        "type": "header",
+        "content": "Product Card Style"
+      },
+      {
+        "type": "select",
+        "id": "modern_card_style",
+        "label": "Card style",
+        "options": [
+          { "value": "standard", "label": "Standard" },
+          { "value": "minimal", "label": "Minimal (no border)" },
+          { "value": "bordered", "label": "Bordered" },
+          { "value": "shadow", "label": "Shadow" },
+          { "value": "glass", "label": "Glass" }
+        ],
+        "default": "standard"
+      },
+      {
+        "type": "select",
+        "id": "modern_image_ratio",
+        "label": "Product image ratio",
+        "options": [
+          { "value": "square", "label": "Square (1:1)" },
+          { "value": "portrait", "label": "Portrait (3:4)" },
+          { "value": "landscape", "label": "Landscape (4:3)" },
+          { "value": "natural", "label": "Natural" }
+        ],
+        "default": "square"
+      },
+      {
+        "type": "header",
+        "content": "Button Style"
+      },
+      {
+        "type": "select",
+        "id": "modern_button_shape",
+        "label": "Button shape",
+        "options": [
+          { "value": "square", "label": "Square" },
+          { "value": "rounded", "label": "Rounded" },
+          { "value": "pill", "label": "Pill" }
+        ],
+        "default": "rounded"
+      },
+      {
+        "type": "select",
+        "id": "modern_button_size",
+        "label": "Default button size",
+        "options": [
+          { "value": "sm", "label": "Small" },
+          { "value": "md", "label": "Medium" },
+          { "value": "lg", "label": "Large" }
+        ],
+        "default": "md"
       }
     ]
   }

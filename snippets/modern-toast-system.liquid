@@ -1,0 +1,390 @@
+{%- comment -%}
+  Modern Toast Notification System
+  =================================
+  Enhanced toast notifications with success/error/info/warning types,
+  queue system, auto-dismiss with progress bar, and swipe-to-dismiss.
+
+  Usage:
+    {% render 'modern-toast-system' %}
+    (Include once in theme.liquid)
+
+  JS API:
+    ModernToast.show({ message, type, duration, action })
+    ModernToast.success('Item added to cart')
+    ModernToast.error('Could not add item')
+    ModernToast.info('Free shipping unlocked!')
+    ModernToast.warning('Only 2 left in stock')
+{%- endcomment -%}
+
+<style>
+  .modern-toast-container {
+    position: fixed;
+    bottom: var(--space-xl, 24px);
+    right: var(--space-xl, 24px);
+    z-index: 10000;
+    display: flex;
+    flex-direction: column-reverse;
+    gap: var(--space-sm, 8px);
+    max-width: 400px;
+    pointer-events: none;
+  }
+  @media screen and (max-width: 549px) {
+    .modern-toast-container {
+      left: var(--space-md, 16px);
+      right: var(--space-md, 16px);
+      bottom: var(--space-md, 16px);
+      max-width: none;
+    }
+  }
+
+  .modern-toast {
+    display: flex;
+    align-items: flex-start;
+    gap: var(--space-md, 16px);
+    padding: var(--space-md, 16px) var(--space-lg, 20px);
+    border-radius: var(--radius-lg, 12px);
+    background: var(--color-background, #fff);
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.12), 0 2px 8px rgba(0, 0, 0, 0.08);
+    pointer-events: auto;
+    transform: translateX(120%);
+    opacity: 0;
+    transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.3s ease;
+    position: relative;
+    overflow: hidden;
+    touch-action: pan-x;
+    cursor: default;
+    max-width: 100%;
+  }
+  .modern-toast.is-visible {
+    transform: translateX(0);
+    opacity: 1;
+  }
+  .modern-toast.is-dismissing {
+    transform: translateX(120%);
+    opacity: 0;
+    transition: transform 0.3s ease-in, opacity 0.2s ease;
+  }
+
+  /* Toast icon */
+  .modern-toast__icon {
+    flex-shrink: 0;
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-top: 1px;
+  }
+  .modern-toast__icon svg {
+    width: 14px;
+    height: 14px;
+  }
+
+  /* Toast types */
+  .modern-toast--success .modern-toast__icon { background: rgba(16, 185, 129, 0.15); color: #059669; }
+  .modern-toast--error .modern-toast__icon { background: rgba(239, 68, 68, 0.15); color: #dc2626; }
+  .modern-toast--info .modern-toast__icon { background: rgba(59, 130, 246, 0.15); color: #2563eb; }
+  .modern-toast--warning .modern-toast__icon { background: rgba(245, 158, 11, 0.15); color: #d97706; }
+
+  .modern-toast--success { border-left: 3px solid #10b981; }
+  .modern-toast--error { border-left: 3px solid #ef4444; }
+  .modern-toast--info { border-left: 3px solid #3b82f6; }
+  .modern-toast--warning { border-left: 3px solid #f59e0b; }
+
+  /* Toast content */
+  .modern-toast__body {
+    flex: 1;
+    min-width: 0;
+  }
+  .modern-toast__message {
+    font-size: var(--text-sm, 14px);
+    font-weight: 500;
+    line-height: 1.4;
+    color: var(--color-foreground, #1a1a1a);
+    word-break: break-word;
+  }
+  .modern-toast__action {
+    display: inline-block;
+    margin-top: var(--space-xs, 4px);
+    font-size: var(--text-xs, 12px);
+    font-weight: 600;
+    text-decoration: underline;
+    text-underline-offset: 2px;
+    cursor: pointer;
+    border: none;
+    background: none;
+    padding: 0;
+    color: inherit;
+    opacity: 0.7;
+    transition: opacity 0.15s ease;
+  }
+  .modern-toast__action:hover { opacity: 1; }
+
+  /* Close button */
+  .modern-toast__close {
+    flex-shrink: 0;
+    width: 28px;
+    height: 28px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: none;
+    background: rgba(128, 128, 128, 0.08);
+    border-radius: 50%;
+    cursor: pointer;
+    color: inherit;
+    opacity: 0.4;
+    transition: opacity 0.15s ease, background 0.15s ease;
+    padding: 0;
+  }
+  .modern-toast__close:hover {
+    opacity: 0.8;
+    background: rgba(128, 128, 128, 0.15);
+  }
+  .modern-toast__close svg {
+    width: 14px;
+    height: 14px;
+  }
+
+  /* Progress bar */
+  .modern-toast__progress {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    height: 3px;
+    background: currentColor;
+    opacity: 0.2;
+    border-radius: 0 0 0 var(--radius-lg, 12px);
+    transition: width linear;
+  }
+  .modern-toast--success .modern-toast__progress { background: #10b981; opacity: 0.3; }
+  .modern-toast--error .modern-toast__progress { background: #ef4444; opacity: 0.3; }
+  .modern-toast--info .modern-toast__progress { background: #3b82f6; opacity: 0.3; }
+  .modern-toast--warning .modern-toast__progress { background: #f59e0b; opacity: 0.3; }
+
+  /* Dark mode */
+  [data-theme="dark"] .modern-toast {
+    background: #1e1e2e;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+  }
+  [data-theme="dark"] .modern-toast__message {
+    color: #e2e2e8;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .modern-toast {
+      transition: opacity 0.15s ease;
+      transform: none;
+    }
+    .modern-toast.is-dismissing {
+      transform: none;
+    }
+  }
+</style>
+
+<div class="modern-toast-container" id="ModernToastContainer" aria-live="polite" role="status"></div>
+
+<script>
+(function() {
+  'use strict';
+
+  var ICONS = {
+    success: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>',
+    error: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>',
+    info: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>',
+    warning: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>'
+  };
+
+  var container = document.getElementById('ModernToastContainer');
+  var queue = [];
+  var MAX_VISIBLE = 3;
+  var activeCount = 0;
+
+  function createToast(opts) {
+    var type = opts.type || 'info';
+    var message = opts.message || '';
+    var duration = opts.duration !== undefined ? opts.duration : 4000;
+    var action = opts.action || null;
+
+    var toast = document.createElement('div');
+    toast.className = 'modern-toast modern-toast--' + type;
+    toast.setAttribute('role', 'status');
+    toast.setAttribute('aria-live', 'polite');
+
+    var html = '';
+    html += '<div class="modern-toast__icon">' + (ICONS[type] || ICONS.info) + '</div>';
+    html += '<div class="modern-toast__body">';
+    html += '<div class="modern-toast__message">' + message + '</div>';
+    if (action) {
+      html += '<button class="modern-toast__action" data-toast-action>' + action.label + '</button>';
+    }
+    html += '</div>';
+    html += '<button class="modern-toast__close" aria-label="Dismiss"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>';
+    if (duration > 0) {
+      html += '<div class="modern-toast__progress" style="width:100%"></div>';
+    }
+
+    toast.innerHTML = html;
+
+    /* Close button */
+    toast.querySelector('.modern-toast__close').addEventListener('click', function() {
+      dismiss(toast);
+    });
+
+    /* Action button */
+    if (action && action.callback) {
+      var actionBtn = toast.querySelector('[data-toast-action]');
+      if (actionBtn) {
+        actionBtn.addEventListener('click', function() {
+          action.callback();
+          dismiss(toast);
+        });
+      }
+    }
+
+    /* Swipe to dismiss (mobile) */
+    var startX = 0, currentX = 0, swiping = false;
+    toast.addEventListener('touchstart', function(e) {
+      startX = e.touches[0].clientX;
+      swiping = true;
+      toast.style.transition = 'none';
+    }, { passive: true });
+
+    toast.addEventListener('touchmove', function(e) {
+      if (!swiping) return;
+      currentX = e.touches[0].clientX - startX;
+      if (currentX > 0) {
+        toast.style.transform = 'translateX(' + currentX + 'px)';
+        toast.style.opacity = Math.max(0, 1 - currentX / 200);
+      }
+    }, { passive: true });
+
+    toast.addEventListener('touchend', function() {
+      if (!swiping) return;
+      swiping = false;
+      toast.style.transition = '';
+      if (currentX > 80) {
+        dismiss(toast);
+      } else {
+        toast.style.transform = '';
+        toast.style.opacity = '';
+      }
+      currentX = 0;
+    });
+
+    /* Auto-dismiss with progress bar */
+    var progressBar = toast.querySelector('.modern-toast__progress');
+    var dismissTimer;
+    if (duration > 0) {
+      /* Animate progress bar */
+      requestAnimationFrame(function() {
+        if (progressBar) {
+          progressBar.style.transitionDuration = duration + 'ms';
+          progressBar.style.width = '0%';
+        }
+      });
+
+      dismissTimer = setTimeout(function() {
+        dismiss(toast);
+      }, duration);
+
+      /* Pause on hover */
+      toast.addEventListener('mouseenter', function() {
+        clearTimeout(dismissTimer);
+        if (progressBar) {
+          var remaining = progressBar.getBoundingClientRect().width;
+          var total = toast.getBoundingClientRect().width;
+          progressBar.style.transitionDuration = '0s';
+          progressBar.style.width = (remaining / total * 100) + '%';
+          toast._remainingRatio = remaining / total;
+        }
+      });
+
+      toast.addEventListener('mouseleave', function() {
+        var ratio = toast._remainingRatio || 0;
+        var remaining = duration * ratio;
+        if (remaining > 0 && progressBar) {
+          progressBar.style.transitionDuration = remaining + 'ms';
+          progressBar.style.width = '0%';
+        }
+        dismissTimer = setTimeout(function() {
+          dismiss(toast);
+        }, remaining);
+      });
+    }
+
+    return toast;
+  }
+
+  function dismiss(toast) {
+    if (toast._dismissed) return;
+    toast._dismissed = true;
+    toast.classList.remove('is-visible');
+    toast.classList.add('is-dismissing');
+    activeCount--;
+
+    setTimeout(function() {
+      if (toast.parentNode) toast.parentNode.removeChild(toast);
+      processQueue();
+    }, 400);
+  }
+
+  function show(toast) {
+    container.appendChild(toast);
+    activeCount++;
+
+    requestAnimationFrame(function() {
+      requestAnimationFrame(function() {
+        toast.classList.add('is-visible');
+      });
+    });
+  }
+
+  function processQueue() {
+    while (queue.length > 0 && activeCount < MAX_VISIBLE) {
+      show(queue.shift());
+    }
+  }
+
+  window.ModernToast = {
+    show: function(opts) {
+      var toast = createToast(opts);
+      if (activeCount >= MAX_VISIBLE) {
+        queue.push(toast);
+      } else {
+        show(toast);
+      }
+      /* Announce to screen readers */
+      if (window.ModernA11y && window.ModernA11y.announce) {
+        window.ModernA11y.announce(opts.message, opts.type === 'error' ? 'assertive' : 'polite');
+      }
+      return toast;
+    },
+
+    success: function(message, opts) {
+      return this.show(Object.assign({ type: 'success', message: message }, opts || {}));
+    },
+
+    error: function(message, opts) {
+      return this.show(Object.assign({ type: 'error', message: message, duration: 6000 }, opts || {}));
+    },
+
+    info: function(message, opts) {
+      return this.show(Object.assign({ type: 'info', message: message }, opts || {}));
+    },
+
+    warning: function(message, opts) {
+      return this.show(Object.assign({ type: 'warning', message: message, duration: 5000 }, opts || {}));
+    },
+
+    /* Clear all toasts */
+    clear: function() {
+      queue = [];
+      container.querySelectorAll('.modern-toast').forEach(function(t) {
+        dismiss(t);
+      });
+    }
+  };
+})();
+</script>

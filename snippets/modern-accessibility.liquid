@@ -1,0 +1,335 @@
+{%- comment -%}
+  Modern Accessibility Enhancements
+  ==================================
+  Skip-to-content link, focus-visible styles, screen reader live regions,
+  focus trapping for modals, and keyboard navigation helpers.
+
+  Usage:
+    {% render 'modern-accessibility' %}
+    (Include once in theme.liquid, before </body>)
+{%- endcomment -%}
+
+<style>
+  /* ==========================================================================
+     1. Skip to Content Link
+     ========================================================================== */
+  .modern-skip-link {
+    position: fixed;
+    top: -100%;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 100000;
+    padding: var(--space-md, 16px) var(--space-2xl, 32px);
+    background: var(--color-foreground, #000);
+    color: var(--color-background, #fff);
+    font-size: var(--text-sm, 14px);
+    font-weight: 600;
+    text-decoration: none;
+    border-radius: 0 0 var(--radius-md, 8px) var(--radius-md, 8px);
+    transition: top 0.2s ease;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+  }
+  .modern-skip-link:focus {
+    top: 0;
+    outline: 3px solid var(--color-button, #667eea);
+    outline-offset: 2px;
+  }
+
+  /* ==========================================================================
+     2. Focus Visible Styles
+     ========================================================================== */
+  *:focus-visible {
+    outline: 2px solid var(--color-button, #667eea);
+    outline-offset: 3px;
+    border-radius: 2px;
+  }
+
+  /* Remove outline for mouse clicks */
+  *:focus:not(:focus-visible) {
+    outline: none;
+  }
+
+  /* Enhanced focus for interactive elements */
+  a:focus-visible,
+  button:focus-visible,
+  [role="button"]:focus-visible,
+  input:focus-visible,
+  select:focus-visible,
+  textarea:focus-visible {
+    outline: 2px solid var(--color-button, #667eea);
+    outline-offset: 3px;
+    box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.15);
+  }
+
+  /* Focus ring for card-like elements */
+  .modern-card:focus-within {
+    box-shadow: 0 0 0 2px var(--color-button, #667eea), var(--shadow-md, 0 4px 12px rgba(0,0,0,0.1));
+  }
+
+  /* Tab-style focus for product cards */
+  .modern-product-card:focus-within .modern-product-card__image-wrapper {
+    outline: 2px solid var(--color-button, #667eea);
+    outline-offset: 2px;
+    border-radius: var(--radius-lg, 12px);
+  }
+
+  /* ==========================================================================
+     3. Screen Reader Only (enhanced)
+     ========================================================================== */
+  .sr-only,
+  .modern-sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
+  }
+  .sr-only-focusable:focus,
+  .modern-sr-only-focusable:focus {
+    position: static;
+    width: auto;
+    height: auto;
+    padding: var(--space-sm, 8px) var(--space-md, 16px);
+    margin: 0;
+    overflow: visible;
+    clip: auto;
+    white-space: normal;
+  }
+
+  /* ==========================================================================
+     4. High Contrast Mode Support
+     ========================================================================== */
+  @media (forced-colors: active) {
+    .modern-btn,
+    .modern-card,
+    .modern-product-card {
+      border: 1px solid ButtonText;
+    }
+    .modern-btn--primary {
+      background: ButtonFace;
+      color: ButtonText;
+      forced-color-adjust: none;
+    }
+    .modern-badge {
+      border: 1px solid currentColor;
+    }
+  }
+
+  /* ==========================================================================
+     5. Focus Trap Overlay (for modals)
+     ========================================================================== */
+  .modern-focus-trap-active {
+    overflow: hidden;
+  }
+  .modern-focus-trap-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.5);
+    z-index: 9998;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.3s ease, visibility 0.3s ease;
+  }
+  .modern-focus-trap-overlay.is-active {
+    opacity: 1;
+    visibility: visible;
+  }
+
+  /* ==========================================================================
+     6. Reduced Motion Preference Indicator
+     ========================================================================== */
+  @media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+      scroll-behavior: auto !important;
+    }
+    .modern-animate {
+      opacity: 1 !important;
+      transform: none !important;
+    }
+  }
+
+  /* ==========================================================================
+     7. Touch Target Sizing
+     ========================================================================== */
+  @media (pointer: coarse) {
+    button,
+    a,
+    [role="button"],
+    input[type="checkbox"],
+    input[type="radio"],
+    select {
+      min-height: 44px;
+      min-width: 44px;
+    }
+    .modern-404__link,
+    .modern-password__social a {
+      min-height: 48px;
+      min-width: 48px;
+    }
+  }
+</style>
+
+<!-- Skip to Content Link -->
+<a class="modern-skip-link" href="#MainContent">
+  {{ 'accessibility.skip_to_text' | t | default: 'Skip to content' }}
+</a>
+
+<!-- ARIA Live Region for Dynamic Announcements -->
+<div id="ModernAnnouncer" class="modern-sr-only" aria-live="polite" aria-atomic="true" role="status"></div>
+<div id="ModernAnnouncerAssertive" class="modern-sr-only" aria-live="assertive" aria-atomic="true" role="alert"></div>
+
+<script>
+(function() {
+  'use strict';
+
+  /* ========================================================================
+     Screen Reader Announcer
+     ======================================================================== */
+  window.ModernA11y = {
+    /**
+     * Announce a message to screen readers
+     * @param {string} message - The message to announce
+     * @param {string} priority - 'polite' or 'assertive'
+     */
+    announce: function(message, priority) {
+      var el = priority === 'assertive'
+        ? document.getElementById('ModernAnnouncerAssertive')
+        : document.getElementById('ModernAnnouncer');
+      if (!el) return;
+      /* Clear then set to trigger announcement */
+      el.textContent = '';
+      requestAnimationFrame(function() {
+        el.textContent = message;
+      });
+    },
+
+    /* ========================================================================
+       Focus Trap for Modals
+       ======================================================================== */
+    trapFocus: function(container) {
+      var focusable = container.querySelectorAll(
+        'a[href], button:not([disabled]), input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])'
+      );
+      if (!focusable.length) return null;
+
+      var first = focusable[0];
+      var last = focusable[focusable.length - 1];
+      var previousFocus = document.activeElement;
+
+      function handler(e) {
+        if (e.key !== 'Tab') return;
+        if (e.shiftKey) {
+          if (document.activeElement === first) {
+            e.preventDefault();
+            last.focus();
+          }
+        } else {
+          if (document.activeElement === last) {
+            e.preventDefault();
+            first.focus();
+          }
+        }
+      }
+
+      container.addEventListener('keydown', handler);
+      document.body.classList.add('modern-focus-trap-active');
+      first.focus();
+
+      /* Return release function */
+      return {
+        release: function() {
+          container.removeEventListener('keydown', handler);
+          document.body.classList.remove('modern-focus-trap-active');
+          if (previousFocus && previousFocus.focus) {
+            previousFocus.focus();
+          }
+        }
+      };
+    },
+
+    /* ========================================================================
+       Roving Tabindex for Tab Lists and Toolbars
+       ======================================================================== */
+    initRovingTabindex: function(container, selector, options) {
+      var items = Array.from(container.querySelectorAll(selector));
+      if (!items.length) return;
+
+      var opts = options || {};
+      var vertical = opts.vertical || false;
+      var wrap = opts.wrap !== false;
+
+      items.forEach(function(item, i) {
+        item.setAttribute('tabindex', i === 0 ? '0' : '-1');
+      });
+
+      container.addEventListener('keydown', function(e) {
+        var nextKey = vertical ? 'ArrowDown' : 'ArrowRight';
+        var prevKey = vertical ? 'ArrowUp' : 'ArrowLeft';
+        var currentIndex = items.indexOf(document.activeElement);
+        if (currentIndex === -1) return;
+
+        var newIndex;
+        if (e.key === nextKey) {
+          newIndex = wrap ? (currentIndex + 1) % items.length : Math.min(currentIndex + 1, items.length - 1);
+        } else if (e.key === prevKey) {
+          newIndex = wrap ? (currentIndex - 1 + items.length) % items.length : Math.max(currentIndex - 1, 0);
+        } else if (e.key === 'Home') {
+          newIndex = 0;
+        } else if (e.key === 'End') {
+          newIndex = items.length - 1;
+        } else {
+          return;
+        }
+
+        e.preventDefault();
+        items[currentIndex].setAttribute('tabindex', '-1');
+        items[newIndex].setAttribute('tabindex', '0');
+        items[newIndex].focus();
+      });
+    },
+
+    /* ========================================================================
+       Auto-expand click targets for small elements
+       ======================================================================== */
+    expandClickTargets: function() {
+      if (window.matchMedia('(pointer: coarse)').matches) {
+        document.querySelectorAll('.modern-product-card__wishlist, .modern-product-card__quick-add').forEach(function(el) {
+          var pad = Math.max(0, (44 - el.offsetHeight) / 2);
+          if (pad > 0) {
+            el.style.padding = pad + 'px';
+            el.style.margin = '-' + pad + 'px';
+          }
+        });
+      }
+    }
+  };
+
+  /* Auto-init on DOMContentLoaded */
+  function init() {
+    window.ModernA11y.expandClickTargets();
+
+    /* ARIA current page in navigation */
+    var path = window.location.pathname;
+    document.querySelectorAll('nav a[href]').forEach(function(link) {
+      if (link.pathname === path) {
+        link.setAttribute('aria-current', 'page');
+      }
+    });
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', init);
+  } else {
+    init();
+  }
+})();
+</script>

@@ -1,0 +1,371 @@
+{%- comment -%}
+  Modern Smart Recommendations
+  ==============================
+  AI-powered product recommendations with multiple layouts:
+  recently viewed, complementary products, trending, and personalized picks.
+{%- endcomment -%}
+
+{%- style -%}
+  .section-{{ section.id }}-padding {
+    padding-top: {{ section.settings.padding_top | times: 0.75 | round: 0 }}px;
+    padding-bottom: {{ section.settings.padding_bottom | times: 0.75 | round: 0 }}px;
+  }
+  @media screen and (min-width: 750px) {
+    .section-{{ section.id }}-padding {
+      padding-top: {{ section.settings.padding_top }}px;
+      padding-bottom: {{ section.settings.padding_bottom }}px;
+    }
+  }
+
+  .modern-recs { position: relative; }
+  .modern-recs__header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: var(--space-xl, 24px);
+    flex-wrap: wrap;
+    gap: var(--space-md, 16px);
+  }
+  .modern-recs__heading {
+    font-size: var(--text-2xl, 24px);
+    font-weight: 700;
+    margin: 0;
+    letter-spacing: var(--tracking-tight, -0.025em);
+  }
+  .modern-recs__subtitle {
+    font-size: var(--text-sm, 14px);
+    opacity: 0.6;
+    margin: var(--space-xs, 4px) 0 0;
+  }
+
+  /* Tabs for switching recommendation types */
+  .modern-recs__tabs {
+    display: flex;
+    gap: var(--space-xs, 4px);
+    background: rgba(128, 128, 128, 0.06);
+    border-radius: var(--radius-full, 999px);
+    padding: 3px;
+  }
+  .modern-recs__tab {
+    padding: var(--space-xs, 4px) var(--space-lg, 20px);
+    border: none;
+    background: transparent;
+    border-radius: var(--radius-full, 999px);
+    font-size: var(--text-xs, 12px);
+    font-weight: 600;
+    cursor: pointer;
+    color: inherit;
+    opacity: 0.5;
+    transition: all 0.2s ease;
+    font-family: inherit;
+    white-space: nowrap;
+  }
+  .modern-recs__tab.is-active {
+    background: var(--color-background, #fff);
+    opacity: 1;
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.08);
+  }
+
+  /* Product grid for recommendations */
+  .modern-recs__grid {
+    display: grid;
+    grid-template-columns: repeat({{ section.settings.columns | default: 4 }}, 1fr);
+    gap: var(--space-lg, 20px);
+  }
+  @media screen and (max-width: 989px) {
+    .modern-recs__grid { grid-template-columns: repeat(2, 1fr); }
+  }
+  @media screen and (max-width: 549px) {
+    .modern-recs__grid { grid-template-columns: repeat(2, 1fr); gap: var(--space-md, 16px); }
+  }
+
+  /* Carousel variant */
+  .modern-recs__carousel {
+    display: flex;
+    gap: var(--space-lg, 20px);
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+    padding-bottom: var(--space-md, 16px);
+  }
+  .modern-recs__carousel::-webkit-scrollbar { display: none; }
+  .modern-recs__carousel > * {
+    flex: 0 0 calc(100% / {{ section.settings.columns | default: 4 }} - var(--space-lg, 20px) * {{ section.settings.columns | default: 4 | minus: 1 }} / {{ section.settings.columns | default: 4 }});
+    scroll-snap-align: start;
+  }
+  @media screen and (max-width: 989px) {
+    .modern-recs__carousel > * { flex: 0 0 calc(50% - var(--space-md, 16px) / 2); }
+  }
+  @media screen and (max-width: 549px) {
+    .modern-recs__carousel > * { flex: 0 0 70%; }
+  }
+
+  /* Carousel navigation */
+  .modern-recs__nav {
+    display: flex;
+    gap: var(--space-sm, 8px);
+  }
+  .modern-recs__nav-btn {
+    width: 36px;
+    height: 36px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid rgba(128, 128, 128, 0.15);
+    background: var(--color-background, #fff);
+    border-radius: 50%;
+    cursor: pointer;
+    color: inherit;
+    transition: all 0.15s ease;
+    padding: 0;
+  }
+  .modern-recs__nav-btn:hover {
+    border-color: rgba(128, 128, 128, 0.3);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+  }
+  .modern-recs__nav-btn:disabled { opacity: 0.3; cursor: not-allowed; }
+  .modern-recs__nav-btn svg { width: 16px; height: 16px; }
+
+  /* Tab panels */
+  .modern-recs__panel {
+    display: none;
+  }
+  .modern-recs__panel.is-active {
+    display: block;
+    animation: modernRecsIn 0.3s ease;
+  }
+  @keyframes modernRecsIn {
+    from { opacity: 0; transform: translateY(8px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  /* View all link */
+  .modern-recs__view-all {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-xs, 4px);
+    font-size: var(--text-sm, 14px);
+    font-weight: 600;
+    color: inherit;
+    text-decoration: none;
+    opacity: 0.6;
+    transition: opacity 0.15s ease;
+    margin-top: var(--space-xl, 24px);
+  }
+  .modern-recs__view-all:hover { opacity: 1; }
+  .modern-recs__view-all svg { width: 16px; height: 16px; transition: transform 0.15s ease; }
+  .modern-recs__view-all:hover svg { transform: translateX(3px); }
+
+  /* Empty state */
+  .modern-recs__empty {
+    text-align: center;
+    padding: var(--space-3xl, 48px) 0;
+    opacity: 0.4;
+    font-size: var(--text-sm, 14px);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .modern-recs__panel.is-active { animation: none; }
+  }
+{%- endstyle -%}
+
+<div class="color-{{ section.settings.color_scheme }} gradient">
+  <div class="page-width section-{{ section.id }}-padding">
+    <div class="modern-recs modern-animate animate--fade-up">
+
+      <div class="modern-recs__header">
+        <div>
+          <h2 class="modern-recs__heading">{{ section.settings.heading | default: 'You May Also Like' }}</h2>
+          {%- if section.settings.subtitle != blank -%}
+            <p class="modern-recs__subtitle">{{ section.settings.subtitle }}</p>
+          {%- endif -%}
+        </div>
+
+        {%- if section.settings.show_tabs -%}
+          <div class="modern-recs__tabs" role="tablist">
+            {%- if section.settings.tab_1_collection != blank -%}
+              <button class="modern-recs__tab is-active" role="tab" aria-selected="true" data-panel="recs-panel-1-{{ section.id }}">
+                {{ section.settings.tab_1_label | default: 'For You' }}
+              </button>
+            {%- endif -%}
+            {%- if section.settings.tab_2_collection != blank -%}
+              <button class="modern-recs__tab" role="tab" aria-selected="false" data-panel="recs-panel-2-{{ section.id }}">
+                {{ section.settings.tab_2_label | default: 'Trending' }}
+              </button>
+            {%- endif -%}
+            {%- if section.settings.tab_3_collection != blank -%}
+              <button class="modern-recs__tab" role="tab" aria-selected="false" data-panel="recs-panel-3-{{ section.id }}">
+                {{ section.settings.tab_3_label | default: 'New Arrivals' }}
+              </button>
+            {%- endif -%}
+          </div>
+        {%- endif -%}
+
+        {%- if section.settings.layout == 'carousel' -%}
+          <div class="modern-recs__nav">
+            <button class="modern-recs__nav-btn" data-dir="prev" aria-label="Previous">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"/></svg>
+            </button>
+            <button class="modern-recs__nav-btn" data-dir="next" aria-label="Next">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>
+            </button>
+          </div>
+        {%- endif -%}
+      </div>
+
+      {%- assign layout_class = 'modern-recs__grid' -%}
+      {%- if section.settings.layout == 'carousel' -%}
+        {%- assign layout_class = 'modern-recs__carousel' -%}
+      {%- endif -%}
+
+      {%- comment -%} Panel 1 {%- endcomment -%}
+      {%- assign panel1_collection = section.settings.tab_1_collection | default: collections.all -%}
+      <div class="modern-recs__panel is-active" id="recs-panel-1-{{ section.id }}" role="tabpanel">
+        <div class="{{ layout_class }}" data-recs-scroll="{{ section.id }}">
+          {%- for product in panel1_collection.products limit: section.settings.products_count -%}
+            {%- render 'modern-product-card', product: product, show_vendor: section.settings.show_vendor, show_quick_add: section.settings.show_quick_add -%}
+          {%- else -%}
+            {%- for i in (1..section.settings.products_count) -%}
+              <div class="modern-product-card">
+                <div class="modern-product-card__image-wrapper">
+                  {{ 'product-' | append: i | placeholder_svg_tag: 'placeholder-svg' }}
+                </div>
+                <div class="modern-product-card__info">
+                  <h3 class="modern-product-card__title">Product Title</h3>
+                  <p class="modern-product-card__price">$0.00</p>
+                </div>
+              </div>
+            {%- endfor -%}
+          {%- endfor -%}
+        </div>
+      </div>
+
+      {%- comment -%} Panel 2 {%- endcomment -%}
+      {%- if section.settings.show_tabs and section.settings.tab_2_collection != blank -%}
+        <div class="modern-recs__panel" id="recs-panel-2-{{ section.id }}" role="tabpanel">
+          <div class="{{ layout_class }}">
+            {%- for product in section.settings.tab_2_collection.products limit: section.settings.products_count -%}
+              {%- render 'modern-product-card', product: product, show_vendor: section.settings.show_vendor, show_quick_add: section.settings.show_quick_add -%}
+            {%- endfor -%}
+          </div>
+        </div>
+      {%- endif -%}
+
+      {%- comment -%} Panel 3 {%- endcomment -%}
+      {%- if section.settings.show_tabs and section.settings.tab_3_collection != blank -%}
+        <div class="modern-recs__panel" id="recs-panel-3-{{ section.id }}" role="tabpanel">
+          <div class="{{ layout_class }}">
+            {%- for product in section.settings.tab_3_collection.products limit: section.settings.products_count -%}
+              {%- render 'modern-product-card', product: product, show_vendor: section.settings.show_vendor, show_quick_add: section.settings.show_quick_add -%}
+            {%- endfor -%}
+          </div>
+        </div>
+      {%- endif -%}
+
+      {%- if section.settings.view_all_url != blank -%}
+        <a href="{{ section.settings.view_all_url }}" class="modern-recs__view-all">
+          View All
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>
+        </a>
+      {%- endif -%}
+
+      {%- comment -%} Recently Viewed Container {%- endcomment -%}
+      {%- if section.settings.show_recently_viewed -%}
+        <div class="modern-recently-viewed" id="RecsRecentlyViewed-{{ section.id }}" style="display:none">
+          <h3 class="modern-recently-viewed__heading">Recently Viewed</h3>
+        </div>
+      {%- endif -%}
+
+    </div>
+  </div>
+</div>
+
+<script>
+(function() {
+  'use strict';
+  var sid = '{{ section.id }}';
+
+  /* Tab switching */
+  var tabs = document.querySelectorAll('.modern-recs__tab');
+  tabs.forEach(function(tab) {
+    tab.addEventListener('click', function() {
+      tabs.forEach(function(t) {
+        t.classList.remove('is-active');
+        t.setAttribute('aria-selected', 'false');
+      });
+      tab.classList.add('is-active');
+      tab.setAttribute('aria-selected', 'true');
+
+      var panels = tab.closest('.modern-recs').querySelectorAll('.modern-recs__panel');
+      panels.forEach(function(p) { p.classList.remove('is-active'); });
+      var target = document.getElementById(tab.dataset.panel);
+      if (target) target.classList.add('is-active');
+    });
+  });
+
+  /* Carousel navigation */
+  var scrollContainer = document.querySelector('[data-recs-scroll="' + sid + '"]');
+  if (scrollContainer) {
+    var prevBtn = scrollContainer.closest('.modern-recs').querySelector('[data-dir="prev"]');
+    var nextBtn = scrollContainer.closest('.modern-recs').querySelector('[data-dir="next"]');
+    var itemWidth = function() {
+      var item = scrollContainer.firstElementChild;
+      return item ? item.offsetWidth + parseInt(getComputedStyle(scrollContainer).gap || 20) : 300;
+    };
+
+    if (prevBtn) prevBtn.addEventListener('click', function() {
+      scrollContainer.scrollBy({ left: -itemWidth(), behavior: 'smooth' });
+    });
+    if (nextBtn) nextBtn.addEventListener('click', function() {
+      scrollContainer.scrollBy({ left: itemWidth(), behavior: 'smooth' });
+    });
+  }
+
+  /* Recently viewed */
+  {%- if section.settings.show_recently_viewed -%}
+  if (window.ModernProductFeatures) {
+    window.ModernProductFeatures.renderRecentlyViewed(
+      '#RecsRecentlyViewed-' + sid,
+      {{ product.id | default: 'null' }}
+    );
+  }
+  {%- endif -%}
+})();
+</script>
+
+{% schema %}
+{
+  "name": "Smart Recommendations",
+  "tag": "section",
+  "class": "section-modern-recs",
+  "settings": [
+    { "type": "text", "id": "heading", "label": "Heading", "default": "You May Also Like" },
+    { "type": "text", "id": "subtitle", "label": "Subtitle" },
+    { "type": "select", "id": "layout", "label": "Layout", "default": "grid", "options": [
+      { "value": "grid", "label": "Grid" },
+      { "value": "carousel", "label": "Carousel" }
+    ]},
+    { "type": "range", "id": "columns", "min": 2, "max": 6, "step": 1, "default": 4, "label": "Columns" },
+    { "type": "range", "id": "products_count", "min": 2, "max": 12, "step": 1, "default": 4, "label": "Products to show" },
+    { "type": "checkbox", "id": "show_vendor", "default": false, "label": "Show vendor" },
+    { "type": "checkbox", "id": "show_quick_add", "default": true, "label": "Show quick add button" },
+    { "type": "url", "id": "view_all_url", "label": "View all link" },
+    { "type": "header", "content": "Tabs" },
+    { "type": "checkbox", "id": "show_tabs", "default": false, "label": "Show tabs" },
+    { "type": "collection", "id": "tab_1_collection", "label": "Tab 1 collection" },
+    { "type": "text", "id": "tab_1_label", "label": "Tab 1 label", "default": "For You" },
+    { "type": "collection", "id": "tab_2_collection", "label": "Tab 2 collection" },
+    { "type": "text", "id": "tab_2_label", "label": "Tab 2 label", "default": "Trending" },
+    { "type": "collection", "id": "tab_3_collection", "label": "Tab 3 collection" },
+    { "type": "text", "id": "tab_3_label", "label": "Tab 3 label", "default": "New Arrivals" },
+    { "type": "header", "content": "Recently Viewed" },
+    { "type": "checkbox", "id": "show_recently_viewed", "default": false, "label": "Show recently viewed" },
+    { "type": "header", "content": "Section" },
+    { "type": "color_scheme", "id": "color_scheme", "label": "Color scheme", "default": "background-1" },
+    { "type": "range", "id": "padding_top", "min": 0, "max": 200, "step": 4, "default": 60, "unit": "px", "label": "Padding top" },
+    { "type": "range", "id": "padding_bottom", "min": 0, "max": 200, "step": 4, "default": 60, "unit": "px", "label": "Padding bottom" }
+  ],
+  "presets": [{ "name": "Smart Recommendations" }]
+}
+{% endschema %}

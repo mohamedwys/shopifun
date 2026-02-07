@@ -1,0 +1,507 @@
+{%- comment -%}
+  Modern Product Features
+  ========================
+  Enhanced product UX: sticky add-to-cart, recently viewed,
+  back-in-stock notifications, size guide modal, and product badges.
+
+  Usage:
+    {% render 'modern-product-features', product: product %}
+{%- endcomment -%}
+
+<style>
+  /* ==========================================================================
+     1. Sticky Add to Cart Bar (Mobile)
+     ========================================================================== */
+  .modern-sticky-atc {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    z-index: 1000;
+    background: var(--color-background, #fff);
+    border-top: 1px solid rgba(128, 128, 128, 0.1);
+    padding: var(--space-sm, 8px) var(--space-md, 16px);
+    display: flex;
+    align-items: center;
+    gap: var(--space-sm, 8px);
+    transform: translateY(100%);
+    transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+    box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.08);
+  }
+  .modern-sticky-atc.is-visible {
+    transform: translateY(0);
+  }
+  .modern-sticky-atc__info {
+    flex: 1;
+    min-width: 0;
+  }
+  .modern-sticky-atc__title {
+    font-size: var(--text-sm, 14px);
+    font-weight: 600;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .modern-sticky-atc__price {
+    font-size: var(--text-xs, 12px);
+    opacity: 0.6;
+  }
+  .modern-sticky-atc__btn {
+    flex-shrink: 0;
+    padding: var(--space-sm, 8px) var(--space-2xl, 32px);
+    background: var(--color-button, #000);
+    color: var(--color-button-text, #fff);
+    border: none;
+    border-radius: var(--radius-full, 999px);
+    font-size: var(--text-sm, 14px);
+    font-weight: 600;
+    cursor: pointer;
+    transition: opacity 0.15s ease;
+    font-family: inherit;
+  }
+  .modern-sticky-atc__btn:hover { opacity: 0.9; }
+  .modern-sticky-atc__btn:disabled { opacity: 0.4; cursor: not-allowed; }
+
+  @media screen and (min-width: 750px) {
+    .modern-sticky-atc { display: none; }
+  }
+
+  /* ==========================================================================
+     2. Recently Viewed Products
+     ========================================================================== */
+  .modern-recently-viewed {
+    padding: var(--space-3xl, 48px) 0;
+  }
+  .modern-recently-viewed__heading {
+    font-size: var(--text-xl, 20px);
+    font-weight: 700;
+    margin: 0 0 var(--space-xl, 24px);
+    letter-spacing: var(--tracking-tight, -0.025em);
+  }
+  .modern-recently-viewed__grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+    gap: var(--space-md, 16px);
+  }
+  .modern-recently-viewed__item {
+    text-decoration: none;
+    color: inherit;
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-xs, 4px);
+  }
+  .modern-recently-viewed__image {
+    aspect-ratio: 1;
+    border-radius: var(--radius-md, 8px);
+    overflow: hidden;
+    background: rgba(128, 128, 128, 0.08);
+  }
+  .modern-recently-viewed__image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.3s ease;
+  }
+  .modern-recently-viewed__item:hover img {
+    transform: scale(1.05);
+  }
+  .modern-recently-viewed__name {
+    font-size: var(--text-sm, 14px);
+    font-weight: 500;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .modern-recently-viewed__price {
+    font-size: var(--text-xs, 12px);
+    opacity: 0.6;
+  }
+
+  /* ==========================================================================
+     3. Back In Stock Notification
+     ========================================================================== */
+  .modern-back-in-stock {
+    padding: var(--space-lg, 20px);
+    border: 1px dashed rgba(128, 128, 128, 0.2);
+    border-radius: var(--radius-lg, 12px);
+    text-align: center;
+  }
+  .modern-back-in-stock__text {
+    font-size: var(--text-sm, 14px);
+    margin: 0 0 var(--space-md, 16px);
+    opacity: 0.7;
+  }
+  .modern-back-in-stock__form {
+    display: flex;
+    gap: var(--space-sm, 8px);
+    max-width: 360px;
+    margin: 0 auto;
+  }
+  @media screen and (max-width: 549px) {
+    .modern-back-in-stock__form { flex-direction: column; }
+  }
+  .modern-back-in-stock__input {
+    flex: 1;
+    padding: var(--space-sm, 8px) var(--space-md, 16px);
+    border: 1px solid rgba(128, 128, 128, 0.2);
+    border-radius: var(--radius-full, 999px);
+    font-size: var(--text-sm, 14px);
+    font-family: inherit;
+    background: transparent;
+    color: inherit;
+  }
+  .modern-back-in-stock__btn {
+    padding: var(--space-sm, 8px) var(--space-xl, 24px);
+    background: var(--color-button, #000);
+    color: var(--color-button-text, #fff);
+    border: none;
+    border-radius: var(--radius-full, 999px);
+    font-size: var(--text-sm, 14px);
+    font-weight: 600;
+    cursor: pointer;
+    font-family: inherit;
+    white-space: nowrap;
+    transition: opacity 0.15s ease;
+  }
+  .modern-back-in-stock__btn:hover { opacity: 0.9; }
+
+  /* ==========================================================================
+     4. Size Guide Modal
+     ========================================================================== */
+  .modern-size-guide-trigger {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-xs, 4px);
+    font-size: var(--text-sm, 14px);
+    color: inherit;
+    opacity: 0.6;
+    cursor: pointer;
+    border: none;
+    background: none;
+    padding: 0;
+    text-decoration: underline;
+    text-underline-offset: 3px;
+    transition: opacity 0.15s ease;
+    font-family: inherit;
+  }
+  .modern-size-guide-trigger:hover { opacity: 1; }
+  .modern-size-guide-trigger svg { width: 16px; height: 16px; }
+
+  .modern-size-guide-modal {
+    position: fixed;
+    inset: 0;
+    z-index: 10001;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: var(--space-xl, 24px);
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.3s ease, visibility 0.3s ease;
+  }
+  .modern-size-guide-modal.is-open {
+    opacity: 1;
+    visibility: visible;
+  }
+  .modern-size-guide-modal__overlay {
+    position: absolute;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.5);
+  }
+  .modern-size-guide-modal__content {
+    position: relative;
+    background: var(--color-background, #fff);
+    border-radius: var(--radius-xl, 16px);
+    padding: var(--space-2xl, 32px);
+    max-width: 600px;
+    width: 100%;
+    max-height: 80vh;
+    overflow-y: auto;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
+    transform: translateY(20px);
+    transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+  .modern-size-guide-modal.is-open .modern-size-guide-modal__content {
+    transform: translateY(0);
+  }
+  .modern-size-guide-modal__close {
+    position: absolute;
+    top: var(--space-md, 16px);
+    right: var(--space-md, 16px);
+    width: 36px;
+    height: 36px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: none;
+    background: rgba(128, 128, 128, 0.08);
+    border-radius: 50%;
+    cursor: pointer;
+    color: inherit;
+    transition: background 0.15s ease;
+  }
+  .modern-size-guide-modal__close:hover {
+    background: rgba(128, 128, 128, 0.15);
+  }
+  .modern-size-guide-modal__close svg { width: 18px; height: 18px; }
+  .modern-size-guide-modal__title {
+    font-size: var(--text-xl, 20px);
+    font-weight: 700;
+    margin: 0 0 var(--space-xl, 24px);
+  }
+
+  /* Size guide table */
+  .modern-size-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: var(--text-sm, 14px);
+  }
+  .modern-size-table th,
+  .modern-size-table td {
+    padding: var(--space-sm, 8px) var(--space-md, 16px);
+    text-align: center;
+    border-bottom: 1px solid rgba(128, 128, 128, 0.1);
+  }
+  .modern-size-table th {
+    font-weight: 600;
+    font-size: var(--text-xs, 12px);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    opacity: 0.6;
+  }
+  .modern-size-table tbody tr:hover {
+    background: rgba(128, 128, 128, 0.04);
+  }
+
+  /* ==========================================================================
+     5. Enhanced Product Badges
+     ========================================================================== */
+  .modern-badge--animated {
+    animation: modernBadgePulse 2s ease-in-out infinite;
+  }
+  @keyframes modernBadgePulse {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.05); }
+  }
+  .modern-badge--countdown {
+    font-variant-numeric: tabular-nums;
+  }
+
+  /* ==========================================================================
+     6. Product Image Zoom Indicator
+     ========================================================================== */
+  .modern-zoom-hint {
+    position: absolute;
+    bottom: var(--space-md, 16px);
+    right: var(--space-md, 16px);
+    display: flex;
+    align-items: center;
+    gap: var(--space-xs, 4px);
+    padding: var(--space-xs, 4px) var(--space-sm, 8px);
+    background: rgba(0, 0, 0, 0.6);
+    color: #fff;
+    border-radius: var(--radius-full, 999px);
+    font-size: 11px;
+    font-weight: 500;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+    pointer-events: none;
+  }
+  .modern-zoom-hint svg { width: 14px; height: 14px; }
+  .modern-product-gallery:hover .modern-zoom-hint {
+    opacity: 1;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .modern-badge--animated { animation: none; }
+    .modern-sticky-atc { transition: none; }
+  }
+</style>
+
+<script>
+(function() {
+  'use strict';
+
+  /* ========================================================================
+     Recently Viewed Products (localStorage)
+     ======================================================================== */
+  var RECENTLY_VIEWED_KEY = 'modern_recently_viewed';
+  var MAX_RECENT = 12;
+
+  window.ModernProductFeatures = {
+    /* Track current product view */
+    trackProduct: function(product) {
+      if (!product || !product.id) return;
+      try {
+        var items = JSON.parse(localStorage.getItem(RECENTLY_VIEWED_KEY) || '[]');
+        /* Remove if already exists */
+        items = items.filter(function(item) { return item.id !== product.id; });
+        /* Add to beginning */
+        items.unshift({
+          id: product.id,
+          title: product.title,
+          url: product.url,
+          price: product.price,
+          image: product.image,
+          timestamp: Date.now()
+        });
+        /* Trim to max */
+        items = items.slice(0, MAX_RECENT);
+        localStorage.setItem(RECENTLY_VIEWED_KEY, JSON.stringify(items));
+      } catch (e) { /* quota exceeded */ }
+    },
+
+    /* Get recently viewed (excludes current product) */
+    getRecentlyViewed: function(excludeId, limit) {
+      try {
+        var items = JSON.parse(localStorage.getItem(RECENTLY_VIEWED_KEY) || '[]');
+        if (excludeId) {
+          items = items.filter(function(item) { return item.id !== excludeId; });
+        }
+        return items.slice(0, limit || 6);
+      } catch (e) { return []; }
+    },
+
+    /* Render recently viewed into a container */
+    renderRecentlyViewed: function(containerSelector, excludeId) {
+      var container = document.querySelector(containerSelector);
+      if (!container) return;
+
+      var items = this.getRecentlyViewed(excludeId, 6);
+      if (!items.length) {
+        container.style.display = 'none';
+        return;
+      }
+
+      var html = '<div class="modern-recently-viewed__grid">';
+      items.forEach(function(item) {
+        html += '<a href="' + item.url + '" class="modern-recently-viewed__item">';
+        html += '<div class="modern-recently-viewed__image">';
+        if (item.image) {
+          html += '<img src="' + item.image + '" alt="' + (item.title || '').replace(/"/g, '&quot;') + '" loading="lazy" width="180" height="180">';
+        }
+        html += '</div>';
+        html += '<div class="modern-recently-viewed__name">' + (item.title || '') + '</div>';
+        if (item.price) {
+          html += '<div class="modern-recently-viewed__price">' + item.price + '</div>';
+        }
+        html += '</a>';
+      });
+      html += '</div>';
+
+      container.querySelector('.modern-recently-viewed__grid')
+        ? container.querySelector('.modern-recently-viewed__grid').outerHTML = html
+        : container.insertAdjacentHTML('beforeend', html);
+      container.style.display = '';
+    },
+
+    /* ========================================================================
+       Sticky Add to Cart Bar
+       ======================================================================== */
+    initStickyATC: function(options) {
+      var opts = options || {};
+      var trigger = document.querySelector(opts.trigger || '.modern-product-main__add-btn');
+      var bar = document.querySelector('.modern-sticky-atc');
+      if (!trigger || !bar) return;
+
+      var observer = new IntersectionObserver(function(entries) {
+        entries.forEach(function(entry) {
+          bar.classList.toggle('is-visible', !entry.isIntersecting);
+        });
+      }, { threshold: 0 });
+
+      observer.observe(trigger);
+
+      /* Sync click to main form */
+      var stickyBtn = bar.querySelector('.modern-sticky-atc__btn');
+      if (stickyBtn) {
+        stickyBtn.addEventListener('click', function() {
+          trigger.click();
+        });
+      }
+    },
+
+    /* ========================================================================
+       Back in Stock Notification
+       ======================================================================== */
+    initBackInStock: function() {
+      document.querySelectorAll('.modern-back-in-stock__form').forEach(function(form) {
+        form.addEventListener('submit', function(e) {
+          e.preventDefault();
+          var email = form.querySelector('input[type="email"]').value;
+          var productId = form.dataset.productId;
+          var variantId = form.dataset.variantId;
+
+          /* Store notification request locally */
+          try {
+            var requests = JSON.parse(localStorage.getItem('modern_bis_requests') || '[]');
+            requests.push({ email: email, productId: productId, variantId: variantId, date: new Date().toISOString() });
+            localStorage.setItem('modern_bis_requests', JSON.stringify(requests));
+          } catch (e) { /* ignore */ }
+
+          /* Show confirmation */
+          var btn = form.querySelector('.modern-back-in-stock__btn');
+          if (btn) {
+            btn.textContent = 'Subscribed!';
+            btn.disabled = true;
+          }
+
+          if (window.ModernToast) {
+            window.ModernToast.success("We'll notify you when this item is back in stock!");
+          }
+        });
+      });
+    },
+
+    /* ========================================================================
+       Size Guide Modal
+       ======================================================================== */
+    initSizeGuide: function() {
+      var triggers = document.querySelectorAll('[data-size-guide]');
+      var modal = document.querySelector('.modern-size-guide-modal');
+      if (!modal) return;
+
+      var overlay = modal.querySelector('.modern-size-guide-modal__overlay');
+      var closeBtn = modal.querySelector('.modern-size-guide-modal__close');
+      var trap = null;
+
+      function open() {
+        modal.classList.add('is-open');
+        if (window.ModernA11y) {
+          trap = window.ModernA11y.trapFocus(modal);
+        }
+      }
+
+      function close() {
+        modal.classList.remove('is-open');
+        if (trap) { trap.release(); trap = null; }
+      }
+
+      triggers.forEach(function(t) {
+        t.addEventListener('click', open);
+      });
+
+      if (closeBtn) closeBtn.addEventListener('click', close);
+      if (overlay) overlay.addEventListener('click', close);
+
+      document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape' && modal.classList.contains('is-open')) {
+          close();
+        }
+      });
+    }
+  };
+
+  /* Auto-init on DOMContentLoaded */
+  function init() {
+    window.ModernProductFeatures.initBackInStock();
+    window.ModernProductFeatures.initSizeGuide();
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', init);
+  } else {
+    init();
+  }
+})();
+</script>
