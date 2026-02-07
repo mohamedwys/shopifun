@@ -1,0 +1,20 @@
+{
+  "sections": {
+    "modern_404": {
+      "type": "modern-404",
+      "settings": {
+        "heading": "Page Not Found",
+        "description": "The page you're looking for doesn't exist or has been moved.",
+        "button_label": "Back to Home",
+        "show_search": true,
+        "show_popular_links": true,
+        "color_scheme": "background-1",
+        "padding_top": 80,
+        "padding_bottom": 80
+      }
+    }
+  },
+  "order": [
+    "modern_404"
+  ]
+}
