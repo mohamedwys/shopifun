@@ -1,0 +1,202 @@
+{%- comment -%}
+  Modern Instagram Feed
+  =====================
+  Instagram-style grid with hover overlays, likes simulation, and profile link.
+{%- endcomment -%}
+
+{%- style -%}
+  .section-{{ section.id }}-padding {
+    padding-top: {{ section.settings.padding_top | times: 0.75 | round: 0 }}px;
+    padding-bottom: {{ section.settings.padding_bottom | times: 0.75 | round: 0 }}px;
+  }
+  @media screen and (min-width: 750px) {
+    .section-{{ section.id }}-padding {
+      padding-top: {{ section.settings.padding_top }}px;
+      padding-bottom: {{ section.settings.padding_bottom }}px;
+    }
+  }
+
+  .modern-instagram__header {
+    text-align: center;
+    margin-bottom: var(--space-2xl);
+  }
+  .modern-instagram__title {
+    font-size: var(--text-3xl);
+    font-weight: 700;
+    margin: 0;
+    letter-spacing: var(--tracking-tight);
+  }
+  .modern-instagram__handle {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-xs);
+    margin-top: var(--space-sm);
+    font-size: var(--text-base);
+    color: inherit;
+    text-decoration: none;
+    opacity: 0.6;
+    transition: opacity var(--duration-fast) var(--ease-out);
+  }
+  .modern-instagram__handle:hover { opacity: 1; }
+  .modern-instagram__handle svg { width: 20px; height: 20px; }
+
+  .modern-instagram-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: var(--space-sm);
+  }
+  @media screen and (min-width: 750px) {
+    .modern-instagram-grid {
+      grid-template-columns: repeat({{ section.settings.columns_desktop }}, 1fr);
+      gap: var(--space-md);
+    }
+  }
+
+  .modern-instagram-item {
+    position: relative;
+    aspect-ratio: 1;
+    overflow: hidden;
+    border-radius: var(--radius-md);
+    cursor: pointer;
+  }
+  .modern-instagram-item img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform var(--duration-slow) var(--ease-out);
+  }
+  .modern-instagram-item:hover img {
+    transform: scale(1.08);
+  }
+
+  .modern-instagram-item__overlay {
+    position: absolute;
+    inset: 0;
+    background: rgba(0,0,0,0.4);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--space-lg);
+    opacity: 0;
+    transition: opacity var(--duration-fast) var(--ease-out);
+    color: #fff;
+    backdrop-filter: blur(2px);
+  }
+  .modern-instagram-item:hover .modern-instagram-item__overlay {
+    opacity: 1;
+  }
+
+  .modern-instagram-item__stat {
+    display: flex;
+    align-items: center;
+    gap: var(--space-xs);
+    font-size: var(--text-sm);
+    font-weight: 600;
+  }
+  .modern-instagram-item__stat svg { width: 18px; height: 18px; }
+
+  .modern-instagram__cta {
+    text-align: center;
+    margin-top: var(--space-2xl);
+  }
+{%- endstyle -%}
+
+<div class="color-{{ section.settings.color_scheme }} gradient">
+  <div class="{% if section.settings.full_width %}{% else %}page-width{% endif %} section-{{ section.id }}-padding">
+    <div class="modern-instagram__header modern-animate animate--fade-up">
+      {%- if section.settings.title != blank -%}
+        <h2 class="modern-instagram__title">{{ section.settings.title }}</h2>
+      {%- endif -%}
+      {%- if section.settings.instagram_handle != blank -%}
+        <a href="{{ section.settings.instagram_url | default: '#' }}" class="modern-instagram__handle" target="_blank" rel="noopener">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="2" width="20" height="20" rx="5"/><path d="M16 11.37A4 4 0 1112.63 8 4 4 0 0116 11.37z"/><circle cx="17.5" cy="6.5" r="1.5"/></svg>
+          @{{ section.settings.instagram_handle | escape }}
+        </a>
+      {%- endif -%}
+    </div>
+
+    <div class="modern-instagram-grid">
+      {%- for block in section.blocks -%}
+        <div class="modern-instagram-item modern-animate animate--scale" data-stagger="{{ forloop.index | modulo: 8 | plus: 1 }}" {{ block.shopify_attributes }}>
+          {%- if block.settings.image != blank -%}
+            {{ block.settings.image | image_url: width: 600 | image_tag:
+              alt: 'Instagram post',
+              widths: '200, 300, 400, 600',
+              sizes: '(min-width: 990px) 16vw, (min-width: 750px) 25vw, 33vw',
+              loading: 'lazy'
+            }}
+          {%- else -%}
+            {{ 'lifestyle-1' | placeholder_svg_tag: 'placeholder-svg' }}
+          {%- endif -%}
+
+          <div class="modern-instagram-item__overlay">
+            <div class="modern-instagram-item__stat">
+              <svg viewBox="0 0 24 24" fill="currentColor"><path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z"/></svg>
+              {{ block.settings.likes | default: '0' }}
+            </div>
+            <div class="modern-instagram-item__stat">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>
+              {{ block.settings.comments | default: '0' }}
+            </div>
+          </div>
+
+          {%- if block.settings.link != blank -%}
+            <a href="{{ block.settings.link }}" class="modern-instagram-item__link" style="position:absolute;inset:0;z-index:2" aria-label="View post"></a>
+          {%- endif -%}
+        </div>
+      {%- endfor -%}
+    </div>
+
+    {%- if section.settings.button_label != blank -%}
+      <div class="modern-instagram__cta modern-animate animate--fade-up">
+        <a href="{{ section.settings.instagram_url | default: '#' }}" class="modern-btn modern-btn--outline" target="_blank" rel="noopener" style="display:inline-flex;padding:var(--space-md) var(--space-3xl)">
+          {{ section.settings.button_label | escape }}
+        </a>
+      </div>
+    {%- endif -%}
+  </div>
+</div>
+
+{% schema %}
+{
+  "name": "Modern Instagram Feed",
+  "tag": "section",
+  "class": "section-modern-instagram",
+  "blocks": [
+    {
+      "type": "post",
+      "name": "Post",
+      "settings": [
+        { "type": "image_picker", "id": "image", "label": "Image" },
+        { "type": "text", "id": "likes", "label": "Likes count", "default": "124" },
+        { "type": "text", "id": "comments", "label": "Comments count", "default": "8" },
+        { "type": "url", "id": "link", "label": "Product link (optional)" }
+      ]
+    }
+  ],
+  "settings": [
+    { "type": "text", "id": "title", "label": "Heading", "default": "Follow Us on Instagram" },
+    { "type": "text", "id": "instagram_handle", "label": "Instagram handle", "default": "yourstore" },
+    { "type": "url", "id": "instagram_url", "label": "Instagram profile URL" },
+    { "type": "range", "id": "columns_desktop", "min": 3, "max": 6, "step": 1, "default": 6, "label": "Desktop columns" },
+    { "type": "checkbox", "id": "full_width", "default": true, "label": "Full width" },
+    { "type": "text", "id": "button_label", "label": "Button label", "default": "Follow Us" },
+    { "type": "color_scheme", "id": "color_scheme", "label": "Color scheme", "default": "background-1" },
+    { "type": "range", "id": "padding_top", "min": 0, "max": 100, "step": 4, "default": 52, "unit": "px", "label": "Padding top" },
+    { "type": "range", "id": "padding_bottom", "min": 0, "max": 100, "step": 4, "default": 52, "unit": "px", "label": "Padding bottom" }
+  ],
+  "presets": [
+    {
+      "name": "Modern Instagram Feed",
+      "blocks": [
+        { "type": "post", "settings": { "likes": "234", "comments": "12" } },
+        { "type": "post", "settings": { "likes": "189", "comments": "8" } },
+        { "type": "post", "settings": { "likes": "312", "comments": "24" } },
+        { "type": "post", "settings": { "likes": "156", "comments": "6" } },
+        { "type": "post", "settings": { "likes": "278", "comments": "15" } },
+        { "type": "post", "settings": { "likes": "201", "comments": "11" } }
+      ]
+    }
+  ]
+}
+{% endschema %}

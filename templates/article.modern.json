@@ -1,0 +1,47 @@
+{
+  "sections": {
+    "modern_article_main": {
+      "type": "modern-article",
+      "blocks": {
+        "featured_image": {
+          "type": "featured_image",
+          "settings": {}
+        },
+        "title": {
+          "type": "title",
+          "settings": {}
+        },
+        "meta": {
+          "type": "meta",
+          "settings": {
+            "show_date": true,
+            "show_author": true,
+            "show_read_time": true
+          }
+        },
+        "content": {
+          "type": "content",
+          "settings": {}
+        },
+        "share": {
+          "type": "share",
+          "settings": {}
+        }
+      },
+      "block_order": ["featured_image", "title", "meta", "content", "share"],
+      "settings": {
+        "show_progress_bar": true,
+        "show_toc": true,
+        "show_author_bio": true,
+        "show_related_articles": true,
+        "related_articles_count": 3,
+        "color_scheme": "background-1",
+        "padding_top": 40,
+        "padding_bottom": 52
+      }
+    }
+  },
+  "order": [
+    "modern_article_main"
+  ]
+}

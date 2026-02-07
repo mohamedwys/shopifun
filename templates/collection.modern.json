@@ -1,0 +1,36 @@
+{
+  "sections": {
+    "modern_collection_banner": {
+      "type": "modern-collection-banner",
+      "settings": {
+        "show_description": true,
+        "show_product_count": true,
+        "parallax_speed": 3,
+        "min_height": 40,
+        "overlay_opacity": 60,
+        "padding_top": 0,
+        "padding_bottom": 0
+      }
+    },
+    "modern_collection_main": {
+      "type": "modern-collection-grid",
+      "settings": {
+        "products_per_page": 12,
+        "columns_desktop": 4,
+        "columns_mobile": 2,
+        "show_filters": true,
+        "show_sort": true,
+        "filter_layout": "sidebar",
+        "show_vendor": false,
+        "pagination_type": "load_more",
+        "color_scheme": "background-1",
+        "padding_top": 40,
+        "padding_bottom": 52
+      }
+    }
+  },
+  "order": [
+    "modern_collection_banner",
+    "modern_collection_main"
+  ]
+}

@@ -1,0 +1,183 @@
+{%- comment -%}
+  Modern Announcement Bar
+  =======================
+  Top banner with rotating messages, countdown, dismissible, link support.
+{%- endcomment -%}
+
+{%- style -%}
+  .modern-announcement {
+    background: {{ section.settings.background_color | default: '#000' }};
+    color: {{ section.settings.text_color | default: '#fff' }};
+    padding: var(--space-sm) 0;
+    position: relative;
+    overflow: hidden;
+    z-index: var(--z-header);
+  }
+  .modern-announcement.is-dismissed { display: none; }
+
+  .modern-announcement__inner {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--space-md);
+    min-height: 36px;
+  }
+
+  .modern-announcement__carousel {
+    position: relative;
+    overflow: hidden;
+    flex: 1;
+    text-align: center;
+  }
+  .modern-announcement__slide {
+    font-size: var(--text-sm);
+    font-weight: 500;
+    letter-spacing: var(--tracking-wider);
+    display: none;
+    animation: announcementFadeIn var(--duration-normal) var(--ease-out);
+  }
+  .modern-announcement__slide.is-active { display: block; }
+  .modern-announcement__slide a {
+    color: inherit;
+    text-decoration: underline;
+    text-underline-offset: 3px;
+  }
+  @keyframes announcementFadeIn {
+    from { opacity: 0; transform: translateY(8px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .modern-announcement__close {
+    position: absolute;
+    right: var(--space-md);
+    top: 50%;
+    transform: translateY(-50%);
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: inherit;
+    opacity: 0.5;
+    transition: opacity var(--duration-fast) var(--ease-out);
+    padding: var(--space-xs);
+    z-index: 2;
+  }
+  .modern-announcement__close:hover { opacity: 1; }
+  .modern-announcement__close svg { width: 16px; height: 16px; }
+
+  .modern-announcement__countdown {
+    display: inline-flex;
+    gap: var(--space-xs);
+    font-weight: 700;
+    font-size: var(--text-sm);
+    font-variant-numeric: tabular-nums;
+  }
+{%- endstyle -%}
+
+{%- liquid
+  assign dismissed_id = 'announcement-' | append: section.id
+-%}
+
+<div class="modern-announcement" id="Announcement-{{ section.id }}" role="region" aria-label="Announcement">
+  <div class="page-width">
+    <div class="modern-announcement__inner">
+      <div class="modern-announcement__carousel" id="AnnouncementCarousel-{{ section.id }}">
+        {%- for block in section.blocks -%}
+          <div class="modern-announcement__slide{% if forloop.first %} is-active{% endif %}" {{ block.shopify_attributes }}>
+            {%- if block.settings.link != blank -%}
+              <a href="{{ block.settings.link }}">{{ block.settings.text | escape }}</a>
+            {%- else -%}
+              {{ block.settings.text | escape }}
+            {%- endif -%}
+
+            {%- if block.settings.show_countdown and block.settings.countdown_date != blank -%}
+              <span class="modern-announcement__countdown" id="AnnouncementCountdown-{{ block.id }}"></span>
+              <script>
+                (function(){
+                  var el = document.getElementById('AnnouncementCountdown-{{ block.id }}');
+                  var end = new Date('{{ block.settings.countdown_date }}').getTime();
+                  function pad(n){return n<10?'0'+n:n}
+                  function tick(){
+                    var d=end-Date.now();
+                    if(d<=0){el.textContent='Ended';return}
+                    var h=Math.floor(d/3600000);var m=Math.floor((d%3600000)/60000);var s=Math.floor((d%60000)/1000);
+                    el.textContent=pad(h)+':'+pad(m)+':'+pad(s);
+                    setTimeout(tick,1000);
+                  }
+                  if(!isNaN(end))tick();
+                })();
+              </script>
+            {%- endif -%}
+          </div>
+        {%- endfor -%}
+      </div>
+
+      {%- if section.settings.show_close -%}
+        <button class="modern-announcement__close" aria-label="Dismiss announcement" onclick="(function(el){el.closest('.modern-announcement').classList.add('is-dismissed');try{sessionStorage.setItem('{{ dismissed_id }}','1')}catch(e){}})(this)">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6L6 18M6 6l12 12"/></svg>
+        </button>
+      {%- endif -%}
+    </div>
+  </div>
+</div>
+
+{%- if section.blocks.size > 1 -%}
+  <script>
+    (function(){
+      var carousel = document.getElementById('AnnouncementCarousel-{{ section.id }}');
+      if (!carousel) return;
+      var slides = carousel.querySelectorAll('.modern-announcement__slide');
+      if (slides.length <= 1) return;
+      var current = 0;
+      var interval = {{ section.settings.rotation_speed | default: 5 }} * 1000;
+
+      setInterval(function(){
+        slides[current].classList.remove('is-active');
+        current = (current + 1) % slides.length;
+        slides[current].classList.add('is-active');
+      }, interval);
+    })();
+  </script>
+{%- endif -%}
+
+{%- if section.settings.show_close -%}
+  <script>
+    (function(){
+      try{if(sessionStorage.getItem('{{ dismissed_id }}')==='1'){var el=document.getElementById('Announcement-{{ section.id }}');if(el)el.classList.add('is-dismissed')}}catch(e){}
+    })();
+  </script>
+{%- endif -%}
+
+{% schema %}
+{
+  "name": "Modern Announcement Bar",
+  "tag": "section",
+  "class": "section-modern-announcement",
+  "blocks": [
+    {
+      "type": "message",
+      "name": "Message",
+      "settings": [
+        { "type": "text", "id": "text", "label": "Text", "default": "Free shipping on orders over $50!" },
+        { "type": "url", "id": "link", "label": "Link (optional)" },
+        { "type": "checkbox", "id": "show_countdown", "default": false, "label": "Show countdown" },
+        { "type": "text", "id": "countdown_date", "label": "Countdown end date", "info": "Format: YYYY-MM-DD HH:MM" }
+      ]
+    }
+  ],
+  "settings": [
+    { "type": "color", "id": "background_color", "label": "Background color", "default": "#000000" },
+    { "type": "color", "id": "text_color", "label": "Text color", "default": "#ffffff" },
+    { "type": "range", "id": "rotation_speed", "min": 2, "max": 10, "step": 1, "default": 5, "unit": "s", "label": "Rotation speed (multiple messages)" },
+    { "type": "checkbox", "id": "show_close", "default": true, "label": "Show close button" }
+  ],
+  "presets": [
+    {
+      "name": "Modern Announcement Bar",
+      "blocks": [
+        { "type": "message", "settings": { "text": "Free shipping on orders over $50!" } },
+        { "type": "message", "settings": { "text": "New arrivals are here — Shop now" } }
+      ]
+    }
+  ]
+}
+{% endschema %}

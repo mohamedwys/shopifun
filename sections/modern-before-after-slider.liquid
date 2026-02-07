@@ -1,0 +1,236 @@
+{%- comment -%}
+  Modern Before/After Slider
+  ==========================
+  Image comparison with draggable slider, before/after labels.
+{%- endcomment -%}
+
+{%- style -%}
+  .section-{{ section.id }}-padding {
+    padding-top: {{ section.settings.padding_top | times: 0.75 | round: 0 }}px;
+    padding-bottom: {{ section.settings.padding_bottom | times: 0.75 | round: 0 }}px;
+  }
+  @media screen and (min-width: 750px) {
+    .section-{{ section.id }}-padding {
+      padding-top: {{ section.settings.padding_top }}px;
+      padding-bottom: {{ section.settings.padding_bottom }}px;
+    }
+  }
+
+  .modern-ba__header {
+    text-align: center;
+    margin-bottom: var(--space-2xl);
+    max-width: 600px;
+    margin-inline: auto;
+  }
+  .modern-ba__title {
+    font-size: var(--text-3xl);
+    font-weight: 700;
+    margin: 0;
+    letter-spacing: var(--tracking-tight);
+  }
+  .modern-ba__subtitle {
+    font-size: var(--text-base);
+    opacity: 0.6;
+    margin: var(--space-md) 0 0;
+  }
+
+  .modern-ba-slider {
+    position: relative;
+    max-width: {{ section.settings.max_width }}px;
+    margin: 0 auto;
+    overflow: hidden;
+    border-radius: var(--radius-xl);
+    cursor: col-resize;
+    user-select: none;
+    -webkit-user-select: none;
+    touch-action: none;
+  }
+
+  .modern-ba-slider__after {
+    display: block;
+    width: 100%;
+  }
+  .modern-ba-slider__after img {
+    width: 100%;
+    height: auto;
+    display: block;
+  }
+
+  .modern-ba-slider__before {
+    position: absolute;
+    top: 0;
+    left: 0;
+    height: 100%;
+    width: 50%;
+    overflow: hidden;
+  }
+  .modern-ba-slider__before img {
+    width: auto;
+    height: 100%;
+    max-width: none;
+  }
+
+  .modern-ba-slider__handle {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 50%;
+    width: 4px;
+    background: #fff;
+    transform: translateX(-50%);
+    z-index: 3;
+    box-shadow: 0 0 10px rgba(0,0,0,0.3);
+  }
+  .modern-ba-slider__handle-circle {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 44px;
+    height: 44px;
+    background: #fff;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+    z-index: 4;
+  }
+  .modern-ba-slider__handle-circle svg {
+    width: 20px;
+    height: 20px;
+    color: #333;
+  }
+
+  .modern-ba-slider__label {
+    position: absolute;
+    bottom: var(--space-lg);
+    padding: var(--space-xs) var(--space-lg);
+    background: rgba(0,0,0,0.6);
+    color: #fff;
+    border-radius: var(--radius-full);
+    font-size: var(--text-xs);
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: var(--tracking-wider);
+    z-index: 2;
+    backdrop-filter: blur(10px);
+  }
+  .modern-ba-slider__label--before { left: var(--space-lg); }
+  .modern-ba-slider__label--after { right: var(--space-lg); }
+{%- endstyle -%}
+
+<div class="color-{{ section.settings.color_scheme }} gradient">
+  <div class="page-width section-{{ section.id }}-padding">
+    {%- if section.settings.title != blank or section.settings.subtitle != blank -%}
+      <div class="modern-ba__header modern-animate animate--fade-up">
+        {%- if section.settings.title != blank -%}
+          <h2 class="modern-ba__title">{{ section.settings.title }}</h2>
+        {%- endif -%}
+        {%- if section.settings.subtitle != blank -%}
+          <p class="modern-ba__subtitle">{{ section.settings.subtitle | escape }}</p>
+        {%- endif -%}
+      </div>
+    {%- endif -%}
+
+    <div class="modern-ba-slider modern-animate animate--scale" id="BASlider-{{ section.id }}">
+      <div class="modern-ba-slider__after">
+        {%- if section.settings.after_image != blank -%}
+          {{ section.settings.after_image | image_url: width: 1600 | image_tag:
+            alt: section.settings.after_label | default: 'After',
+            widths: '600, 800, 1200, 1600',
+            sizes: '(min-width: 990px) 50vw, 100vw',
+            loading: 'lazy',
+            draggable: 'false'
+          }}
+        {%- else -%}
+          {{ 'lifestyle-1' | placeholder_svg_tag: 'placeholder-svg' }}
+        {%- endif -%}
+      </div>
+
+      <div class="modern-ba-slider__before" id="BABefore-{{ section.id }}">
+        {%- if section.settings.before_image != blank -%}
+          {{ section.settings.before_image | image_url: width: 1600 | image_tag:
+            alt: section.settings.before_label | default: 'Before',
+            widths: '600, 800, 1200, 1600',
+            sizes: '100vw',
+            loading: 'lazy',
+            draggable: 'false',
+            style: 'width:auto;height:100%;max-width:none'
+          }}
+        {%- else -%}
+          {{ 'lifestyle-2' | placeholder_svg_tag: 'placeholder-svg' }}
+        {%- endif -%}
+      </div>
+
+      <div class="modern-ba-slider__handle" id="BAHandle-{{ section.id }}">
+        <div class="modern-ba-slider__handle-circle">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8l4 4-4 4M6 8l-4 4 4 4"/></svg>
+        </div>
+      </div>
+
+      {%- if section.settings.show_labels -%}
+        <span class="modern-ba-slider__label modern-ba-slider__label--before">{{ section.settings.before_label | default: 'Before' }}</span>
+        <span class="modern-ba-slider__label modern-ba-slider__label--after">{{ section.settings.after_label | default: 'After' }}</span>
+      {%- endif -%}
+    </div>
+  </div>
+</div>
+
+<script>
+  (function() {
+    var slider = document.getElementById('BASlider-{{ section.id }}');
+    var before = document.getElementById('BABefore-{{ section.id }}');
+    var handle = document.getElementById('BAHandle-{{ section.id }}');
+    if (!slider || !before || !handle) return;
+
+    var isDragging = false;
+
+    function updatePosition(x) {
+      var rect = slider.getBoundingClientRect();
+      var pct = Math.max(0, Math.min(100, ((x - rect.left) / rect.width) * 100));
+      before.style.width = pct + '%';
+      handle.style.left = pct + '%';
+    }
+
+    slider.addEventListener('pointerdown', function(e) {
+      isDragging = true;
+      slider.setPointerCapture(e.pointerId);
+      updatePosition(e.clientX);
+    });
+
+    slider.addEventListener('pointermove', function(e) {
+      if (!isDragging) return;
+      e.preventDefault();
+      updatePosition(e.clientX);
+    });
+
+    slider.addEventListener('pointerup', function() { isDragging = false; });
+    slider.addEventListener('pointercancel', function() { isDragging = false; });
+  })();
+</script>
+
+{% schema %}
+{
+  "name": "Modern Before/After",
+  "tag": "section",
+  "class": "section-modern-before-after",
+  "settings": [
+    { "type": "text", "id": "title", "label": "Heading", "default": "See the Difference" },
+    { "type": "text", "id": "subtitle", "label": "Subtitle" },
+    { "type": "header", "content": "Images" },
+    { "type": "image_picker", "id": "before_image", "label": "Before image" },
+    { "type": "image_picker", "id": "after_image", "label": "After image" },
+    { "type": "header", "content": "Labels" },
+    { "type": "checkbox", "id": "show_labels", "default": true, "label": "Show labels" },
+    { "type": "text", "id": "before_label", "label": "Before label", "default": "Before" },
+    { "type": "text", "id": "after_label", "label": "After label", "default": "After" },
+    { "type": "header", "content": "Layout" },
+    { "type": "range", "id": "max_width", "min": 400, "max": 1400, "step": 50, "default": 900, "unit": "px", "label": "Max width" },
+    { "type": "color_scheme", "id": "color_scheme", "label": "Color scheme", "default": "background-1" },
+    { "type": "range", "id": "padding_top", "min": 0, "max": 100, "step": 4, "default": 52, "unit": "px", "label": "Padding top" },
+    { "type": "range", "id": "padding_bottom", "min": 0, "max": 100, "step": 4, "default": 52, "unit": "px", "label": "Padding bottom" }
+  ],
+  "presets": [{ "name": "Modern Before/After" }]
+}
+{% endschema %}

@@ -1,0 +1,85 @@
+{%- comment -%}
+  Modern Quantity Selector
+  ========================
+  Styled quantity input with plus/minus buttons, min/max validation.
+
+  Usage:
+    {% render 'modern-quantity-selector', id: 'qty-1', value: 1, min: 1, max: 10, name: 'quantity' %}
+{%- endcomment -%}
+
+{%- liquid
+  assign qty_id = id | default: 'quantity'
+  assign qty_value = value | default: 1
+  assign qty_min = min | default: 1
+  assign qty_max = max | default: 99
+  assign qty_name = name | default: 'quantity'
+-%}
+
+<div class="modern-qty" id="Qty-{{ qty_id }}">
+  <button
+    type="button"
+    class="modern-qty__btn modern-qty__btn--minus"
+    aria-label="Decrease quantity"
+    onclick="(function(btn){var i=btn.parentElement.querySelector('.modern-qty__input');var v=parseInt(i.value)-1;if(v>=parseInt(i.min)){i.value=v;i.dispatchEvent(new Event('change',{bubbles:true}))}})(this)"
+  >
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14"/></svg>
+  </button>
+  <input
+    type="number"
+    class="modern-qty__input"
+    name="{{ qty_name }}"
+    value="{{ qty_value }}"
+    min="{{ qty_min }}"
+    max="{{ qty_max }}"
+    aria-label="Quantity"
+    onchange="(function(i){var v=parseInt(i.value);if(isNaN(v)||v<parseInt(i.min))i.value=i.min;if(v>parseInt(i.max))i.value=i.max})(this)"
+  >
+  <button
+    type="button"
+    class="modern-qty__btn modern-qty__btn--plus"
+    aria-label="Increase quantity"
+    onclick="(function(btn){var i=btn.parentElement.querySelector('.modern-qty__input');var v=parseInt(i.value)+1;if(v<=parseInt(i.max)){i.value=v;i.dispatchEvent(new Event('change',{bubbles:true}))}})(this)"
+  >
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 5v14M5 12h14"/></svg>
+  </button>
+</div>
+
+<style>
+  .modern-qty {
+    display: inline-flex;
+    align-items: center;
+    border: 2px solid rgba(128,128,128,0.2);
+    border-radius: var(--radius-md);
+    overflow: hidden;
+  }
+  .modern-qty__btn {
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    color: inherit;
+    transition: background var(--duration-fast) var(--ease-out);
+  }
+  .modern-qty__btn:hover { background: rgba(128,128,128,0.1); }
+  .modern-qty__btn:active { background: rgba(128,128,128,0.15); }
+  .modern-qty__input {
+    width: 48px;
+    text-align: center;
+    border: none;
+    background: transparent;
+    font-size: var(--text-base);
+    font-weight: 600;
+    color: inherit;
+    font-family: inherit;
+    -moz-appearance: textfield;
+  }
+  .modern-qty__input::-webkit-inner-spin-button,
+  .modern-qty__input::-webkit-outer-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+  }
+</style>

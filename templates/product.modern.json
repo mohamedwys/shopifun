@@ -1,0 +1,122 @@
+{
+  "sections": {
+    "modern_product_main": {
+      "type": "modern-product-main",
+      "blocks": {
+        "vendor": {
+          "type": "vendor",
+          "settings": {}
+        },
+        "title": {
+          "type": "title",
+          "settings": {}
+        },
+        "price": {
+          "type": "price",
+          "settings": {}
+        },
+        "variant_picker": {
+          "type": "variant_picker",
+          "settings": {
+            "swatch_type": "color_circle"
+          }
+        },
+        "quantity_selector": {
+          "type": "quantity_selector",
+          "settings": {}
+        },
+        "buy_buttons": {
+          "type": "buy_buttons",
+          "settings": {
+            "show_dynamic_checkout": true
+          }
+        },
+        "trust_badges": {
+          "type": "trust_badges",
+          "settings": {}
+        },
+        "description": {
+          "type": "description",
+          "settings": {}
+        },
+        "share": {
+          "type": "share",
+          "settings": {}
+        }
+      },
+      "block_order": [
+        "vendor",
+        "title",
+        "price",
+        "variant_picker",
+        "quantity_selector",
+        "buy_buttons",
+        "trust_badges",
+        "description",
+        "share"
+      ],
+      "settings": {
+        "gallery_layout": "thumbnails_left",
+        "enable_zoom": true,
+        "enable_video": true,
+        "sticky_atc": true,
+        "color_scheme": "background-1",
+        "padding_top": 36,
+        "padding_bottom": 36
+      }
+    },
+    "modern_product_tabs": {
+      "type": "modern-product-tabs",
+      "blocks": {
+        "tab_description": {
+          "type": "tab",
+          "settings": {
+            "title": "Description",
+            "content_source": "product_description"
+          }
+        },
+        "tab_reviews": {
+          "type": "tab",
+          "settings": {
+            "title": "Reviews",
+            "content_source": "reviews"
+          }
+        },
+        "tab_shipping": {
+          "type": "tab",
+          "settings": {
+            "title": "Shipping & Returns",
+            "content_source": "custom",
+            "custom_content": "<p>Free shipping on orders over $50. Easy returns within 30 days.</p>"
+          }
+        }
+      },
+      "block_order": ["tab_description", "tab_reviews", "tab_shipping"],
+      "settings": {
+        "color_scheme": "background-1",
+        "padding_top": 40,
+        "padding_bottom": 40
+      }
+    },
+    "modern_related_products": {
+      "type": "modern-featured-collection",
+      "settings": {
+        "title": "You May Also Like",
+        "description": "Customers who viewed this also loved these",
+        "products_to_show": 4,
+        "columns_desktop": 4,
+        "columns_mobile": 2,
+        "color_scheme": "background-1",
+        "show_vendor": false,
+        "show_view_all": false,
+        "padding_top": 40,
+        "padding_bottom": 52
+      }
+    }
+  },
+  "order": [
+    "modern_product_main",
+    "modern_product_tabs",
+    "modern_related_products"
+  ]
+}

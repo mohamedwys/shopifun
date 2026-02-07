@@ -1,0 +1,341 @@
+{%- comment -%}
+  Modern Testimonials Section
+  ===========================
+  Customer reviews with star ratings, customer photos, and carousel or grid layout.
+{%- endcomment -%}
+
+{%- style -%}
+  .section-{{ section.id }}-padding {
+    padding-top: {{ section.settings.padding_top | times: 0.75 | round: 0 }}px;
+    padding-bottom: {{ section.settings.padding_bottom | times: 0.75 | round: 0 }}px;
+  }
+  @media screen and (min-width: 750px) {
+    .section-{{ section.id }}-padding {
+      padding-top: {{ section.settings.padding_top }}px;
+      padding-bottom: {{ section.settings.padding_bottom }}px;
+    }
+  }
+
+  .modern-testimonials__header {
+    text-align: center;
+    margin-bottom: var(--space-3xl);
+  }
+  .modern-testimonials__title {
+    font-size: var(--text-3xl);
+    font-weight: 700;
+    margin: 0;
+    letter-spacing: var(--tracking-tight);
+  }
+  .modern-testimonials__subtitle {
+    font-size: var(--text-base);
+    opacity: 0.6;
+    margin: var(--space-sm) 0 0;
+  }
+
+  .modern-testimonials-grid {
+    display: grid;
+    gap: var(--space-xl);
+  }
+  @media screen and (min-width: 750px) {
+    .modern-testimonials-grid--grid {
+      grid-template-columns: repeat(2, 1fr);
+    }
+  }
+  @media screen and (min-width: 990px) {
+    .modern-testimonials-grid--grid {
+      grid-template-columns: repeat({{ section.settings.columns_desktop }}, 1fr);
+    }
+  }
+
+  /* Carousel */
+  .modern-testimonials-carousel {
+    position: relative;
+    overflow: hidden;
+  }
+  .modern-testimonials-carousel__track {
+    display: flex;
+    transition: transform var(--duration-slow) var(--ease-out);
+  }
+  .modern-testimonials-carousel__slide {
+    flex: 0 0 100%;
+    padding: 0 var(--space-md);
+  }
+  @media screen and (min-width: 750px) {
+    .modern-testimonials-carousel__slide {
+      flex: 0 0 50%;
+    }
+  }
+  @media screen and (min-width: 990px) {
+    .modern-testimonials-carousel__slide {
+      flex: 0 0 33.333%;
+    }
+  }
+
+  .modern-testimonials-nav {
+    display: flex;
+    justify-content: center;
+    gap: var(--space-md);
+    margin-top: var(--space-2xl);
+  }
+  .modern-testimonials-nav__btn {
+    width: 44px;
+    height: 44px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 2px solid rgba(128,128,128,0.2);
+    border-radius: 50%;
+    background: transparent;
+    cursor: pointer;
+    color: inherit;
+    transition: all var(--duration-fast) var(--ease-out);
+  }
+  .modern-testimonials-nav__btn:hover {
+    background: var(--color-button, #000);
+    color: var(--color-button-text, #fff);
+    border-color: var(--color-button, #000);
+  }
+  .modern-testimonials-nav__btn svg { width: 18px; height: 18px; }
+
+  /* Testimonial Card */
+  .modern-testimonial-card {
+    padding: var(--space-2xl);
+    background: rgba(128,128,128,0.04);
+    border-radius: var(--radius-xl);
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    transition: all var(--duration-fast) var(--ease-out);
+  }
+  .modern-testimonial-card:hover {
+    background: rgba(128,128,128,0.08);
+    transform: translateY(-4px);
+    box-shadow: var(--shadow-lg);
+  }
+
+  /* Stars */
+  .modern-testimonial-stars {
+    display: flex;
+    gap: 2px;
+    margin-bottom: var(--space-lg);
+  }
+  .modern-testimonial-star {
+    width: 18px;
+    height: 18px;
+    color: #f59e0b;
+  }
+  .modern-testimonial-star--empty {
+    color: rgba(128,128,128,0.2);
+  }
+
+  .modern-testimonial-card__text {
+    font-size: var(--text-base);
+    line-height: var(--leading-relaxed);
+    opacity: 0.8;
+    margin: 0;
+    flex: 1;
+    font-style: italic;
+  }
+
+  .modern-testimonial-card__author {
+    display: flex;
+    align-items: center;
+    gap: var(--space-md);
+    margin-top: var(--space-xl);
+    padding-top: var(--space-lg);
+    border-top: 1px solid rgba(128,128,128,0.1);
+  }
+  .modern-testimonial-card__avatar {
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    overflow: hidden;
+    background: rgba(128,128,128,0.1);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: var(--text-sm);
+    flex-shrink: 0;
+  }
+  .modern-testimonial-card__avatar img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+  .modern-testimonial-card__name {
+    font-size: var(--text-sm);
+    font-weight: 600;
+    margin: 0;
+  }
+  .modern-testimonial-card__role {
+    font-size: var(--text-xs);
+    opacity: 0.5;
+    margin: 0;
+  }
+
+  .modern-testimonial-quote-icon {
+    opacity: 0.08;
+    margin-bottom: var(--space-md);
+  }
+{%- endstyle -%}
+
+<div class="color-{{ section.settings.color_scheme }} gradient">
+  <div class="page-width section-{{ section.id }}-padding">
+    {%- if section.settings.title != blank or section.settings.subtitle != blank -%}
+      <div class="modern-testimonials__header modern-animate animate--fade-up">
+        {%- if section.settings.title != blank -%}
+          <h2 class="modern-testimonials__title">{{ section.settings.title }}</h2>
+        {%- endif -%}
+        {%- if section.settings.subtitle != blank -%}
+          <p class="modern-testimonials__subtitle">{{ section.settings.subtitle | escape }}</p>
+        {%- endif -%}
+      </div>
+    {%- endif -%}
+
+    {%- if section.settings.layout == 'carousel' -%}
+      <div class="modern-testimonials-carousel" id="TestimonialCarousel-{{ section.id }}">
+        <div class="modern-testimonials-carousel__track" id="TestimonialTrack-{{ section.id }}">
+          {%- for block in section.blocks -%}
+            <div class="modern-testimonials-carousel__slide">
+              {%- render 'modern-testimonial-card', block: block -%}
+            </div>
+          {%- endfor -%}
+        </div>
+      </div>
+      <div class="modern-testimonials-nav">
+        <button class="modern-testimonials-nav__btn" aria-label="Previous" onclick="(function(t){var s=t.querySelector('.modern-testimonials-carousel__slide');if(!s)return;var w=s.offsetWidth;t.scrollLeft-=w})(document.getElementById('TestimonialCarousel-{{ section.id }}'))">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+        </button>
+        <button class="modern-testimonials-nav__btn" aria-label="Next" onclick="(function(t){var s=t.querySelector('.modern-testimonials-carousel__slide');if(!s)return;var w=s.offsetWidth;t.scrollLeft+=w})(document.getElementById('TestimonialCarousel-{{ section.id }}'))">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+        </button>
+      </div>
+    {%- else -%}
+      <div class="modern-testimonials-grid modern-testimonials-grid--grid">
+        {%- for block in section.blocks -%}
+          <div class="modern-animate animate--fade-up" data-stagger="{{ forloop.index | modulo: 6 | plus: 1 }}" {{ block.shopify_attributes }}>
+            {%- render 'modern-testimonial-card', block: block -%}
+          </div>
+        {%- endfor -%}
+      </div>
+    {%- endif -%}
+  </div>
+</div>
+
+{% schema %}
+{
+  "name": "Modern Testimonials",
+  "tag": "section",
+  "class": "section-modern-testimonials",
+  "blocks": [
+    {
+      "type": "testimonial",
+      "name": "Testimonial",
+      "settings": [
+        {
+          "type": "range",
+          "id": "rating",
+          "min": 1,
+          "max": 5,
+          "step": 1,
+          "default": 5,
+          "label": "Star rating"
+        },
+        {
+          "type": "textarea",
+          "id": "text",
+          "label": "Review text",
+          "default": "This product exceeded all my expectations. The quality is outstanding and the customer service is top-notch."
+        },
+        {
+          "type": "text",
+          "id": "author_name",
+          "label": "Author name",
+          "default": "Jane D."
+        },
+        {
+          "type": "text",
+          "id": "author_role",
+          "label": "Author role / location",
+          "default": "Verified Buyer"
+        },
+        {
+          "type": "image_picker",
+          "id": "author_image",
+          "label": "Author photo"
+        }
+      ]
+    }
+  ],
+  "settings": [
+    {
+      "type": "text",
+      "id": "title",
+      "label": "Heading",
+      "default": "What Our Customers Say"
+    },
+    {
+      "type": "text",
+      "id": "subtitle",
+      "label": "Subtitle",
+      "default": "Real reviews from real people"
+    },
+    {
+      "type": "select",
+      "id": "layout",
+      "label": "Layout",
+      "options": [
+        { "value": "grid", "label": "Grid" },
+        { "value": "carousel", "label": "Carousel" }
+      ],
+      "default": "grid"
+    },
+    {
+      "type": "range",
+      "id": "columns_desktop",
+      "min": 2,
+      "max": 4,
+      "step": 1,
+      "default": 3,
+      "label": "Desktop columns (grid)"
+    },
+    {
+      "type": "color_scheme",
+      "id": "color_scheme",
+      "label": "Color scheme",
+      "default": "background-1"
+    },
+    {
+      "type": "range",
+      "id": "padding_top",
+      "min": 0,
+      "max": 100,
+      "step": 4,
+      "default": 52,
+      "unit": "px",
+      "label": "Padding top"
+    },
+    {
+      "type": "range",
+      "id": "padding_bottom",
+      "min": 0,
+      "max": 100,
+      "step": 4,
+      "default": 52,
+      "unit": "px",
+      "label": "Padding bottom"
+    }
+  ],
+  "presets": [
+    {
+      "name": "Modern Testimonials",
+      "blocks": [
+        { "type": "testimonial", "settings": { "rating": 5, "text": "Absolutely love this product! The quality is amazing and it arrived so quickly.", "author_name": "Sarah M.", "author_role": "Verified Buyer" } },
+        { "type": "testimonial", "settings": { "rating": 5, "text": "Best purchase I've made this year. The attention to detail is incredible.", "author_name": "James R.", "author_role": "Repeat Customer" } },
+        { "type": "testimonial", "settings": { "rating": 4, "text": "Great product and excellent customer service. Would definitely recommend.", "author_name": "Emily T.", "author_role": "Verified Buyer" } }
+      ]
+    }
+  ]
+}
+{% endschema %}

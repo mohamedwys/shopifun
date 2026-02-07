@@ -1,0 +1,580 @@
+{%- comment -%}
+  Modern Cart Section
+  ===================
+  Full cart page with free shipping progress bar, promo code field,
+  cart upsells, and line item management.
+{%- endcomment -%}
+
+{%- style -%}
+  .section-{{ section.id }}-padding {
+    padding-top: {{ section.settings.padding_top | times: 0.75 | round: 0 }}px;
+    padding-bottom: {{ section.settings.padding_bottom | times: 0.75 | round: 0 }}px;
+  }
+  @media screen and (min-width: 750px) {
+    .section-{{ section.id }}-padding {
+      padding-top: {{ section.settings.padding_top }}px;
+      padding-bottom: {{ section.settings.padding_bottom }}px;
+    }
+  }
+
+  .modern-cart__header {
+    text-align: center;
+    margin-bottom: var(--space-3xl);
+  }
+  .modern-cart__title {
+    font-size: var(--text-3xl);
+    font-weight: 700;
+    letter-spacing: var(--tracking-tight);
+    margin: 0;
+  }
+  .modern-cart__count {
+    font-size: var(--text-sm);
+    opacity: 0.5;
+    margin: var(--space-xs) 0 0;
+  }
+
+  /* Free Shipping Bar */
+  .modern-shipping-bar {
+    background: rgba(128,128,128,0.06);
+    border-radius: var(--radius-lg);
+    padding: var(--space-lg);
+    margin-bottom: var(--space-2xl);
+    text-align: center;
+  }
+  .modern-shipping-bar__text {
+    font-size: var(--text-sm);
+    margin: 0 0 var(--space-sm);
+  }
+  .modern-shipping-bar__track {
+    width: 100%;
+    height: 6px;
+    background: rgba(128,128,128,0.15);
+    border-radius: var(--radius-full);
+    overflow: hidden;
+  }
+  .modern-shipping-bar__fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--color-button, #000), #22c55e);
+    border-radius: var(--radius-full);
+    transition: width var(--duration-slow) var(--ease-out);
+  }
+  .modern-shipping-bar--complete .modern-shipping-bar__fill {
+    background: #22c55e;
+  }
+
+  /* Cart Layout */
+  .modern-cart__layout {
+    display: grid;
+    gap: var(--space-2xl);
+  }
+  @media screen and (min-width: 990px) {
+    .modern-cart__layout {
+      grid-template-columns: 1fr 380px;
+      align-items: start;
+    }
+  }
+
+  /* Cart Items */
+  .modern-cart-item {
+    display: grid;
+    grid-template-columns: 100px 1fr;
+    gap: var(--space-lg);
+    padding: var(--space-lg) 0;
+    border-bottom: 1px solid rgba(128,128,128,0.1);
+    animation: fadeIn var(--duration-normal) var(--ease-out);
+  }
+  @media screen and (min-width: 750px) {
+    .modern-cart-item {
+      grid-template-columns: 120px 1fr auto;
+    }
+  }
+  .modern-cart-item__img {
+    width: 100%;
+    aspect-ratio: 1;
+    object-fit: cover;
+    border-radius: var(--radius-md);
+    background: rgba(128,128,128,0.05);
+  }
+  .modern-cart-item__info {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-xs);
+    min-width: 0;
+  }
+  .modern-cart-item__title {
+    font-size: var(--text-base);
+    font-weight: 600;
+    margin: 0;
+  }
+  .modern-cart-item__title a {
+    color: inherit;
+    text-decoration: none;
+  }
+  .modern-cart-item__title a:hover {
+    text-decoration: underline;
+  }
+  .modern-cart-item__variant {
+    font-size: var(--text-sm);
+    opacity: 0.6;
+  }
+  .modern-cart-item__price {
+    font-size: var(--text-sm);
+    font-weight: 600;
+  }
+  .modern-cart-item__actions {
+    display: flex;
+    align-items: center;
+    gap: var(--space-md);
+    margin-top: var(--space-sm);
+  }
+  .modern-cart-item__remove {
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: inherit;
+    opacity: 0.4;
+    font-size: var(--text-xs);
+    text-decoration: underline;
+    transition: opacity var(--duration-fast) var(--ease-out);
+    padding: 0;
+    font-family: inherit;
+  }
+  .modern-cart-item__remove:hover { opacity: 1; }
+  .modern-cart-item__line-total {
+    font-size: var(--text-base);
+    font-weight: 700;
+    white-space: nowrap;
+    display: flex;
+    align-items: center;
+  }
+  @media screen and (max-width: 749px) {
+    .modern-cart-item__line-total {
+      grid-column: 2;
+      margin-top: calc(-1 * var(--space-sm));
+    }
+  }
+
+  /* Cart Summary */
+  .modern-cart-summary {
+    background: rgba(128,128,128,0.04);
+    border-radius: var(--radius-xl);
+    padding: var(--space-2xl);
+    position: sticky;
+    top: calc(var(--header-height, 80px) + var(--space-lg));
+  }
+  .modern-cart-summary__title {
+    font-size: var(--text-lg);
+    font-weight: 700;
+    margin: 0 0 var(--space-xl);
+  }
+  .modern-cart-summary__row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: var(--space-sm) 0;
+    font-size: var(--text-sm);
+  }
+  .modern-cart-summary__row--total {
+    border-top: 2px solid rgba(128,128,128,0.15);
+    margin-top: var(--space-md);
+    padding-top: var(--space-lg);
+    font-size: var(--text-lg);
+    font-weight: 700;
+  }
+  .modern-cart-summary__promo {
+    margin-top: var(--space-lg);
+    padding-top: var(--space-lg);
+    border-top: 1px solid rgba(128,128,128,0.1);
+  }
+  .modern-cart-summary__promo-toggle {
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: var(--text-sm);
+    color: inherit;
+    padding: 0;
+    text-decoration: underline;
+    opacity: 0.6;
+    transition: opacity var(--duration-fast) var(--ease-out);
+    font-family: inherit;
+  }
+  .modern-cart-summary__promo-toggle:hover { opacity: 1; }
+  .modern-cart-summary__promo-form {
+    display: none;
+    margin-top: var(--space-md);
+    gap: var(--space-sm);
+  }
+  .modern-cart-summary__promo-form.is-open {
+    display: flex;
+  }
+  .modern-cart-summary__promo-input {
+    flex: 1;
+    padding: var(--space-sm) var(--space-md);
+    border: 1px solid rgba(128,128,128,0.2);
+    border-radius: var(--radius-md);
+    font-size: var(--text-sm);
+    background: transparent;
+    color: inherit;
+    font-family: inherit;
+  }
+  .modern-cart-summary__promo-btn {
+    padding: var(--space-sm) var(--space-lg);
+    background: var(--color-button, #000);
+    color: var(--color-button-text, #fff);
+    border: none;
+    border-radius: var(--radius-md);
+    font-size: var(--text-sm);
+    font-weight: 600;
+    cursor: pointer;
+    font-family: inherit;
+  }
+  .modern-cart-summary__checkout {
+    display: block;
+    width: 100%;
+    margin-top: var(--space-xl);
+    padding: var(--space-lg);
+    background: var(--color-button, #000);
+    color: var(--color-button-text, #fff);
+    border: none;
+    border-radius: var(--radius-md);
+    font-size: var(--text-base);
+    font-weight: 600;
+    cursor: pointer;
+    text-transform: uppercase;
+    letter-spacing: var(--tracking-wider);
+    text-align: center;
+    text-decoration: none;
+    transition: opacity var(--duration-fast) var(--ease-out);
+    font-family: inherit;
+  }
+  .modern-cart-summary__checkout:hover { opacity: 0.9; }
+  .modern-cart-summary__note {
+    margin-top: var(--space-lg);
+  }
+  .modern-cart-summary__note textarea {
+    width: 100%;
+    padding: var(--space-md);
+    border: 1px solid rgba(128,128,128,0.2);
+    border-radius: var(--radius-md);
+    font-size: var(--text-sm);
+    resize: vertical;
+    min-height: 80px;
+    background: transparent;
+    color: inherit;
+    font-family: inherit;
+  }
+
+  /* Empty Cart */
+  .modern-cart-empty {
+    text-align: center;
+    padding: var(--space-5xl) var(--space-xl);
+  }
+  .modern-cart-empty__icon {
+    width: 80px;
+    height: 80px;
+    margin: 0 auto var(--space-xl);
+    opacity: 0.2;
+  }
+  .modern-cart-empty__title {
+    font-size: var(--text-2xl);
+    font-weight: 700;
+    margin: 0 0 var(--space-sm);
+  }
+  .modern-cart-empty__text {
+    opacity: 0.5;
+    margin: 0 0 var(--space-xl);
+  }
+
+  /* Recommendations */
+  .modern-cart-recommendations {
+    margin-top: var(--space-3xl);
+    padding-top: var(--space-3xl);
+    border-top: 1px solid rgba(128,128,128,0.1);
+  }
+  .modern-cart-recommendations__title {
+    font-size: var(--text-xl);
+    font-weight: 700;
+    margin: 0 0 var(--space-xl);
+    text-align: center;
+  }
+  .modern-cart-recommendations__grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: var(--space-md);
+  }
+  @media screen and (min-width: 750px) {
+    .modern-cart-recommendations__grid {
+      grid-template-columns: repeat(4, 1fr);
+      gap: var(--space-xl);
+    }
+  }
+
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+{%- endstyle -%}
+
+{%- liquid
+  assign free_shipping_threshold = section.settings.free_shipping_threshold
+  assign cart_total = cart.total_price
+  assign shipping_remaining = free_shipping_threshold | minus: cart_total
+  assign shipping_percentage = cart_total | times: 100 | divided_by: free_shipping_threshold | at_most: 100
+-%}
+
+<div class="color-{{ section.settings.color_scheme }} gradient">
+  <div class="page-width section-{{ section.id }}-padding">
+
+    {%- if cart.item_count > 0 -%}
+      <div class="modern-cart__header modern-animate animate--fade-up">
+        <h1 class="modern-cart__title">Your Cart</h1>
+        <p class="modern-cart__count">{{ cart.item_count }} {{ cart.item_count | pluralize: 'item', 'items' }}</p>
+      </div>
+
+      {%- comment -%} Free Shipping Progress {%- endcomment -%}
+      {%- if section.settings.show_free_shipping_bar -%}
+        <div class="modern-shipping-bar modern-animate animate--fade-up{% if shipping_remaining <= 0 %} modern-shipping-bar--complete{% endif %}" data-stagger="2">
+          <p class="modern-shipping-bar__text">
+            {%- if shipping_remaining > 0 -%}
+              Spend <strong>{{ shipping_remaining | money }}</strong> more for <strong>free shipping</strong>!
+            {%- else -%}
+              You've unlocked <strong>free shipping</strong>! 🎉
+            {%- endif -%}
+          </p>
+          <div class="modern-shipping-bar__track">
+            <div class="modern-shipping-bar__fill" style="width: {{ shipping_percentage }}%"></div>
+          </div>
+        </div>
+      {%- endif -%}
+
+      <form action="/cart" method="post">
+        <div class="modern-cart__layout">
+          {%- comment -%} Cart Items {%- endcomment -%}
+          <div>
+            {%- for item in cart.items -%}
+              <div class="modern-cart-item" data-cart-item="{{ item.key }}">
+                <a href="{{ item.url }}">
+                  {%- if item.image -%}
+                    {{ item.image | image_url: width: 300 | image_tag:
+                      class: 'modern-cart-item__img',
+                      alt: item.image.alt | default: item.product.title,
+                      widths: '120, 200, 300',
+                      sizes: '120px',
+                      loading: 'lazy'
+                    }}
+                  {%- else -%}
+                    <div class="modern-cart-item__img" style="display:flex;align-items:center;justify-content:center">
+                      {{ 'product-1' | placeholder_svg_tag: 'placeholder-svg' }}
+                    </div>
+                  {%- endif -%}
+                </a>
+
+                <div class="modern-cart-item__info">
+                  <h3 class="modern-cart-item__title">
+                    <a href="{{ item.url }}">{{ item.product.title | escape }}</a>
+                  </h3>
+                  {%- if item.variant.title != 'Default Title' -%}
+                    <p class="modern-cart-item__variant">{{ item.variant.title | escape }}</p>
+                  {%- endif -%}
+                  <p class="modern-cart-item__price">{{ item.price | money }}</p>
+
+                  <div class="modern-cart-item__actions">
+                    <div class="modern-quantity" style="transform:scale(0.85);transform-origin:left">
+                      <button type="button" class="modern-quantity__btn" onclick="var i=this.nextElementSibling;i.value=Math.max(0,parseInt(i.value)-1);i.form.submit()" aria-label="Decrease quantity">&minus;</button>
+                      <input type="number" class="modern-quantity__input" name="updates[{{ item.key }}]" value="{{ item.quantity }}" min="0" aria-label="Quantity">
+                      <button type="button" class="modern-quantity__btn" onclick="var i=this.previousElementSibling;i.value=parseInt(i.value)+1;i.form.submit()" aria-label="Increase quantity">&plus;</button>
+                    </div>
+                    <a href="/cart/change?id={{ item.key }}&quantity=0" class="modern-cart-item__remove">Remove</a>
+                  </div>
+                </div>
+
+                <div class="modern-cart-item__line-total">
+                  {{ item.final_line_price | money }}
+                </div>
+              </div>
+            {%- endfor -%}
+          </div>
+
+          {%- comment -%} Cart Summary {%- endcomment -%}
+          <div class="modern-cart-summary modern-animate animate--fade-left">
+            <h2 class="modern-cart-summary__title">Order Summary</h2>
+
+            <div class="modern-cart-summary__row">
+              <span>Subtotal</span>
+              <span>{{ cart.total_price | money }}</span>
+            </div>
+            <div class="modern-cart-summary__row">
+              <span>Shipping</span>
+              <span>
+                {%- if shipping_remaining <= 0 -%}
+                  <span style="color:#22c55e;font-weight:600">Free</span>
+                {%- else -%}
+                  Calculated at checkout
+                {%- endif -%}
+              </span>
+            </div>
+            <div class="modern-cart-summary__row modern-cart-summary__row--total">
+              <span>Total</span>
+              <span>{{ cart.total_price | money }}</span>
+            </div>
+
+            {%- if section.settings.show_promo_code -%}
+              <div class="modern-cart-summary__promo">
+                <button type="button" class="modern-cart-summary__promo-toggle" onclick="this.nextElementSibling.classList.toggle('is-open')">
+                  Have a promo code?
+                </button>
+                <div class="modern-cart-summary__promo-form">
+                  <input type="text" class="modern-cart-summary__promo-input" placeholder="Enter code">
+                  <button type="button" class="modern-cart-summary__promo-btn">Apply</button>
+                </div>
+              </div>
+            {%- endif -%}
+
+            <a href="/checkout" class="modern-cart-summary__checkout modern-btn">
+              Checkout &middot; {{ cart.total_price | money }}
+            </a>
+
+            <p style="text-align:center;font-size:var(--text-xs);opacity:0.5;margin:var(--space-md) 0 0">
+              Taxes and shipping calculated at checkout
+            </p>
+
+            {%- if section.settings.show_cart_note -%}
+              <div class="modern-cart-summary__note">
+                <label for="CartNote" style="font-size:var(--text-sm);font-weight:600;display:block;margin-bottom:var(--space-xs)">Order Note</label>
+                <textarea id="CartNote" name="note" placeholder="Add a note to your order...">{{ cart.note }}</textarea>
+              </div>
+            {%- endif -%}
+          </div>
+        </div>
+      </form>
+
+      {%- comment -%} Recommendations {%- endcomment -%}
+      {%- if section.settings.show_recommendations -%}
+        <div class="modern-cart-recommendations">
+          <h2 class="modern-cart-recommendations__title modern-animate animate--fade-up">
+            {{ section.settings.recommendations_title | default: 'You might also like' }}
+          </h2>
+          <div class="modern-cart-recommendations__grid">
+            {%- for i in (1..4) -%}
+              <div class="modern-product-card modern-animate animate--fade-up" data-stagger="{{ forloop.index }}">
+                <div class="modern-product-card__media">
+                  {{ 'product-1' | placeholder_svg_tag: 'placeholder-svg' }}
+                </div>
+                <div class="modern-product-card__info">
+                  <h3 class="modern-product-card__title"><a href="#">{{ 'onboarding.product_title' | t }}</a></h3>
+                  <div class="modern-product-card__price"><span>{{ 1999 | money }}</span></div>
+                </div>
+              </div>
+            {%- endfor -%}
+          </div>
+        </div>
+      {%- endif -%}
+
+    {%- else -%}
+      {%- comment -%} Empty Cart {%- endcomment -%}
+      <div class="modern-cart-empty modern-animate animate--fade-up">
+        <svg class="modern-cart-empty__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+          <path d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 100 4 2 2 0 000-4z"/>
+        </svg>
+        <h1 class="modern-cart-empty__title">Your cart is empty</h1>
+        <p class="modern-cart-empty__text">Looks like you haven't added anything yet.</p>
+        <a href="/collections/all" class="modern-btn modern-btn--primary" style="display:inline-flex;padding:var(--space-md) var(--space-3xl)">
+          Continue Shopping
+        </a>
+      </div>
+    {%- endif -%}
+  </div>
+</div>
+
+{% schema %}
+{
+  "name": "Modern Cart",
+  "tag": "section",
+  "class": "section-modern-cart",
+  "settings": [
+    {
+      "type": "header",
+      "content": "Free Shipping"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_free_shipping_bar",
+      "default": true,
+      "label": "Show free shipping progress bar"
+    },
+    {
+      "type": "range",
+      "id": "free_shipping_threshold",
+      "min": 0,
+      "max": 50000,
+      "step": 500,
+      "default": 5000,
+      "unit": "¢",
+      "label": "Free shipping threshold (cents)"
+    },
+    {
+      "type": "header",
+      "content": "Features"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_promo_code",
+      "default": true,
+      "label": "Show promo code field"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_cart_note",
+      "default": true,
+      "label": "Show order note"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_recommendations",
+      "default": true,
+      "label": "Show product recommendations"
+    },
+    {
+      "type": "text",
+      "id": "recommendations_title",
+      "label": "Recommendations title",
+      "default": "You might also like"
+    },
+    {
+      "type": "color_scheme",
+      "id": "color_scheme",
+      "label": "Color scheme",
+      "default": "background-1"
+    },
+    {
+      "type": "header",
+      "content": "Spacing"
+    },
+    {
+      "type": "range",
+      "id": "padding_top",
+      "min": 0,
+      "max": 100,
+      "step": 4,
+      "default": 40,
+      "unit": "px",
+      "label": "Padding top"
+    },
+    {
+      "type": "range",
+      "id": "padding_bottom",
+      "min": 0,
+      "max": 100,
+      "step": 4,
+      "default": 52,
+      "unit": "px",
+      "label": "Padding bottom"
+    }
+  ],
+  "presets": [
+    {
+      "name": "Modern Cart"
+    }
+  ]
+}
+{% endschema %}

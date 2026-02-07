@@ -1,0 +1,108 @@
+{%- comment -%}
+  Modern Breadcrumbs
+  ==================
+  Navigation trail with schema markup, separator icons, responsive.
+
+  Usage: {% render 'modern-breadcrumbs' %}
+{%- endcomment -%}
+
+{%- style -%}
+  .modern-breadcrumbs {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: var(--space-xs);
+    font-size: var(--text-sm);
+    padding: var(--space-md) 0;
+    list-style: none;
+    margin: 0;
+  }
+  .modern-breadcrumbs a {
+    color: inherit;
+    text-decoration: none;
+    opacity: 0.5;
+    transition: opacity var(--duration-fast) var(--ease-out);
+  }
+  .modern-breadcrumbs a:hover { opacity: 1; }
+  .modern-breadcrumbs__separator {
+    opacity: 0.3;
+    display: flex;
+  }
+  .modern-breadcrumbs__separator svg { width: 12px; height: 12px; }
+  .modern-breadcrumbs__current {
+    font-weight: 600;
+    opacity: 0.8;
+  }
+{%- endstyle -%}
+
+<nav aria-label="Breadcrumb" class="page-width">
+  <ol class="modern-breadcrumbs" itemscope itemtype="https://schema.org/BreadcrumbList">
+    <li itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem">
+      <a href="/" itemprop="item"><span itemprop="name">Home</span></a>
+      <meta itemprop="position" content="1">
+    </li>
+
+    {%- if template.name == 'product' -%}
+      {%- if product.collections.size > 0 -%}
+        {%- assign breadcrumb_collection = product.collections | sort: 'all_products_count' | last -%}
+        <li class="modern-breadcrumbs__separator"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 18l6-6-6-6"/></svg></li>
+        <li itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem">
+          <a href="{{ breadcrumb_collection.url }}" itemprop="item"><span itemprop="name">{{ breadcrumb_collection.title | escape }}</span></a>
+          <meta itemprop="position" content="2">
+        </li>
+      {%- endif -%}
+      <li class="modern-breadcrumbs__separator"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 18l6-6-6-6"/></svg></li>
+      <li class="modern-breadcrumbs__current" itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem">
+        <span itemprop="name">{{ product.title | escape }}</span>
+        <meta itemprop="position" content="{% if product.collections.size > 0 %}3{% else %}2{% endif %}">
+      </li>
+
+    {%- elsif template.name == 'collection' -%}
+      <li class="modern-breadcrumbs__separator"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 18l6-6-6-6"/></svg></li>
+      <li class="modern-breadcrumbs__current" itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem">
+        <span itemprop="name">{{ collection.title | escape }}</span>
+        <meta itemprop="position" content="2">
+      </li>
+
+    {%- elsif template.name == 'blog' -%}
+      <li class="modern-breadcrumbs__separator"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 18l6-6-6-6"/></svg></li>
+      <li class="modern-breadcrumbs__current" itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem">
+        <span itemprop="name">{{ blog.title | escape }}</span>
+        <meta itemprop="position" content="2">
+      </li>
+
+    {%- elsif template.name == 'article' -%}
+      <li class="modern-breadcrumbs__separator"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 18l6-6-6-6"/></svg></li>
+      <li itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem">
+        <a href="{{ blog.url }}" itemprop="item"><span itemprop="name">{{ blog.title | escape }}</span></a>
+        <meta itemprop="position" content="2">
+      </li>
+      <li class="modern-breadcrumbs__separator"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 18l6-6-6-6"/></svg></li>
+      <li class="modern-breadcrumbs__current" itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem">
+        <span itemprop="name">{{ article.title | escape }}</span>
+        <meta itemprop="position" content="3">
+      </li>
+
+    {%- elsif template.name == 'page' -%}
+      <li class="modern-breadcrumbs__separator"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 18l6-6-6-6"/></svg></li>
+      <li class="modern-breadcrumbs__current" itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem">
+        <span itemprop="name">{{ page.title | escape }}</span>
+        <meta itemprop="position" content="2">
+      </li>
+
+    {%- elsif template.name == 'cart' -%}
+      <li class="modern-breadcrumbs__separator"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 18l6-6-6-6"/></svg></li>
+      <li class="modern-breadcrumbs__current" itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem">
+        <span itemprop="name">Cart</span>
+        <meta itemprop="position" content="2">
+      </li>
+
+    {%- elsif template.name == 'search' -%}
+      <li class="modern-breadcrumbs__separator"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 18l6-6-6-6"/></svg></li>
+      <li class="modern-breadcrumbs__current" itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem">
+        <span itemprop="name">Search</span>
+        <meta itemprop="position" content="2">
+      </li>
+    {%- endif -%}
+  </ol>
+</nav>

@@ -1,0 +1,251 @@
+{%- comment -%}
+  Modern FAQ Section
+  ==================
+  Accordion FAQ with smooth animations, search, category grouping, and SEO schema.
+{%- endcomment -%}
+
+{%- style -%}
+  .section-{{ section.id }}-padding {
+    padding-top: {{ section.settings.padding_top | times: 0.75 | round: 0 }}px;
+    padding-bottom: {{ section.settings.padding_bottom | times: 0.75 | round: 0 }}px;
+  }
+  @media screen and (min-width: 750px) {
+    .section-{{ section.id }}-padding {
+      padding-top: {{ section.settings.padding_top }}px;
+      padding-bottom: {{ section.settings.padding_bottom }}px;
+    }
+  }
+
+  .modern-faq__header {
+    text-align: center;
+    margin-bottom: var(--space-3xl);
+    max-width: 600px;
+    margin-inline: auto;
+  }
+  .modern-faq__title {
+    font-size: var(--text-3xl);
+    font-weight: 700;
+    margin: 0;
+    letter-spacing: var(--tracking-tight);
+  }
+  .modern-faq__subtitle {
+    font-size: var(--text-base);
+    opacity: 0.6;
+    margin: var(--space-md) 0 0;
+  }
+
+  .modern-faq-search {
+    max-width: 500px;
+    margin: 0 auto var(--space-2xl);
+    position: relative;
+  }
+  .modern-faq-search__input {
+    width: 100%;
+    padding: var(--space-md) var(--space-md) var(--space-md) var(--space-3xl);
+    border: 2px solid rgba(128,128,128,0.15);
+    border-radius: var(--radius-full);
+    font-size: var(--text-base);
+    background: transparent;
+    color: inherit;
+    font-family: inherit;
+    transition: border-color var(--duration-fast) var(--ease-out);
+  }
+  .modern-faq-search__input:focus {
+    outline: none;
+    border-color: var(--color-button, #000);
+  }
+  .modern-faq-search__icon {
+    position: absolute;
+    left: var(--space-lg);
+    top: 50%;
+    transform: translateY(-50%);
+    width: 18px;
+    height: 18px;
+    opacity: 0.4;
+  }
+
+  .modern-faq-list {
+    max-width: 800px;
+    margin: 0 auto;
+  }
+
+  .modern-faq-category {
+    margin-bottom: var(--space-2xl);
+  }
+  .modern-faq-category__title {
+    font-size: var(--text-lg);
+    font-weight: 700;
+    margin: 0 0 var(--space-lg);
+    padding-bottom: var(--space-sm);
+    border-bottom: 2px solid rgba(128,128,128,0.1);
+    text-transform: uppercase;
+    letter-spacing: var(--tracking-wider);
+    font-size: var(--text-sm);
+  }
+
+  .modern-faq-item {
+    border-bottom: 1px solid rgba(128,128,128,0.1);
+    overflow: hidden;
+  }
+  .modern-faq-item[hidden] { display: none; }
+
+  .modern-faq-item__question {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+    padding: var(--space-lg) 0;
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: var(--text-base);
+    font-weight: 600;
+    text-align: left;
+    color: inherit;
+    gap: var(--space-md);
+    font-family: inherit;
+    line-height: var(--leading-normal);
+  }
+  .modern-faq-item__question:hover { opacity: 0.7; }
+
+  .modern-faq-item__icon {
+    width: 24px;
+    height: 24px;
+    flex-shrink: 0;
+    transition: transform var(--duration-fast) var(--ease-out);
+  }
+  .modern-faq-item.is-open .modern-faq-item__icon {
+    transform: rotate(45deg);
+  }
+
+  .modern-faq-item__answer {
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height var(--duration-normal) var(--ease-out), padding var(--duration-normal) var(--ease-out);
+  }
+  .modern-faq-item.is-open .modern-faq-item__answer {
+    max-height: 500px;
+  }
+  .modern-faq-item__answer-inner {
+    padding: 0 0 var(--space-lg);
+    font-size: var(--text-base);
+    opacity: 0.7;
+    line-height: var(--leading-relaxed);
+  }
+
+  .modern-faq-no-results {
+    text-align: center;
+    padding: var(--space-3xl);
+    opacity: 0.5;
+    display: none;
+  }
+  .modern-faq-no-results.is-visible {
+    display: block;
+  }
+{%- endstyle -%}
+
+<div class="color-{{ section.settings.color_scheme }} gradient">
+  <div class="page-width section-{{ section.id }}-padding">
+    <div class="modern-faq__header modern-animate animate--fade-up">
+      {%- if section.settings.title != blank -%}
+        <h2 class="modern-faq__title">{{ section.settings.title }}</h2>
+      {%- endif -%}
+      {%- if section.settings.subtitle != blank -%}
+        <p class="modern-faq__subtitle">{{ section.settings.subtitle | escape }}</p>
+      {%- endif -%}
+    </div>
+
+    {%- if section.settings.show_search -%}
+      <div class="modern-faq-search modern-animate animate--fade-up" data-stagger="2">
+        <svg class="modern-faq-search__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
+        <input type="text" class="modern-faq-search__input" placeholder="Search questions..." id="FAQSearch-{{ section.id }}" oninput="(function(v){var items=document.querySelectorAll('#FAQList-{{ section.id }} .modern-faq-item');var noResults=document.getElementById('FAQNoResults-{{ section.id }}');var found=0;items.forEach(function(item){var q=item.querySelector('.modern-faq-item__question').textContent.toLowerCase();var a=item.querySelector('.modern-faq-item__answer-inner').textContent.toLowerCase();if(q.indexOf(v)>-1||a.indexOf(v)>-1){item.hidden=false;found++}else{item.hidden=true}});noResults.classList.toggle('is-visible',found===0)})(this.value.toLowerCase())">
+      </div>
+    {%- endif -%}
+
+    <div class="modern-faq-list" id="FAQList-{{ section.id }}">
+      {%- assign current_category = '' -%}
+      {%- for block in section.blocks -%}
+        {%- if block.settings.category != blank and block.settings.category != current_category -%}
+          {%- assign current_category = block.settings.category -%}
+          <div class="modern-faq-category">
+            <h3 class="modern-faq-category__title">{{ current_category | escape }}</h3>
+          </div>
+        {%- endif -%}
+
+        <div class="modern-faq-item modern-animate animate--fade-up" data-stagger="{{ forloop.index | modulo: 8 | plus: 1 }}" {{ block.shopify_attributes }}>
+          <button class="modern-faq-item__question" onclick="this.parentElement.classList.toggle('is-open')" aria-expanded="false">
+            <span>{{ block.settings.question | escape }}</span>
+            <svg class="modern-faq-item__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg>
+          </button>
+          <div class="modern-faq-item__answer">
+            <div class="modern-faq-item__answer-inner">
+              {{ block.settings.answer }}
+            </div>
+          </div>
+        </div>
+      {%- endfor -%}
+
+      <div class="modern-faq-no-results" id="FAQNoResults-{{ section.id }}">
+        <p>No matching questions found. Try a different search term.</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+{%- comment -%} FAQ Schema for SEO {%- endcomment -%}
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+    {%- for block in section.blocks -%}
+      {
+        "@type": "Question",
+        "name": {{ block.settings.question | json }},
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": {{ block.settings.answer | strip_html | json }}
+        }
+      }{% unless forloop.last %},{% endunless %}
+    {%- endfor -%}
+  ]
+}
+</script>
+
+{% schema %}
+{
+  "name": "Modern FAQ",
+  "tag": "section",
+  "class": "section-modern-faq",
+  "blocks": [
+    {
+      "type": "question",
+      "name": "Question",
+      "settings": [
+        { "type": "text", "id": "category", "label": "Category (optional)", "info": "Group questions by category" },
+        { "type": "text", "id": "question", "label": "Question", "default": "What is your return policy?" },
+        { "type": "richtext", "id": "answer", "label": "Answer", "default": "<p>We offer a 30-day return policy on all unused items in original packaging.</p>" }
+      ]
+    }
+  ],
+  "settings": [
+    { "type": "text", "id": "title", "label": "Heading", "default": "Frequently Asked Questions" },
+    { "type": "text", "id": "subtitle", "label": "Subtitle", "default": "Find answers to common questions" },
+    { "type": "checkbox", "id": "show_search", "default": true, "label": "Show search" },
+    { "type": "color_scheme", "id": "color_scheme", "label": "Color scheme", "default": "background-1" },
+    { "type": "range", "id": "padding_top", "min": 0, "max": 100, "step": 4, "default": 52, "unit": "px", "label": "Padding top" },
+    { "type": "range", "id": "padding_bottom", "min": 0, "max": 100, "step": 4, "default": 52, "unit": "px", "label": "Padding bottom" }
+  ],
+  "presets": [
+    {
+      "name": "Modern FAQ",
+      "blocks": [
+        { "type": "question", "settings": { "question": "What is your return policy?", "answer": "<p>We offer a 30-day return policy on all unused items in their original packaging. Simply contact us to initiate a return.</p>" } },
+        { "type": "question", "settings": { "question": "How long does shipping take?", "answer": "<p>Standard shipping takes 3-5 business days. Express shipping is available for 1-2 business day delivery.</p>" } },
+        { "type": "question", "settings": { "question": "Do you offer international shipping?", "answer": "<p>Yes! We ship to over 50 countries worldwide. International shipping typically takes 7-14 business days.</p>" } },
+        { "type": "question", "settings": { "question": "How can I track my order?", "answer": "<p>Once your order ships, you'll receive a tracking number via email. You can use this to track your package on our website.</p>" } }
+      ]
+    }
+  ]
+}
+{% endschema %}

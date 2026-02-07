@@ -1,0 +1,235 @@
+{%- comment -%}
+  Modern Product Gallery
+  ======================
+  Advanced gallery with main image zoom, thumbnails, video support,
+  lightbox, and touch swipe.
+
+  Usage: {% render 'modern-product-gallery', product: product %}
+{%- endcomment -%}
+
+{%- liquid
+  assign gallery_id = 'Gallery-' | append: product.id
+-%}
+
+<div class="modern-gallery" id="{{ gallery_id }}" data-product-id="{{ product.id }}">
+  {%- comment -%} Main Image {%- endcomment -%}
+  <div class="modern-gallery__main" id="{{ gallery_id }}-main">
+    {%- comment -%} Badges {%- endcomment -%}
+    <div class="modern-gallery__badges">
+      {%- unless product.available -%}
+        <span class="modern-gallery__badge modern-gallery__badge--sold-out">{{ 'products.product.sold_out' | t }}</span>
+      {%- endunless -%}
+      {%- if product.compare_at_price > product.price -%}
+        {%- assign savings = product.compare_at_price | minus: product.price | times: 100 | divided_by: product.compare_at_price -%}
+        <span class="modern-gallery__badge modern-gallery__badge--sale">-{{ savings }}%</span>
+      {%- endif -%}
+    </div>
+
+    {%- comment -%} Swipe container {%- endcomment -%}
+    <div class="modern-gallery__slides" id="{{ gallery_id }}-slides">
+      {%- for media in product.media -%}
+        <div class="modern-gallery__slide{% if forloop.first %} is-active{% endif %}" data-index="{{ forloop.index0 }}" data-media-type="{{ media.media_type }}">
+          {%- case media.media_type -%}
+            {%- when 'image' -%}
+              <div class="modern-gallery__image-wrap"
+                onmousemove="if(window.innerWidth>989){this.querySelector('img').style.transformOrigin=((event.offsetX/this.offsetWidth)*100)+'% '+((event.offsetY/this.offsetHeight)*100)+'%';this.querySelector('img').style.transform='scale(2)'}"
+                onmouseleave="this.querySelector('img').style.transform=''"
+                onclick="window.ModernGallery&&window.ModernGallery.openLightbox({{ forloop.index0 }},'{{ gallery_id }}')"
+              >
+                {{ media | image_url: width: 1600 | image_tag:
+                  alt: media.alt | default: product.title,
+                  widths: '400, 600, 800, 1200, 1600',
+                  sizes: '(min-width: 990px) 50vw, 100vw',
+                  loading: forloop.first | ternary: 'eager', 'lazy',
+                  fetchpriority: forloop.first | ternary: 'high', 'auto',
+                  style: 'width:100%;height:100%;object-fit:cover;transition:transform 0.3s ease'
+                }}
+              </div>
+            {%- when 'video', 'external_video' -%}
+              <div class="modern-gallery__video-wrap">
+                {{ media | media_tag:
+                  image_size: '1600x',
+                  autoplay: false,
+                  loop: false,
+                  controls: true,
+                  muted: false
+                }}
+              </div>
+          {%- endcase -%}
+        </div>
+      {%- endfor -%}
+    </div>
+
+    {%- if product.media.size > 1 -%}
+      <button class="modern-gallery__nav modern-gallery__nav--prev" aria-label="Previous" onclick="window.ModernGallery&&window.ModernGallery.prev('{{ gallery_id }}')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 18l-6-6 6-6"/></svg>
+      </button>
+      <button class="modern-gallery__nav modern-gallery__nav--next" aria-label="Next" onclick="window.ModernGallery&&window.ModernGallery.next('{{ gallery_id }}')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 18l6-6-6-6"/></svg>
+      </button>
+      <div class="modern-gallery__counter" id="{{ gallery_id }}-counter">1 / {{ product.media.size }}</div>
+    {%- endif -%}
+  </div>
+
+  {%- comment -%} Thumbnails {%- endcomment -%}
+  {%- if product.media.size > 1 -%}
+    <div class="modern-gallery__thumbs" id="{{ gallery_id }}-thumbs">
+      {%- for media in product.media -%}
+        <button class="modern-gallery__thumb{% if forloop.first %} is-active{% endif %}" data-index="{{ forloop.index0 }}" onclick="window.ModernGallery&&window.ModernGallery.goTo({{ forloop.index0 }},'{{ gallery_id }}')" aria-label="View image {{ forloop.index }}">
+          {%- if media.media_type == 'image' -%}
+            {{ media | image_url: width: 200 | image_tag:
+              alt: media.alt | default: product.title,
+              widths: '100, 150, 200',
+              sizes: '72px',
+              loading: 'lazy'
+            }}
+          {%- else -%}
+            <div style="display:flex;align-items:center;justify-content:center;width:100%;height:100%;background:rgba(0,0,0,0.05)">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+            </div>
+          {%- endif -%}
+        </button>
+      {%- endfor -%}
+    </div>
+  {%- endif -%}
+</div>
+
+{%- comment -%} Lightbox {%- endcomment -%}
+<div class="modern-lightbox" id="ModernLightbox" onclick="if(event.target===this)this.classList.remove('is-open')">
+  <button class="modern-lightbox__close" onclick="this.parentElement.classList.remove('is-open')" aria-label="Close">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6L6 18M6 6l12 12"/></svg>
+  </button>
+  <div class="modern-lightbox__content" id="ModernLightboxContent"></div>
+  <button class="modern-lightbox__nav modern-lightbox__nav--prev" aria-label="Previous" onclick="window.ModernGallery&&window.ModernGallery.lightboxPrev()">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 18l-6-6 6-6"/></svg>
+  </button>
+  <button class="modern-lightbox__nav modern-lightbox__nav--next" aria-label="Next" onclick="window.ModernGallery&&window.ModernGallery.lightboxNext()">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 18l6-6-6-6"/></svg>
+  </button>
+</div>
+
+<style>
+  .modern-gallery { display: flex; flex-direction: column; gap: var(--space-md); }
+  .modern-gallery__main { position: relative; overflow: hidden; border-radius: var(--radius-lg); background: rgba(128,128,128,0.03); aspect-ratio: 1; }
+  .modern-gallery__slides { display: flex; height: 100%; transition: transform 0.4s ease; }
+  .modern-gallery__slide { flex: 0 0 100%; height: 100%; display: none; }
+  .modern-gallery__slide.is-active { display: block; }
+  .modern-gallery__image-wrap { width: 100%; height: 100%; cursor: zoom-in; overflow: hidden; }
+  .modern-gallery__video-wrap { width: 100%; height: 100%; }
+  .modern-gallery__video-wrap iframe, .modern-gallery__video-wrap video { width: 100%; height: 100%; object-fit: cover; }
+
+  .modern-gallery__badges { position: absolute; top: var(--space-md); left: var(--space-md); z-index: 3; display: flex; flex-direction: column; gap: var(--space-xs); }
+  .modern-gallery__badge { padding: var(--space-xs) var(--space-md); border-radius: var(--radius-full); font-size: var(--text-xs); font-weight: 600; text-transform: uppercase; letter-spacing: var(--tracking-wider); }
+  .modern-gallery__badge--sale { background: #ef4444; color: #fff; }
+  .modern-gallery__badge--sold-out { background: #6b7280; color: #fff; }
+
+  .modern-gallery__nav { position: absolute; top: 50%; transform: translateY(-50%); z-index: 3; width: 40px; height: 40px; background: rgba(255,255,255,0.9); border: none; border-radius: 50%; cursor: pointer; display: flex; align-items: center; justify-content: center; box-shadow: var(--shadow-md); transition: all var(--duration-fast) var(--ease-out); color: #000; }
+  .modern-gallery__nav:hover { background: #fff; transform: translateY(-50%) scale(1.1); }
+  .modern-gallery__nav--prev { left: var(--space-md); }
+  .modern-gallery__nav--next { right: var(--space-md); }
+  .modern-gallery__nav svg { width: 18px; height: 18px; }
+
+  .modern-gallery__counter { position: absolute; bottom: var(--space-md); right: var(--space-md); z-index: 3; background: rgba(0,0,0,0.5); color: #fff; padding: var(--space-2xs) var(--space-md); border-radius: var(--radius-full); font-size: var(--text-xs); font-weight: 600; backdrop-filter: blur(10px); }
+
+  .modern-gallery__thumbs { display: flex; gap: var(--space-sm); overflow-x: auto; scrollbar-width: none; -webkit-overflow-scrolling: touch; padding: var(--space-2xs) 0; }
+  .modern-gallery__thumbs::-webkit-scrollbar { display: none; }
+  .modern-gallery__thumb { flex: 0 0 72px; width: 72px; height: 72px; border-radius: var(--radius-md); overflow: hidden; cursor: pointer; border: 2px solid transparent; opacity: 0.5; transition: all var(--duration-fast) var(--ease-out); background: none; padding: 0; }
+  .modern-gallery__thumb.is-active { border-color: var(--color-button, #000); opacity: 1; }
+  .modern-gallery__thumb:hover { opacity: 0.8; }
+  .modern-gallery__thumb img { width: 100%; height: 100%; object-fit: cover; }
+
+  /* Lightbox */
+  .modern-lightbox { position: fixed; inset: 0; z-index: 9999; background: rgba(0,0,0,0.95); display: flex; align-items: center; justify-content: center; opacity: 0; pointer-events: none; transition: opacity var(--duration-normal) var(--ease-out); }
+  .modern-lightbox.is-open { opacity: 1; pointer-events: auto; }
+  .modern-lightbox__close { position: absolute; top: var(--space-lg); right: var(--space-lg); background: none; border: none; color: #fff; cursor: pointer; z-index: 2; }
+  .modern-lightbox__close svg { width: 32px; height: 32px; }
+  .modern-lightbox__content { max-width: 90vw; max-height: 90vh; }
+  .modern-lightbox__content img { max-width: 90vw; max-height: 90vh; object-fit: contain; }
+  .modern-lightbox__nav { position: absolute; top: 50%; transform: translateY(-50%); background: rgba(255,255,255,0.1); border: none; color: #fff; width: 48px; height: 48px; border-radius: 50%; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: background var(--duration-fast) var(--ease-out); }
+  .modern-lightbox__nav:hover { background: rgba(255,255,255,0.2); }
+  .modern-lightbox__nav--prev { left: var(--space-lg); }
+  .modern-lightbox__nav--next { right: var(--space-lg); }
+  .modern-lightbox__nav svg { width: 24px; height: 24px; }
+</style>
+
+<script>
+  window.ModernGallery = (function() {
+    var currentIndex = {};
+    var lightboxGallery = null;
+    var lightboxIndex = 0;
+
+    function getSlides(galleryId) {
+      return document.querySelectorAll('#' + galleryId + '-slides .modern-gallery__slide');
+    }
+    function getThumbs(galleryId) {
+      return document.querySelectorAll('#' + galleryId + '-thumbs .modern-gallery__thumb');
+    }
+
+    function goTo(index, galleryId) {
+      var slides = getSlides(galleryId);
+      var thumbs = getThumbs(galleryId);
+      if (!slides.length) return;
+      index = Math.max(0, Math.min(index, slides.length - 1));
+      slides.forEach(function(s) { s.classList.remove('is-active'); });
+      thumbs.forEach(function(t) { t.classList.remove('is-active'); });
+      slides[index].classList.add('is-active');
+      if (thumbs[index]) { thumbs[index].classList.add('is-active'); thumbs[index].scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' }); }
+      currentIndex[galleryId] = index;
+      var counter = document.getElementById(galleryId + '-counter');
+      if (counter) counter.textContent = (index + 1) + ' / ' + slides.length;
+    }
+
+    function next(galleryId) {
+      var slides = getSlides(galleryId);
+      var idx = (currentIndex[galleryId] || 0) + 1;
+      if (idx >= slides.length) idx = 0;
+      goTo(idx, galleryId);
+    }
+
+    function prev(galleryId) {
+      var slides = getSlides(galleryId);
+      var idx = (currentIndex[galleryId] || 0) - 1;
+      if (idx < 0) idx = slides.length - 1;
+      goTo(idx, galleryId);
+    }
+
+    function openLightbox(index, galleryId) {
+      lightboxGallery = galleryId;
+      lightboxIndex = index;
+      var slides = getSlides(galleryId);
+      var slide = slides[index];
+      if (!slide) return;
+      var img = slide.querySelector('img');
+      if (!img) return;
+      var lb = document.getElementById('ModernLightbox');
+      var content = document.getElementById('ModernLightboxContent');
+      content.innerHTML = '<img src="' + img.src.replace(/width=\d+/, 'width=2000') + '" alt="' + (img.alt || '') + '">';
+      lb.classList.add('is-open');
+    }
+
+    function lightboxNext() {
+      if (!lightboxGallery) return;
+      var slides = getSlides(lightboxGallery);
+      lightboxIndex = (lightboxIndex + 1) % slides.length;
+      openLightbox(lightboxIndex, lightboxGallery);
+    }
+
+    function lightboxPrev() {
+      if (!lightboxGallery) return;
+      var slides = getSlides(lightboxGallery);
+      lightboxIndex = (lightboxIndex - 1 + slides.length) % slides.length;
+      openLightbox(lightboxIndex, lightboxGallery);
+    }
+
+    document.addEventListener('keydown', function(e) {
+      var lb = document.getElementById('ModernLightbox');
+      if (lb && lb.classList.contains('is-open')) {
+        if (e.key === 'Escape') lb.classList.remove('is-open');
+        if (e.key === 'ArrowRight') lightboxNext();
+        if (e.key === 'ArrowLeft') lightboxPrev();
+      }
+    });
+
+    return { goTo: goTo, next: next, prev: prev, openLightbox: openLightbox, lightboxNext: lightboxNext, lightboxPrev: lightboxPrev };
+  })();
+</script>

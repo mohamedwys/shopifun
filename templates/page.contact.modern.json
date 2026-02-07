@@ -1,0 +1,70 @@
+{
+  "sections": {
+    "modern_contact_hero": {
+      "type": "modern-hero",
+      "settings": {
+        "background_gradient": "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
+        "overlay_opacity": 100,
+        "heading": "Get in <em>Touch</em>",
+        "description": "We'd love to hear from you. Send us a message and we'll respond as soon as possible.",
+        "heading_size": 4,
+        "subheading_size": 1.2,
+        "text_color": "#ffffff",
+        "content_alignment": "center",
+        "min_height": 40,
+        "show_scroll_indicator": false,
+        "padding_top": 0,
+        "padding_bottom": 0
+      }
+    },
+    "modern_contact_form": {
+      "type": "modern-contact-form",
+      "blocks": {
+        "info_email": {
+          "type": "contact_info",
+          "settings": {
+            "icon": "email",
+            "title": "Email Us",
+            "text": "hello@yourstore.com"
+          }
+        },
+        "info_phone": {
+          "type": "contact_info",
+          "settings": {
+            "icon": "phone",
+            "title": "Call Us",
+            "text": "+1 (555) 123-4567"
+          }
+        },
+        "info_location": {
+          "type": "contact_info",
+          "settings": {
+            "icon": "location",
+            "title": "Visit Us",
+            "text": "123 Store Street, City, State 12345"
+          }
+        },
+        "info_hours": {
+          "type": "contact_info",
+          "settings": {
+            "icon": "clock",
+            "title": "Business Hours",
+            "text": "Mon-Fri: 9am - 6pm"
+          }
+        }
+      },
+      "block_order": ["info_email", "info_phone", "info_location", "info_hours"],
+      "settings": {
+        "heading": "Send Us a Message",
+        "show_social_links": true,
+        "color_scheme": "background-1",
+        "padding_top": 52,
+        "padding_bottom": 52
+      }
+    }
+  },
+  "order": [
+    "modern_contact_hero",
+    "modern_contact_form"
+  ]
+}

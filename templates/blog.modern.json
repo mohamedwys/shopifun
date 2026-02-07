@@ -1,0 +1,24 @@
+{
+  "sections": {
+    "modern_blog_main": {
+      "type": "modern-blog",
+      "settings": {
+        "show_featured_post": true,
+        "posts_per_page": 9,
+        "layout": "grid",
+        "columns_desktop": 3,
+        "show_date": true,
+        "show_author": true,
+        "show_read_time": true,
+        "show_tags": true,
+        "show_excerpt": true,
+        "color_scheme": "background-1",
+        "padding_top": 40,
+        "padding_bottom": 52
+      }
+    }
+  },
+  "order": [
+    "modern_blog_main"
+  ]
+}

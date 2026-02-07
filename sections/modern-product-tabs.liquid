@@ -1,0 +1,195 @@
+{%- comment -%}
+  Modern Product Tabs
+  ===================
+  Tabbed content section with smooth transitions, customizable tabs.
+{%- endcomment -%}
+
+{%- style -%}
+  .section-{{ section.id }}-padding {
+    padding-top: {{ section.settings.padding_top | times: 0.75 | round: 0 }}px;
+    padding-bottom: {{ section.settings.padding_bottom | times: 0.75 | round: 0 }}px;
+  }
+  @media screen and (min-width: 750px) {
+    .section-{{ section.id }}-padding {
+      padding-top: {{ section.settings.padding_top }}px;
+      padding-bottom: {{ section.settings.padding_bottom }}px;
+    }
+  }
+
+  .modern-tabs {
+    max-width: 900px;
+    margin: 0 auto;
+  }
+
+  .modern-tabs__nav {
+    display: flex;
+    border-bottom: 2px solid rgba(128,128,128,0.1);
+    gap: 0;
+    overflow-x: auto;
+    scrollbar-width: none;
+    -webkit-overflow-scrolling: touch;
+  }
+  .modern-tabs__nav::-webkit-scrollbar { display: none; }
+
+  .modern-tabs__tab {
+    padding: var(--space-md) var(--space-xl);
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: var(--text-sm);
+    font-weight: 600;
+    color: inherit;
+    opacity: 0.5;
+    white-space: nowrap;
+    position: relative;
+    transition: opacity var(--duration-fast) var(--ease-out);
+    font-family: inherit;
+    text-transform: uppercase;
+    letter-spacing: var(--tracking-wider);
+  }
+  .modern-tabs__tab:hover { opacity: 0.8; }
+  .modern-tabs__tab.is-active { opacity: 1; }
+  .modern-tabs__tab::after {
+    content: '';
+    position: absolute;
+    bottom: -2px;
+    left: 0;
+    right: 0;
+    height: 2px;
+    background: var(--color-button, #000);
+    transform: scaleX(0);
+    transition: transform var(--duration-fast) var(--ease-out);
+  }
+  .modern-tabs__tab.is-active::after { transform: scaleX(1); }
+
+  .modern-tabs__panels {
+    position: relative;
+    min-height: 100px;
+  }
+  .modern-tabs__panel {
+    display: none;
+    padding: var(--space-2xl) 0;
+    animation: tabFadeIn var(--duration-normal) var(--ease-out);
+  }
+  .modern-tabs__panel.is-active { display: block; }
+  @keyframes tabFadeIn {
+    from { opacity: 0; transform: translateY(8px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .modern-tabs__panel-content {
+    font-size: var(--text-base);
+    line-height: var(--leading-relaxed);
+  }
+  .modern-tabs__panel-content h2,
+  .modern-tabs__panel-content h3 {
+    margin-top: var(--space-xl);
+    margin-bottom: var(--space-md);
+  }
+  .modern-tabs__panel-content p { margin: 0 0 var(--space-md); }
+  .modern-tabs__panel-content ul,
+  .modern-tabs__panel-content ol {
+    padding-left: var(--space-xl);
+    margin: 0 0 var(--space-md);
+  }
+{%- endstyle -%}
+
+<div class="color-{{ section.settings.color_scheme }} gradient">
+  <div class="page-width section-{{ section.id }}-padding">
+    <div class="modern-tabs modern-animate animate--fade-up" id="Tabs-{{ section.id }}">
+      <div class="modern-tabs__nav" role="tablist">
+        {%- for block in section.blocks -%}
+          <button
+            class="modern-tabs__tab{% if forloop.first %} is-active{% endif %}"
+            role="tab"
+            aria-selected="{% if forloop.first %}true{% else %}false{% endif %}"
+            aria-controls="TabPanel-{{ section.id }}-{{ forloop.index0 }}"
+            id="Tab-{{ section.id }}-{{ forloop.index0 }}"
+            onclick="(function(btn,idx){var tabs=btn.closest('.modern-tabs');tabs.querySelectorAll('.modern-tabs__tab').forEach(function(t){t.classList.remove('is-active');t.setAttribute('aria-selected','false')});tabs.querySelectorAll('.modern-tabs__panel').forEach(function(p){p.classList.remove('is-active')});btn.classList.add('is-active');btn.setAttribute('aria-selected','true');var panel=document.getElementById('TabPanel-{{ section.id }}-'+idx);if(panel)panel.classList.add('is-active')})(this,{{ forloop.index0 }})"
+            {{ block.shopify_attributes }}
+          >
+            {{ block.settings.title | escape }}
+          </button>
+        {%- endfor -%}
+      </div>
+
+      <div class="modern-tabs__panels">
+        {%- for block in section.blocks -%}
+          <div
+            class="modern-tabs__panel{% if forloop.first %} is-active{% endif %}"
+            role="tabpanel"
+            id="TabPanel-{{ section.id }}-{{ forloop.index0 }}"
+            aria-labelledby="Tab-{{ section.id }}-{{ forloop.index0 }}"
+          >
+            <div class="modern-tabs__panel-content">
+              {%- case block.settings.content_source -%}
+                {%- when 'product_description' -%}
+                  {%- if product.description != blank -%}
+                    {{ product.description }}
+                  {%- else -%}
+                    <p style="opacity:0.5">Product description will appear here.</p>
+                  {%- endif -%}
+                {%- when 'reviews' -%}
+                  <div id="shopify-product-reviews" data-id="{{ product.id }}">
+                    <p style="opacity:0.5">Reviews will appear here when a reviews app is installed.</p>
+                  </div>
+                {%- when 'custom' -%}
+                  {{ block.settings.custom_content }}
+                {%- when 'page' -%}
+                  {%- if block.settings.page != blank -%}
+                    {{ block.settings.page.content }}
+                  {%- endif -%}
+              {%- endcase -%}
+            </div>
+          </div>
+        {%- endfor -%}
+      </div>
+    </div>
+  </div>
+</div>
+
+{% schema %}
+{
+  "name": "Modern Product Tabs",
+  "tag": "section",
+  "class": "section-modern-product-tabs",
+  "blocks": [
+    {
+      "type": "tab",
+      "name": "Tab",
+      "settings": [
+        { "type": "text", "id": "title", "label": "Tab title", "default": "Description" },
+        {
+          "type": "select",
+          "id": "content_source",
+          "label": "Content source",
+          "options": [
+            { "value": "product_description", "label": "Product description" },
+            { "value": "reviews", "label": "Reviews" },
+            { "value": "custom", "label": "Custom HTML" },
+            { "value": "page", "label": "Page content" }
+          ],
+          "default": "custom"
+        },
+        { "type": "richtext", "id": "custom_content", "label": "Custom content" },
+        { "type": "page", "id": "page", "label": "Page (if source is Page)" }
+      ]
+    }
+  ],
+  "settings": [
+    { "type": "color_scheme", "id": "color_scheme", "label": "Color scheme", "default": "background-1" },
+    { "type": "range", "id": "padding_top", "min": 0, "max": 100, "step": 4, "default": 40, "unit": "px", "label": "Padding top" },
+    { "type": "range", "id": "padding_bottom", "min": 0, "max": 100, "step": 4, "default": 40, "unit": "px", "label": "Padding bottom" }
+  ],
+  "presets": [
+    {
+      "name": "Modern Product Tabs",
+      "blocks": [
+        { "type": "tab", "settings": { "title": "Description", "content_source": "product_description" } },
+        { "type": "tab", "settings": { "title": "Reviews", "content_source": "reviews" } },
+        { "type": "tab", "settings": { "title": "Shipping & Returns", "content_source": "custom", "custom_content": "<p>Free shipping on orders over $50. 30-day hassle-free returns.</p>" } }
+      ]
+    }
+  ]
+}
+{% endschema %}

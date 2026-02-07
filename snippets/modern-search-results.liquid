@@ -1,0 +1,275 @@
+{%- comment -%}
+  Modern Search Results
+  =====================
+  Live search preview with product images, recent/popular searches.
+
+  Usage: {% render 'modern-search-results' %}
+{%- endcomment -%}
+
+<div class="modern-search-overlay" id="ModernSearchOverlay" onclick="this.classList.remove('is-open');document.getElementById('ModernSearchDrawer').classList.remove('is-open')"></div>
+
+<div class="modern-search-drawer" id="ModernSearchDrawer">
+  <div class="modern-search-drawer__inner">
+    <div class="modern-search-drawer__header">
+      <div class="modern-search-drawer__input-wrap">
+        <svg class="modern-search-drawer__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
+        <input
+          type="search"
+          class="modern-search-drawer__input"
+          placeholder="Search products, collections..."
+          id="ModernSearchInput"
+          autocomplete="off"
+          oninput="window.ModernSearch && window.ModernSearch.search(this.value)"
+        >
+        <button class="modern-search-drawer__close" onclick="document.getElementById('ModernSearchOverlay').classList.remove('is-open');document.getElementById('ModernSearchDrawer').classList.remove('is-open')" aria-label="Close search">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6L6 18M6 6l12 12"/></svg>
+        </button>
+      </div>
+    </div>
+
+    <div class="modern-search-drawer__body" id="ModernSearchBody">
+      <div class="modern-search-drawer__default" id="ModernSearchDefault">
+        <div class="modern-search-drawer__section">
+          <h3 class="modern-search-drawer__section-title">Popular Searches</h3>
+          <div class="modern-search-drawer__tags">
+            <button class="modern-search-drawer__tag" onclick="document.getElementById('ModernSearchInput').value=this.textContent;window.ModernSearch&&window.ModernSearch.search(this.textContent)">New arrivals</button>
+            <button class="modern-search-drawer__tag" onclick="document.getElementById('ModernSearchInput').value=this.textContent;window.ModernSearch&&window.ModernSearch.search(this.textContent)">Best sellers</button>
+            <button class="modern-search-drawer__tag" onclick="document.getElementById('ModernSearchInput').value=this.textContent;window.ModernSearch&&window.ModernSearch.search(this.textContent)">Sale</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="modern-search-drawer__results" id="ModernSearchResults" style="display:none">
+        <div id="ModernSearchResultsList"></div>
+      </div>
+
+      <div class="modern-search-drawer__loading" id="ModernSearchLoading" style="display:none">
+        <div class="modern-search-drawer__spinner"></div>
+      </div>
+
+      <div class="modern-search-drawer__empty" id="ModernSearchEmpty" style="display:none">
+        <p>No results found. Try a different search term.</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<style>
+  .modern-search-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.5);
+    z-index: calc(var(--z-drawer) - 1);
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity var(--duration-normal) var(--ease-out);
+  }
+  .modern-search-overlay.is-open { opacity: 1; pointer-events: auto; }
+
+  .modern-search-drawer {
+    position: fixed;
+    top: 0;
+    right: 0;
+    width: min(480px, 100vw);
+    height: 100vh;
+    background: var(--color-background);
+    z-index: var(--z-drawer);
+    transform: translateX(100%);
+    transition: transform var(--duration-normal) var(--ease-out);
+    display: flex;
+    flex-direction: column;
+  }
+  .modern-search-drawer.is-open { transform: translateX(0); }
+
+  .modern-search-drawer__header {
+    padding: var(--space-lg);
+    border-bottom: 1px solid rgba(128,128,128,0.1);
+  }
+  .modern-search-drawer__input-wrap {
+    display: flex;
+    align-items: center;
+    gap: var(--space-sm);
+    background: rgba(128,128,128,0.06);
+    border-radius: var(--radius-lg);
+    padding: var(--space-sm) var(--space-md);
+  }
+  .modern-search-drawer__icon {
+    width: 20px;
+    height: 20px;
+    opacity: 0.4;
+    flex-shrink: 0;
+  }
+  .modern-search-drawer__input {
+    flex: 1;
+    border: none;
+    background: transparent;
+    font-size: var(--text-base);
+    color: inherit;
+    font-family: inherit;
+    outline: none;
+  }
+  .modern-search-drawer__close {
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: inherit;
+    opacity: 0.4;
+    padding: var(--space-xs);
+    flex-shrink: 0;
+  }
+  .modern-search-drawer__close:hover { opacity: 1; }
+  .modern-search-drawer__close svg { width: 20px; height: 20px; }
+
+  .modern-search-drawer__body {
+    flex: 1;
+    overflow-y: auto;
+    padding: var(--space-lg);
+  }
+
+  .modern-search-drawer__section-title {
+    font-size: var(--text-xs);
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: var(--tracking-wider);
+    opacity: 0.4;
+    margin: 0 0 var(--space-md);
+  }
+  .modern-search-drawer__tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-sm);
+  }
+  .modern-search-drawer__tag {
+    padding: var(--space-xs) var(--space-md);
+    border: 1px solid rgba(128,128,128,0.2);
+    border-radius: var(--radius-full);
+    background: transparent;
+    font-size: var(--text-sm);
+    cursor: pointer;
+    color: inherit;
+    font-family: inherit;
+    transition: all var(--duration-fast) var(--ease-out);
+  }
+  .modern-search-drawer__tag:hover {
+    background: var(--color-button, #000);
+    color: var(--color-button-text, #fff);
+    border-color: var(--color-button, #000);
+  }
+
+  .modern-search-result-item {
+    display: flex;
+    gap: var(--space-md);
+    padding: var(--space-md) 0;
+    border-bottom: 1px solid rgba(128,128,128,0.06);
+    text-decoration: none;
+    color: inherit;
+    transition: opacity var(--duration-fast) var(--ease-out);
+  }
+  .modern-search-result-item:hover { opacity: 0.7; }
+  .modern-search-result-item img {
+    width: 60px;
+    height: 60px;
+    object-fit: cover;
+    border-radius: var(--radius-md);
+    background: rgba(128,128,128,0.05);
+    flex-shrink: 0;
+  }
+  .modern-search-result-item__info { min-width: 0; }
+  .modern-search-result-item__title {
+    font-size: var(--text-sm);
+    font-weight: 600;
+    margin: 0;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .modern-search-result-item__price {
+    font-size: var(--text-sm);
+    opacity: 0.6;
+    margin: var(--space-2xs) 0 0;
+  }
+  .modern-search-result-item__type {
+    font-size: var(--text-xs);
+    opacity: 0.4;
+    text-transform: uppercase;
+  }
+
+  .modern-search-drawer__spinner {
+    width: 24px;
+    height: 24px;
+    border: 2px solid rgba(128,128,128,0.2);
+    border-top-color: var(--color-button, #000);
+    border-radius: 50%;
+    animation: searchSpin 0.6s linear infinite;
+    margin: var(--space-xl) auto;
+  }
+  @keyframes searchSpin { to { transform: rotate(360deg); } }
+
+  .modern-search-drawer__empty {
+    text-align: center;
+    padding: var(--space-3xl);
+    opacity: 0.5;
+  }
+</style>
+
+<script>
+  window.ModernSearch = {
+    debounceTimer: null,
+    search: function(query) {
+      clearTimeout(this.debounceTimer);
+      var q = query.trim();
+      var resultsEl = document.getElementById('ModernSearchResults');
+      var listEl = document.getElementById('ModernSearchResultsList');
+      var defaultEl = document.getElementById('ModernSearchDefault');
+      var loadingEl = document.getElementById('ModernSearchLoading');
+      var emptyEl = document.getElementById('ModernSearchEmpty');
+
+      if (q.length < 2) {
+        resultsEl.style.display = 'none';
+        loadingEl.style.display = 'none';
+        emptyEl.style.display = 'none';
+        defaultEl.style.display = 'block';
+        return;
+      }
+
+      defaultEl.style.display = 'none';
+      loadingEl.style.display = 'block';
+      resultsEl.style.display = 'none';
+      emptyEl.style.display = 'none';
+
+      this.debounceTimer = setTimeout(function() {
+        fetch('/search/suggest.json?q=' + encodeURIComponent(q) + '&resources[type]=product,collection,page&resources[limit]=8')
+          .then(function(r) { return r.json(); })
+          .then(function(data) {
+            loadingEl.style.display = 'none';
+            var products = data.resources.results.products || [];
+            var collections = data.resources.results.collections || [];
+            var pages = data.resources.results.pages || [];
+            var all = [];
+
+            products.forEach(function(p) {
+              all.push('<a href="' + p.url + '" class="modern-search-result-item">' +
+                (p.image ? '<img src="' + p.image + '" alt="" width="60" height="60" loading="lazy">' : '') +
+                '<div class="modern-search-result-item__info"><p class="modern-search-result-item__title">' + p.title + '</p><p class="modern-search-result-item__price">' + (p.price || '') + '</p></div></a>');
+            });
+
+            collections.forEach(function(c) {
+              all.push('<a href="' + c.url + '" class="modern-search-result-item"><div class="modern-search-result-item__info"><span class="modern-search-result-item__type">Collection</span><p class="modern-search-result-item__title">' + c.title + '</p></div></a>');
+            });
+
+            pages.forEach(function(pg) {
+              all.push('<a href="' + pg.url + '" class="modern-search-result-item"><div class="modern-search-result-item__info"><span class="modern-search-result-item__type">Page</span><p class="modern-search-result-item__title">' + pg.title + '</p></div></a>');
+            });
+
+            if (all.length > 0) {
+              listEl.innerHTML = all.join('');
+              resultsEl.style.display = 'block';
+            } else {
+              emptyEl.style.display = 'block';
+            }
+          })
+          .catch(function() { loadingEl.style.display = 'none'; emptyEl.style.display = 'block'; });
+      }, 300);
+    }
+  };
+</script>

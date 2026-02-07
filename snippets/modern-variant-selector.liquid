@@ -1,0 +1,170 @@
+{%- comment -%}
+  Modern Variant Selector
+  =======================
+  Variant picker with color swatches, size buttons, stock indicators.
+
+  Usage:
+    {% render 'modern-variant-selector', product: product %}
+{%- endcomment -%}
+
+{%- liquid
+  assign current_variant = product.selected_or_first_available_variant
+-%}
+
+{%- unless product.has_only_default_variant -%}
+  <div class="modern-variant-selector" data-product-id="{{ product.id }}">
+    {%- for option in product.options_with_values -%}
+      {%- assign option_name_downcase = option.name | downcase -%}
+      {%- assign is_color = false -%}
+      {%- if option_name_downcase == 'color' or option_name_downcase == 'colour' or option_name_downcase == 'colore' -%}
+        {%- assign is_color = true -%}
+      {%- endif -%}
+
+      <div class="modern-variant-group" data-option-index="{{ forloop.index0 }}">
+        <p class="modern-variant-group__label">
+          <span class="modern-variant-group__label-name">{{ option.name }}:</span>
+          <span class="modern-variant-group__label-value" id="OptionVal-{{ product.id }}-{{ forloop.index0 }}">{{ option.selected_value }}</span>
+        </p>
+
+        <div class="modern-variant-group__options">
+          {%- if is_color -%}
+            {%- for value in option.values -%}
+              {%- assign variant_available = true -%}
+              {%- for variant in product.variants -%}
+                {%- if variant.options[forloop.parentloop.parent.index0] == value -%}
+                  {%- unless variant.available -%}
+                    {%- assign variant_available = false -%}
+                  {%- endunless -%}
+                  {%- break -%}
+                {%- endif -%}
+              {%- endfor -%}
+              <button
+                type="button"
+                class="modern-swatch{% if value == option.selected_value %} is-active{% endif %}{% unless variant_available %} is-sold-out{% endunless %}"
+                style="background-color: {{ value | handleize }}"
+                aria-label="{{ value }}"
+                title="{{ value }}"
+                data-value="{{ value | escape }}"
+              >
+                {%- unless variant_available -%}
+                  <span class="modern-swatch__cross"></span>
+                {%- endunless -%}
+              </button>
+            {%- endfor -%}
+          {%- else -%}
+            {%- for value in option.values -%}
+              {%- assign variant_available = true -%}
+              {%- for variant in product.variants -%}
+                {%- if variant.options[forloop.parentloop.parent.index0] == value -%}
+                  {%- unless variant.available -%}
+                    {%- assign variant_available = false -%}
+                  {%- endunless -%}
+                  {%- break -%}
+                {%- endif -%}
+              {%- endfor -%}
+              <button
+                type="button"
+                class="modern-option-btn{% if value == option.selected_value %} is-active{% endif %}{% unless variant_available %} is-sold-out{% endunless %}"
+                data-value="{{ value | escape }}"
+              >
+                {{ value | escape }}
+                {%- unless variant_available -%}
+                  <span class="modern-option-btn__stock">Sold out</span>
+                {%- endunless -%}
+              </button>
+            {%- endfor -%}
+          {%- endif -%}
+        </div>
+      </div>
+    {%- endfor -%}
+  </div>
+{%- endunless -%}
+
+<style>
+  .modern-variant-selector {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-lg);
+  }
+  .modern-variant-group__label {
+    font-size: var(--text-sm);
+    margin: 0 0 var(--space-sm);
+  }
+  .modern-variant-group__label-name { font-weight: 600; }
+  .modern-variant-group__label-value { opacity: 0.6; }
+  .modern-variant-group__options {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-sm);
+  }
+
+  /* Color Swatches */
+  .modern-swatch {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    border: none;
+    cursor: pointer;
+    position: relative;
+    outline: 3px solid transparent;
+    outline-offset: 3px;
+    transition: all var(--duration-fast) var(--ease-out);
+    box-shadow: inset 0 0 0 1px rgba(0,0,0,0.1);
+  }
+  .modern-swatch:hover { transform: scale(1.15); }
+  .modern-swatch.is-active { outline-color: var(--color-button, #000); }
+  .modern-swatch.is-sold-out { opacity: 0.4; }
+  .modern-swatch__cross {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .modern-swatch__cross::before {
+    content: '';
+    width: 100%;
+    height: 2px;
+    background: rgba(128,128,128,0.8);
+    transform: rotate(-45deg);
+    position: absolute;
+  }
+
+  /* Option Buttons */
+  .modern-option-btn {
+    padding: var(--space-sm) var(--space-lg);
+    border: 2px solid rgba(128,128,128,0.2);
+    border-radius: var(--radius-md);
+    background: transparent;
+    cursor: pointer;
+    font-size: var(--text-sm);
+    font-weight: 500;
+    color: inherit;
+    transition: all var(--duration-fast) var(--ease-out);
+    font-family: inherit;
+    position: relative;
+  }
+  .modern-option-btn:hover { border-color: rgba(128,128,128,0.5); }
+  .modern-option-btn.is-active {
+    border-color: var(--color-button, #000);
+    background: var(--color-button, #000);
+    color: var(--color-button-text, #fff);
+  }
+  .modern-option-btn.is-sold-out {
+    opacity: 0.4;
+    text-decoration: line-through;
+    cursor: not-allowed;
+  }
+  .modern-option-btn__stock {
+    display: none;
+    position: absolute;
+    top: -8px;
+    right: -8px;
+    font-size: 9px;
+    padding: 1px 6px;
+    background: #ef4444;
+    color: #fff;
+    border-radius: var(--radius-full);
+    text-decoration: none;
+  }
+</style>

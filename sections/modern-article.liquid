@@ -1,0 +1,563 @@
+{%- comment -%}
+  Modern Article Section
+  ======================
+  Blog post with reading progress bar, social sharing, author bio,
+  related articles, and table of contents.
+{%- endcomment -%}
+
+{%- style -%}
+  .section-{{ section.id }}-padding {
+    padding-top: {{ section.settings.padding_top | times: 0.75 | round: 0 }}px;
+    padding-bottom: {{ section.settings.padding_bottom | times: 0.75 | round: 0 }}px;
+  }
+  @media screen and (min-width: 750px) {
+    .section-{{ section.id }}-padding {
+      padding-top: {{ section.settings.padding_top }}px;
+      padding-bottom: {{ section.settings.padding_bottom }}px;
+    }
+  }
+
+  /* Reading Progress */
+  .modern-article-progress {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 3px;
+    z-index: 999;
+    background: transparent;
+  }
+  .modern-article-progress__bar {
+    height: 100%;
+    background: var(--color-button, #000);
+    width: 0%;
+    transition: width 100ms linear;
+  }
+
+  .modern-article-layout {
+    display: grid;
+    gap: var(--space-3xl);
+    max-width: 780px;
+    margin: 0 auto;
+  }
+
+  /* Featured Image */
+  .modern-article__featured-img {
+    aspect-ratio: 16/9;
+    overflow: hidden;
+    border-radius: var(--radius-xl);
+  }
+  .modern-article__featured-img img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  /* Title */
+  .modern-article__title {
+    font-size: var(--text-4xl);
+    font-weight: 700;
+    line-height: var(--leading-tight);
+    margin: 0;
+    letter-spacing: var(--tracking-tight);
+  }
+
+  /* Meta */
+  .modern-article__meta {
+    display: flex;
+    align-items: center;
+    gap: var(--space-lg);
+    flex-wrap: wrap;
+  }
+  .modern-article__author {
+    display: flex;
+    align-items: center;
+    gap: var(--space-sm);
+  }
+  .modern-article__author-avatar {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: rgba(128,128,128,0.15);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: var(--text-sm);
+  }
+  .modern-article__author-name {
+    font-weight: 600;
+    font-size: var(--text-sm);
+  }
+  .modern-article__meta-item {
+    font-size: var(--text-sm);
+    opacity: 0.5;
+  }
+
+  /* Content */
+  .modern-article__content {
+    font-size: var(--text-lg);
+    line-height: var(--leading-relaxed);
+  }
+  .modern-article__content h2 {
+    font-size: var(--text-2xl);
+    font-weight: 700;
+    margin: var(--space-3xl) 0 var(--space-lg);
+    letter-spacing: var(--tracking-tight);
+    scroll-margin-top: calc(var(--header-height, 80px) + var(--space-lg));
+  }
+  .modern-article__content h3 {
+    font-size: var(--text-xl);
+    font-weight: 600;
+    margin: var(--space-2xl) 0 var(--space-md);
+    scroll-margin-top: calc(var(--header-height, 80px) + var(--space-lg));
+  }
+  .modern-article__content p {
+    margin: 0 0 var(--space-lg);
+  }
+  .modern-article__content img {
+    border-radius: var(--radius-lg);
+    max-width: 100%;
+    height: auto;
+    margin: var(--space-xl) 0;
+  }
+  .modern-article__content blockquote {
+    border-left: 4px solid var(--color-button, #000);
+    padding: var(--space-md) var(--space-xl);
+    margin: var(--space-xl) 0;
+    font-style: italic;
+    background: rgba(128,128,128,0.04);
+    border-radius: 0 var(--radius-md) var(--radius-md) 0;
+  }
+  .modern-article__content ul, .modern-article__content ol {
+    padding-left: var(--space-xl);
+    margin: 0 0 var(--space-lg);
+  }
+  .modern-article__content li {
+    margin-bottom: var(--space-sm);
+  }
+  .modern-article__content pre {
+    background: rgba(128,128,128,0.06);
+    padding: var(--space-lg);
+    border-radius: var(--radius-md);
+    overflow-x: auto;
+    margin: var(--space-xl) 0;
+    font-size: var(--text-sm);
+  }
+
+  /* Share Buttons */
+  .modern-article-share {
+    display: flex;
+    align-items: center;
+    gap: var(--space-md);
+    padding: var(--space-xl) 0;
+    border-top: 1px solid rgba(128,128,128,0.1);
+    border-bottom: 1px solid rgba(128,128,128,0.1);
+  }
+  .modern-article-share__label {
+    font-size: var(--text-sm);
+    font-weight: 600;
+    margin-right: var(--space-sm);
+  }
+  .modern-article-share__btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: rgba(128,128,128,0.08);
+    color: inherit;
+    text-decoration: none;
+    transition: all var(--duration-fast) var(--ease-out);
+  }
+  .modern-article-share__btn:hover {
+    background: var(--color-button, #000);
+    color: var(--color-button-text, #fff);
+    transform: translateY(-2px);
+  }
+  .modern-article-share__btn svg { width: 16px; height: 16px; }
+
+  /* Author Bio */
+  .modern-article-author-bio {
+    display: flex;
+    gap: var(--space-xl);
+    padding: var(--space-2xl);
+    background: rgba(128,128,128,0.04);
+    border-radius: var(--radius-xl);
+    align-items: center;
+  }
+  @media screen and (max-width: 749px) {
+    .modern-article-author-bio {
+      flex-direction: column;
+      text-align: center;
+    }
+  }
+  .modern-article-author-bio__avatar {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    background: rgba(128,128,128,0.15);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: var(--text-2xl);
+    flex-shrink: 0;
+  }
+  .modern-article-author-bio__name {
+    font-size: var(--text-lg);
+    font-weight: 700;
+    margin: 0 0 var(--space-xs);
+  }
+  .modern-article-author-bio__text {
+    font-size: var(--text-sm);
+    opacity: 0.6;
+    line-height: var(--leading-relaxed);
+    margin: 0;
+  }
+
+  /* Table of Contents */
+  .modern-article-toc {
+    background: rgba(128,128,128,0.04);
+    border-radius: var(--radius-lg);
+    padding: var(--space-xl);
+    margin-bottom: var(--space-xl);
+  }
+  .modern-article-toc__title {
+    font-size: var(--text-sm);
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: var(--tracking-wider);
+    margin: 0 0 var(--space-md);
+  }
+  .modern-article-toc__list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-sm);
+  }
+  .modern-article-toc__link {
+    font-size: var(--text-sm);
+    color: inherit;
+    opacity: 0.6;
+    text-decoration: none;
+    transition: opacity var(--duration-fast) var(--ease-out);
+    display: block;
+    padding: var(--space-2xs) 0;
+  }
+  .modern-article-toc__link:hover { opacity: 1; }
+
+  /* Related Articles */
+  .modern-article-related {
+    margin-top: var(--space-3xl);
+    padding-top: var(--space-3xl);
+    border-top: 1px solid rgba(128,128,128,0.1);
+  }
+  .modern-article-related__title {
+    font-size: var(--text-2xl);
+    font-weight: 700;
+    margin: 0 0 var(--space-2xl);
+    text-align: center;
+  }
+  .modern-article-related__grid {
+    display: grid;
+    gap: var(--space-xl);
+  }
+  @media screen and (min-width: 750px) {
+    .modern-article-related__grid {
+      grid-template-columns: repeat({{ section.settings.related_articles_count | at_most: 3 }}, 1fr);
+    }
+  }
+{%- endstyle -%}
+
+{%- liquid
+  assign word_count = article.content | strip_html | split: ' ' | size
+  assign read_time = word_count | divided_by: 200 | at_least: 1
+-%}
+
+{%- comment -%} Reading Progress Bar {%- endcomment -%}
+{%- if section.settings.show_progress_bar -%}
+  <div class="modern-article-progress" id="ArticleProgress-{{ section.id }}">
+    <div class="modern-article-progress__bar" id="ArticleProgressBar-{{ section.id }}"></div>
+  </div>
+  <script>
+    (function() {
+      var bar = document.getElementById('ArticleProgressBar-{{ section.id }}');
+      if (!bar) return;
+      window.addEventListener('scroll', function() {
+        var h = document.documentElement;
+        var pct = (h.scrollTop / (h.scrollHeight - h.clientHeight)) * 100;
+        bar.style.width = Math.min(100, Math.max(0, pct)) + '%';
+      }, { passive: true });
+    })();
+  </script>
+{%- endif -%}
+
+<div class="color-{{ section.settings.color_scheme }} gradient">
+  <div class="page-width section-{{ section.id }}-padding">
+    <div class="modern-article-layout" id="ArticleContent-{{ section.id }}">
+      {%- for block in section.blocks -%}
+        {%- case block.type -%}
+
+          {%- when 'featured_image' -%}
+            {%- if article.image -%}
+              <div class="modern-article__featured-img modern-animate animate--fade-up" {{ block.shopify_attributes }}>
+                {{ article.image | image_url: width: 1600 | image_tag:
+                  alt: article.image.alt | default: article.title,
+                  widths: '600, 800, 1000, 1200, 1600',
+                  sizes: '(min-width: 780px) 780px, 100vw',
+                  loading: 'eager',
+                  fetchpriority: 'high'
+                }}
+              </div>
+            {%- endif -%}
+
+          {%- when 'title' -%}
+            <h1 class="modern-article__title modern-animate animate--fade-up" {{ block.shopify_attributes }}>
+              {{ article.title | escape }}
+            </h1>
+
+          {%- when 'meta' -%}
+            <div class="modern-article__meta modern-animate animate--fade-up" {{ block.shopify_attributes }}>
+              {%- if block.settings.show_author -%}
+                <div class="modern-article__author">
+                  <div class="modern-article__author-avatar">
+                    {{ article.author | slice: 0, 1 | upcase }}
+                  </div>
+                  <span class="modern-article__author-name">{{ article.author }}</span>
+                </div>
+              {%- endif -%}
+              {%- if block.settings.show_date -%}
+                <time class="modern-article__meta-item" datetime="{{ article.published_at | date: '%Y-%m-%d' }}">
+                  {{ article.published_at | date: '%B %d, %Y' }}
+                </time>
+              {%- endif -%}
+              {%- if block.settings.show_read_time -%}
+                <span class="modern-article__meta-item">{{ read_time }} min read</span>
+              {%- endif -%}
+            </div>
+
+          {%- when 'content' -%}
+            {%- comment -%} Table of Contents {%- endcomment -%}
+            {%- if section.settings.show_toc -%}
+              <div class="modern-article-toc" id="ArticleTOC-{{ section.id }}" {{ block.shopify_attributes }}>
+                <h3 class="modern-article-toc__title">Table of Contents</h3>
+                <ol class="modern-article-toc__list" id="TOCList-{{ section.id }}"></ol>
+              </div>
+              <script>
+                (function() {
+                  var content = document.querySelector('#ArticleContent-{{ section.id }} .modern-article__content');
+                  var tocList = document.getElementById('TOCList-{{ section.id }}');
+                  var tocWrap = document.getElementById('ArticleTOC-{{ section.id }}');
+                  if (!content || !tocList) return;
+                  var headings = content.querySelectorAll('h2, h3');
+                  if (headings.length === 0) { if (tocWrap) tocWrap.style.display = 'none'; return; }
+                  headings.forEach(function(h, i) {
+                    var id = 'heading-' + i;
+                    h.id = id;
+                    var li = document.createElement('li');
+                    var a = document.createElement('a');
+                    a.href = '#' + id;
+                    a.className = 'modern-article-toc__link';
+                    a.textContent = h.textContent;
+                    if (h.tagName === 'H3') a.style.paddingLeft = 'var(--space-lg)';
+                    li.appendChild(a);
+                    tocList.appendChild(li);
+                  });
+                })();
+              </script>
+            {%- endif -%}
+
+            <div class="modern-article__content" {{ block.shopify_attributes }}>
+              {{ article.content }}
+            </div>
+
+          {%- when 'share' -%}
+            <div class="modern-article-share" {{ block.shopify_attributes }}>
+              <span class="modern-article-share__label">Share this article</span>
+              <a href="https://www.facebook.com/sharer/sharer.php?u={{ shop.url | append: article.url }}" target="_blank" rel="noopener" class="modern-article-share__btn" aria-label="Share on Facebook">
+                <svg viewBox="0 0 24 24" fill="currentColor"><path d="M18 2h-3a5 5 0 00-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 011-1h3z"/></svg>
+              </a>
+              <a href="https://twitter.com/intent/tweet?url={{ shop.url | append: article.url }}&text={{ article.title | url_encode }}" target="_blank" rel="noopener" class="modern-article-share__btn" aria-label="Share on Twitter">
+                <svg viewBox="0 0 24 24" fill="currentColor"><path d="M23 3a10.9 10.9 0 01-3.14 1.53 4.48 4.48 0 00-7.86 3v1A10.66 10.66 0 013 4s-4 9 5 13a11.64 11.64 0 01-7 2c9 5 20 0 20-11.5a4.5 4.5 0 00-.08-.83A7.72 7.72 0 0023 3z"/></svg>
+              </a>
+              <a href="https://pinterest.com/pin/create/button/?url={{ shop.url | append: article.url }}&description={{ article.title | url_encode }}" target="_blank" rel="noopener" class="modern-article-share__btn" aria-label="Share on Pinterest">
+                <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.373 0 0 5.373 0 12c0 5.084 3.163 9.426 7.627 11.174-.105-.949-.2-2.405.042-3.441.218-.937 1.407-5.965 1.407-5.965s-.359-.719-.359-1.782c0-1.668.967-2.914 2.171-2.914 1.023 0 1.518.769 1.518 1.69 0 1.029-.655 2.568-.994 3.995-.283 1.194.599 2.169 1.777 2.169 2.133 0 3.772-2.249 3.772-5.495 0-2.873-2.064-4.882-5.012-4.882-3.414 0-5.418 2.561-5.418 5.207 0 1.031.397 2.138.893 2.738a.36.36 0 01.083.345l-.333 1.36c-.053.22-.174.267-.402.161-1.499-.698-2.436-2.889-2.436-4.649 0-3.785 2.75-7.262 7.929-7.262 4.163 0 7.398 2.967 7.398 6.931 0 4.136-2.607 7.464-6.227 7.464-1.216 0-2.359-.632-2.75-1.378l-.748 2.853c-.271 1.043-1.002 2.35-1.492 3.146C9.57 23.812 10.763 24 12 24c6.627 0 12-5.373 12-12S18.627 0 12 0z"/></svg>
+              </a>
+              <button onclick="navigator.clipboard.writeText(window.location.href)" class="modern-article-share__btn" aria-label="Copy link">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10 13a5 5 0 007.54.54l3-3a5 5 0 00-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 00-7.54-.54l-3 3a5 5 0 007.07 7.07l1.71-1.71"/></svg>
+              </button>
+            </div>
+
+        {%- endcase -%}
+      {%- endfor -%}
+
+      {%- comment -%} Author Bio {%- endcomment -%}
+      {%- if section.settings.show_author_bio -%}
+        <div class="modern-article-author-bio modern-animate animate--fade-up">
+          <div class="modern-article-author-bio__avatar">
+            {{ article.author | slice: 0, 1 | upcase }}
+          </div>
+          <div>
+            <h3 class="modern-article-author-bio__name">{{ article.author }}</h3>
+            <p class="modern-article-author-bio__text">Author at {{ shop.name }}. Sharing insights and stories about what we love.</p>
+          </div>
+        </div>
+      {%- endif -%}
+    </div>
+
+    {%- comment -%} Related Articles {%- endcomment -%}
+    {%- if section.settings.show_related_articles -%}
+      <div class="modern-article-related">
+        <h2 class="modern-article-related__title modern-animate animate--fade-up">Related Articles</h2>
+        <div class="modern-article-related__grid">
+          {%- assign related_count = 0 -%}
+          {%- for related in blog.articles -%}
+            {%- if related.id != article.id and related_count < section.settings.related_articles_count -%}
+              {%- assign related_count = related_count | plus: 1 -%}
+              <article class="modern-article-card modern-animate animate--fade-up" data-stagger="{{ related_count }}">
+                {%- if related.image -%}
+                  <a href="{{ related.url }}" class="modern-article-card__img">
+                    {{ related.image | image_url: width: 600 | image_tag:
+                      alt: related.image.alt | default: related.title,
+                      widths: '300, 400, 600',
+                      sizes: '(min-width: 750px) 33vw, 100vw',
+                      loading: 'lazy'
+                    }}
+                  </a>
+                {%- endif -%}
+                <div class="modern-article-card__body">
+                  <div class="modern-article-card__meta">
+                    <time datetime="{{ related.published_at | date: '%Y-%m-%d' }}">{{ related.published_at | date: '%b %d, %Y' }}</time>
+                  </div>
+                  <h3 class="modern-article-card__title">
+                    <a href="{{ related.url }}">{{ related.title | escape }}</a>
+                  </h3>
+                </div>
+              </article>
+            {%- endif -%}
+          {%- endfor -%}
+        </div>
+      </div>
+    {%- endif -%}
+  </div>
+</div>
+
+{% schema %}
+{
+  "name": "Modern Article",
+  "tag": "section",
+  "class": "section-modern-article",
+  "blocks": [
+    {
+      "type": "featured_image",
+      "name": "Featured Image",
+      "limit": 1
+    },
+    {
+      "type": "title",
+      "name": "Title",
+      "limit": 1
+    },
+    {
+      "type": "meta",
+      "name": "Meta Info",
+      "limit": 1,
+      "settings": [
+        { "type": "checkbox", "id": "show_date", "default": true, "label": "Show date" },
+        { "type": "checkbox", "id": "show_author", "default": true, "label": "Show author" },
+        { "type": "checkbox", "id": "show_read_time", "default": true, "label": "Show read time" }
+      ]
+    },
+    {
+      "type": "content",
+      "name": "Content",
+      "limit": 1
+    },
+    {
+      "type": "share",
+      "name": "Share Buttons",
+      "limit": 1
+    },
+    {
+      "type": "@app"
+    }
+  ],
+  "settings": [
+    {
+      "type": "checkbox",
+      "id": "show_progress_bar",
+      "default": true,
+      "label": "Show reading progress bar"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_toc",
+      "default": true,
+      "label": "Show table of contents"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_author_bio",
+      "default": true,
+      "label": "Show author bio"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_related_articles",
+      "default": true,
+      "label": "Show related articles"
+    },
+    {
+      "type": "range",
+      "id": "related_articles_count",
+      "min": 1,
+      "max": 4,
+      "step": 1,
+      "default": 3,
+      "label": "Related articles count"
+    },
+    {
+      "type": "color_scheme",
+      "id": "color_scheme",
+      "label": "Color scheme",
+      "default": "background-1"
+    },
+    {
+      "type": "range",
+      "id": "padding_top",
+      "min": 0,
+      "max": 100,
+      "step": 4,
+      "default": 40,
+      "unit": "px",
+      "label": "Padding top"
+    },
+    {
+      "type": "range",
+      "id": "padding_bottom",
+      "min": 0,
+      "max": 100,
+      "step": 4,
+      "default": 52,
+      "unit": "px",
+      "label": "Padding bottom"
+    }
+  ],
+  "presets": [
+    {
+      "name": "Modern Article",
+      "blocks": [
+        { "type": "featured_image" },
+        { "type": "title" },
+        { "type": "meta" },
+        { "type": "content" },
+        { "type": "share" }
+      ]
+    }
+  ]
+}
+{% endschema %}
