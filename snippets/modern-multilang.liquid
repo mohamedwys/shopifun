@@ -1,0 +1,209 @@
+{%- comment -%}
+  Modern Multi-Language & RTL Support
+  =====================================
+  RTL layout support, language detection, currency formatting,
+  date localization, and number formatting.
+
+  Usage: {% render 'modern-multilang' %}
+  (Include in <head> of theme.liquid)
+{%- endcomment -%}
+
+{%- comment -%} Detect RTL languages {%- endcomment -%}
+{%- assign locale_code = request.locale.iso_code | downcase -%}
+{%- assign rtl_languages = 'ar,he,fa,ur,ps,sd,ku,yi,dv' | split: ',' -%}
+{%- assign is_rtl = false -%}
+{%- for lang in rtl_languages -%}
+  {%- if locale_code == lang or locale_code contains lang -%}
+    {%- assign is_rtl = true -%}
+    {%- break -%}
+  {%- endif -%}
+{%- endfor -%}
+
+{%- if is_rtl -%}
+  <style>
+    /* ==========================================================================
+       RTL Layout Overrides
+       ========================================================================== */
+    html[dir="rtl"] body,
+    .rtl {
+      direction: rtl;
+      text-align: right;
+    }
+
+    /* Flip horizontal layouts */
+    .rtl .modern-product-main { direction: rtl; }
+    .rtl .modern-breadcrumbs__separator { transform: scaleX(-1); }
+    .rtl .modern-cart__item { direction: rtl; }
+
+    /* Flip padding/margins */
+    .rtl .modern-collection-grid__filters { float: right; margin-left: var(--space-2xl); margin-right: 0; }
+    .rtl .modern-article__toc { float: right; margin-left: var(--space-xl); margin-right: 0; }
+
+    /* Flip icons */
+    .rtl .modern-recs__nav-btn svg,
+    .rtl .modern-breadcrumbs__separator svg,
+    .rtl .modern-recs__view-all svg {
+      transform: scaleX(-1);
+    }
+
+    /* Flex direction flip */
+    .rtl .modern-product-card__info,
+    .rtl .modern-cart__item-details,
+    .rtl .modern-flex__icon-text {
+      text-align: right;
+    }
+
+    /* Form alignment */
+    .rtl input,
+    .rtl textarea,
+    .rtl select {
+      text-align: right;
+    }
+    .rtl .modern-password__form,
+    .rtl .modern-contact-form__field {
+      direction: rtl;
+    }
+
+    /* Toast positioning */
+    .rtl .modern-toast-container {
+      left: var(--space-xl, 24px);
+      right: auto;
+    }
+    .rtl .modern-toast {
+      border-left: none;
+      border-right: 3px solid;
+    }
+    .rtl .modern-toast--success { border-right-color: #10b981; }
+    .rtl .modern-toast--error { border-right-color: #ef4444; }
+    .rtl .modern-toast--info { border-right-color: #3b82f6; }
+    .rtl .modern-toast--warning { border-right-color: #f59e0b; }
+
+    /* Social proof popup */
+    .rtl .modern-urgency__social-proof {
+      left: auto;
+      right: var(--space-xl, 24px);
+    }
+
+    /* Skip link */
+    .rtl .modern-skip-link {
+      left: auto;
+      right: 50%;
+      transform: translateX(50%);
+    }
+
+    /* Swipe direction flip for drawers */
+    .rtl .modern-cart-drawer {
+      left: 0;
+      right: auto;
+      transform: translateX(-100%);
+    }
+    .rtl .modern-cart-drawer.is-open {
+      transform: translateX(0);
+    }
+  </style>
+  <script>document.documentElement.setAttribute('dir', 'rtl');</script>
+{%- endif -%}
+
+<script>
+(function() {
+  'use strict';
+
+  window.ModernLocale = {
+    /* Current locale from Shopify */
+    code: {{ request.locale.iso_code | json }},
+    isRTL: {{ is_rtl }},
+
+    /* ========================================================================
+       Currency Formatting
+       ======================================================================== */
+    formatMoney: function(cents, format) {
+      if (typeof cents === 'string') cents = cents.replace('.', '');
+      var value = '';
+      var pattern = format || '${{amount}}';
+      var dollars = (cents / 100).toFixed(2);
+
+      /* Locale-aware formatting */
+      try {
+        value = new Intl.NumberFormat(this.code, {
+          style: 'currency',
+          currency: {{ cart.currency.iso_code | default: 'USD' | json }}
+        }).format(cents / 100);
+      } catch(e) {
+        value = pattern.replace('{{amount}}', dollars)
+                       .replace('{{amount_no_decimals}}', Math.round(cents / 100))
+                       .replace('{{amount_with_comma_separator}}', dollars.replace('.', ','));
+      }
+      return value;
+    },
+
+    /* ========================================================================
+       Date Localization
+       ======================================================================== */
+    formatDate: function(date, options) {
+      if (typeof date === 'string') date = new Date(date);
+      options = options || { year: 'numeric', month: 'long', day: 'numeric' };
+      try {
+        return new Intl.DateTimeFormat(this.code, options).format(date);
+      } catch(e) {
+        return date.toLocaleDateString();
+      }
+    },
+
+    formatRelativeTime: function(date) {
+      if (typeof date === 'string') date = new Date(date);
+      var diff = Date.now() - date.getTime();
+      var seconds = Math.floor(diff / 1000);
+      var minutes = Math.floor(seconds / 60);
+      var hours = Math.floor(minutes / 60);
+      var days = Math.floor(hours / 24);
+
+      try {
+        var rtf = new Intl.RelativeTimeFormat(this.code, { numeric: 'auto' });
+        if (days > 0) return rtf.format(-days, 'day');
+        if (hours > 0) return rtf.format(-hours, 'hour');
+        if (minutes > 0) return rtf.format(-minutes, 'minute');
+        return rtf.format(-seconds, 'second');
+      } catch(e) {
+        if (days > 0) return days + ' days ago';
+        if (hours > 0) return hours + ' hours ago';
+        if (minutes > 0) return minutes + ' minutes ago';
+        return 'just now';
+      }
+    },
+
+    /* ========================================================================
+       Number Formatting
+       ======================================================================== */
+    formatNumber: function(num, decimals) {
+      try {
+        return new Intl.NumberFormat(this.code, {
+          minimumFractionDigits: decimals || 0,
+          maximumFractionDigits: decimals || 0
+        }).format(num);
+      } catch(e) {
+        return num.toLocaleString();
+      }
+    },
+
+    /* ========================================================================
+       Auto-Detect Browser Language
+       ======================================================================== */
+    getBrowserLanguage: function() {
+      return navigator.language || navigator.userLanguage || 'en';
+    },
+
+    /* Check if browser language matches store locale */
+    isLocaleMismatch: function() {
+      var browser = this.getBrowserLanguage().split('-')[0].toLowerCase();
+      var store = this.code.split('-')[0].toLowerCase();
+      return browser !== store;
+    }
+  };
+
+  /* Auto-apply relative dates */
+  document.querySelectorAll('[data-relative-date]').forEach(function(el) {
+    var date = el.dataset.relativeDate || el.getAttribute('datetime');
+    if (date) el.textContent = window.ModernLocale.formatRelativeTime(date);
+  });
+})();
+</script>

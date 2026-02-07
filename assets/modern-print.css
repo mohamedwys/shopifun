@@ -1,0 +1,274 @@
+/**
+ * Modern Print Styles
+ * ====================
+ * Beautiful printed product pages, catalog layouts,
+ * invoice formatting, and optimized B&W printing.
+ */
+
+@media print {
+  /* ==========================================================================
+     1. Global Reset for Print
+     ========================================================================== */
+  *,
+  *::before,
+  *::after {
+    background: transparent !important;
+    color: #000 !important;
+    box-shadow: none !important;
+    text-shadow: none !important;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+
+  body {
+    font-family: Georgia, 'Times New Roman', serif;
+    font-size: 12pt;
+    line-height: 1.5;
+    margin: 0;
+    padding: 0;
+    color: #000;
+  }
+
+  /* ==========================================================================
+     2. Hide Non-Essential Elements
+     ========================================================================== */
+  .modern-header,
+  .modern-footer,
+  .modern-announcement-bar,
+  .modern-cart-drawer,
+  .modern-quick-view,
+  .modern-toast-container,
+  .modern-page-loader,
+  .modern-skip-link,
+  .modern-sticky-atc,
+  .modern-urgency__social-proof,
+  .modern-search-results,
+  .modern-bottom-nav,
+  .modern-noscript-banner,
+  .modern-spin-overlay,
+  [data-js-only],
+  nav,
+  button:not(.print-show),
+  .shopify-section-group-header-group,
+  .shopify-section-group-footer-group,
+  #shopify-section-announcement-bar,
+  .modern-newsletter,
+  .modern-cookie-banner,
+  .modern-back-to-top {
+    display: none !important;
+  }
+
+  /* ==========================================================================
+     3. Links
+     ========================================================================== */
+  a[href] {
+    text-decoration: underline;
+    color: #000 !important;
+  }
+  a[href]::after {
+    content: " (" attr(href) ")";
+    font-size: 9pt;
+    font-weight: normal;
+    opacity: 0.6;
+  }
+  /* Don't show URL for internal/anchor links */
+  a[href^="#"]::after,
+  a[href^="javascript"]::after,
+  a[href^="/"]::after,
+  .modern-btn::after,
+  nav a::after,
+  .modern-product-card a::after {
+    content: none;
+  }
+
+  /* ==========================================================================
+     4. Page Layout
+     ========================================================================== */
+  @page {
+    margin: 2cm;
+    @top-center {
+      content: "Printed from " attr(data-shop-name);
+      font-size: 8pt;
+      opacity: 0.5;
+    }
+  }
+  @page :first {
+    margin-top: 3cm;
+  }
+
+  /* Prevent breaks inside important elements */
+  .modern-product-card,
+  .modern-testimonial-card,
+  .modern-trust__guarantee,
+  blockquote,
+  img,
+  table,
+  figure {
+    break-inside: avoid;
+    page-break-inside: avoid;
+  }
+
+  /* Break before major sections */
+  .modern-article__content h2,
+  .modern-article__content h3 {
+    break-after: avoid;
+    page-break-after: avoid;
+  }
+
+  /* ==========================================================================
+     5. Product Page Print Layout
+     ========================================================================== */
+  .modern-product-main {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20pt;
+  }
+  .modern-product-main__gallery {
+    max-width: 300pt;
+  }
+  .modern-product-main__gallery img {
+    width: 100%;
+    border: 1pt solid #ddd;
+  }
+  .modern-product-main__title {
+    font-size: 18pt;
+    font-weight: bold;
+    margin: 0 0 6pt;
+  }
+  .modern-product-main__price {
+    font-size: 16pt;
+    font-weight: bold;
+    margin: 0 0 12pt;
+  }
+  .modern-product-main__description {
+    font-size: 11pt;
+    line-height: 1.6;
+  }
+
+  /* Print QR code placeholder */
+  .modern-product-main::after {
+    content: '';
+    display: block;
+    grid-column: 1 / -1;
+    margin-top: 20pt;
+    padding-top: 12pt;
+    border-top: 1pt solid #ddd;
+    font-size: 9pt;
+    opacity: 0.5;
+  }
+
+  /* ==========================================================================
+     6. Product Grid (Catalog Style)
+     ========================================================================== */
+  .modern-collection-grid__products,
+  .modern-recs__grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 12pt;
+  }
+  .modern-product-card {
+    border: 1pt solid #eee;
+    padding: 8pt;
+    break-inside: avoid;
+  }
+  .modern-product-card__image-wrapper {
+    max-height: 150pt;
+    overflow: hidden;
+    margin-bottom: 6pt;
+  }
+  .modern-product-card img {
+    width: 100%;
+    height: auto;
+  }
+  .modern-product-card__title {
+    font-size: 10pt;
+    font-weight: bold;
+    margin: 0 0 3pt;
+  }
+  .modern-product-card__price {
+    font-size: 10pt;
+  }
+
+  /* ==========================================================================
+     7. Article Print Layout
+     ========================================================================== */
+  .modern-article__content {
+    max-width: none;
+    font-size: 11pt;
+    line-height: 1.7;
+    columns: 2;
+    column-gap: 24pt;
+  }
+  .modern-article__content img {
+    max-width: 100%;
+    margin: 8pt 0;
+  }
+  .modern-article__content h2 {
+    column-span: all;
+    font-size: 14pt;
+    margin-top: 16pt;
+  }
+
+  /* ==========================================================================
+     8. Cart / Invoice Layout
+     ========================================================================== */
+  .modern-cart__items {
+    width: 100%;
+    border-collapse: collapse;
+  }
+  .modern-cart__item {
+    border-bottom: 1pt solid #eee;
+    padding: 8pt 0;
+  }
+  .modern-cart__summary {
+    margin-top: 12pt;
+    text-align: right;
+    font-size: 12pt;
+  }
+  .modern-cart__total {
+    font-size: 14pt;
+    font-weight: bold;
+    border-top: 2pt solid #000;
+    padding-top: 6pt;
+  }
+
+  /* ==========================================================================
+     9. Tables
+     ========================================================================== */
+  table {
+    border-collapse: collapse;
+    width: 100%;
+  }
+  th, td {
+    border: 1pt solid #ccc;
+    padding: 4pt 8pt;
+    text-align: left;
+    font-size: 10pt;
+  }
+  th {
+    font-weight: bold;
+    border-bottom-width: 2pt;
+  }
+
+  /* ==========================================================================
+     10. Images
+     ========================================================================== */
+  img {
+    max-width: 100% !important;
+    height: auto !important;
+  }
+
+  /* ==========================================================================
+     11. Footer Print Info
+     ========================================================================== */
+  body::after {
+    content: '';
+    display: block;
+    margin-top: 24pt;
+    padding-top: 12pt;
+    border-top: 1pt solid #ddd;
+    font-size: 8pt;
+    opacity: 0.5;
+    text-align: center;
+  }
+}

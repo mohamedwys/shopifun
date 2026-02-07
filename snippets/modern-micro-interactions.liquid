@@ -1,0 +1,410 @@
+{%- comment -%}
+  Modern Micro-Interactions Library
+  ==================================
+  Delightful micro-interactions for common UI elements:
+  buttons, checkboxes, toggles, ratings, range sliders, and more.
+
+  Usage: {% render 'modern-micro-interactions' %}
+  (Include once in theme.liquid)
+{%- endcomment -%}
+
+<style>
+  /* ==========================================================================
+     1. Button Press Effect (scale down on active)
+     ========================================================================== */
+  .modern-btn:active,
+  button.modern-btn:active,
+  a.modern-btn:active {
+    transform: scale(0.97);
+    transition-duration: 0.1s;
+  }
+
+  /* ==========================================================================
+     2. Checkbox Checkmark Draw Animation
+     ========================================================================== */
+  .modern-checkbox {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-sm, 8px);
+    cursor: pointer;
+    font-size: var(--text-sm, 14px);
+    user-select: none;
+  }
+  .modern-checkbox input {
+    position: absolute;
+    opacity: 0;
+    width: 0;
+    height: 0;
+  }
+  .modern-checkbox__box {
+    width: 20px;
+    height: 20px;
+    border: 2px solid rgba(128, 128, 128, 0.25);
+    border-radius: var(--radius-sm, 4px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+    flex-shrink: 0;
+  }
+  .modern-checkbox__box svg {
+    width: 12px;
+    height: 12px;
+    stroke: #fff;
+    stroke-width: 3;
+    stroke-dasharray: 20;
+    stroke-dashoffset: 20;
+    transition: stroke-dashoffset 0.2s ease 0.1s;
+    fill: none;
+  }
+  .modern-checkbox input:checked + .modern-checkbox__box {
+    background: var(--color-button, #667eea);
+    border-color: var(--color-button, #667eea);
+    transform: scale(1.1);
+  }
+  .modern-checkbox input:checked + .modern-checkbox__box svg {
+    stroke-dashoffset: 0;
+  }
+  .modern-checkbox input:focus-visible + .modern-checkbox__box {
+    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.3);
+  }
+
+  /* ==========================================================================
+     3. Radio Button Ripple
+     ========================================================================== */
+  .modern-radio {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-sm, 8px);
+    cursor: pointer;
+    font-size: var(--text-sm, 14px);
+    user-select: none;
+  }
+  .modern-radio input {
+    position: absolute;
+    opacity: 0;
+    width: 0;
+    height: 0;
+  }
+  .modern-radio__circle {
+    width: 20px;
+    height: 20px;
+    border: 2px solid rgba(128, 128, 128, 0.25);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: border-color 0.2s ease;
+    flex-shrink: 0;
+  }
+  .modern-radio__circle::after {
+    content: '';
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background: var(--color-button, #667eea);
+    transform: scale(0);
+    transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+  .modern-radio input:checked + .modern-radio__circle {
+    border-color: var(--color-button, #667eea);
+  }
+  .modern-radio input:checked + .modern-radio__circle::after {
+    transform: scale(1);
+  }
+
+  /* ==========================================================================
+     4. Toggle Switch
+     ========================================================================== */
+  .modern-toggle {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-sm, 8px);
+    cursor: pointer;
+    font-size: var(--text-sm, 14px);
+    user-select: none;
+  }
+  .modern-toggle input {
+    position: absolute;
+    opacity: 0;
+    width: 0;
+    height: 0;
+  }
+  .modern-toggle__track {
+    width: 44px;
+    height: 24px;
+    background: rgba(128, 128, 128, 0.2);
+    border-radius: 12px;
+    padding: 2px;
+    transition: background 0.2s ease;
+    flex-shrink: 0;
+  }
+  .modern-toggle__thumb {
+    width: 20px;
+    height: 20px;
+    background: #fff;
+    border-radius: 50%;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.15);
+    transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+  .modern-toggle input:checked + .modern-toggle__track {
+    background: var(--color-button, #667eea);
+  }
+  .modern-toggle input:checked + .modern-toggle__track .modern-toggle__thumb {
+    transform: translateX(20px);
+  }
+
+  /* ==========================================================================
+     5. Range Slider Fill
+     ========================================================================== */
+  .modern-range {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 100%;
+    height: 6px;
+    border-radius: 3px;
+    background: linear-gradient(to right,
+      var(--color-button, #667eea) 0%,
+      var(--color-button, #667eea) var(--range-fill, 50%),
+      rgba(128, 128, 128, 0.15) var(--range-fill, 50%),
+      rgba(128, 128, 128, 0.15) 100%
+    );
+    outline: none;
+    cursor: pointer;
+  }
+  .modern-range::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    background: var(--color-button, #667eea);
+    border: 3px solid #fff;
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.2);
+    cursor: grab;
+    transition: transform 0.15s ease, box-shadow 0.15s ease;
+  }
+  .modern-range::-webkit-slider-thumb:hover {
+    transform: scale(1.15);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.25);
+  }
+  .modern-range::-webkit-slider-thumb:active {
+    cursor: grabbing;
+    transform: scale(1.05);
+  }
+  .modern-range::-moz-range-thumb {
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    background: var(--color-button, #667eea);
+    border: 3px solid #fff;
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.2);
+    cursor: grab;
+  }
+
+  /* ==========================================================================
+     6. Star Rating Fill
+     ========================================================================== */
+  .modern-star-rating {
+    display: inline-flex;
+    gap: 2px;
+  }
+  .modern-star-rating__star {
+    cursor: pointer;
+    color: rgba(128, 128, 128, 0.2);
+    transition: color 0.15s ease, transform 0.15s ease;
+  }
+  .modern-star-rating__star.is-active {
+    color: #f59e0b;
+  }
+  .modern-star-rating__star:hover {
+    transform: scale(1.2);
+  }
+  .modern-star-rating__star svg { width: 24px; height: 24px; }
+
+  /* ==========================================================================
+     7. Like Button Pop
+     ========================================================================== */
+  .modern-like-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    border: none;
+    background: none;
+    cursor: pointer;
+    color: rgba(128, 128, 128, 0.3);
+    transition: color 0.15s ease;
+    position: relative;
+    padding: 0;
+  }
+  .modern-like-btn svg { width: 22px; height: 22px; transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1); }
+  .modern-like-btn.is-liked {
+    color: #ef4444;
+  }
+  .modern-like-btn.is-liked svg {
+    fill: currentColor;
+    animation: modernLikePop 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+  @keyframes modernLikePop {
+    0% { transform: scale(1); }
+    30% { transform: scale(1.3); }
+    60% { transform: scale(0.9); }
+    100% { transform: scale(1); }
+  }
+
+  /* ==========================================================================
+     8. Copy Button Checkmark
+     ========================================================================== */
+  .modern-copy-btn {
+    position: relative;
+    overflow: hidden;
+  }
+  .modern-copy-btn__icon,
+  .modern-copy-btn__check {
+    transition: transform 0.2s ease, opacity 0.2s ease;
+  }
+  .modern-copy-btn.is-copied .modern-copy-btn__icon {
+    transform: translateY(-100%);
+    opacity: 0;
+  }
+  .modern-copy-btn__check {
+    position: absolute;
+    transform: translateY(100%);
+    opacity: 0;
+    color: #10b981;
+  }
+  .modern-copy-btn.is-copied .modern-copy-btn__check {
+    transform: translateY(0);
+    opacity: 1;
+  }
+
+  /* ==========================================================================
+     9. Dropdown Arrow Rotate
+     ========================================================================== */
+  .modern-dropdown-arrow {
+    transition: transform 0.2s ease;
+    display: inline-block;
+  }
+  .is-open .modern-dropdown-arrow,
+  [aria-expanded="true"] .modern-dropdown-arrow {
+    transform: rotate(180deg);
+  }
+
+  /* ==========================================================================
+     10. Ripple Effect (on click)
+     ========================================================================== */
+  .modern-ripple {
+    position: relative;
+    overflow: hidden;
+  }
+  .modern-ripple__wave {
+    position: absolute;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.3);
+    transform: scale(0);
+    animation: modernRippleWave 0.6s ease-out forwards;
+    pointer-events: none;
+  }
+  @keyframes modernRippleWave {
+    to { transform: scale(2.5); opacity: 0; }
+  }
+
+  /* Reduced motion */
+  @media (prefers-reduced-motion: reduce) {
+    .modern-btn:active { transform: none; }
+    .modern-checkbox input:checked + .modern-checkbox__box { transform: none; }
+    .modern-like-btn.is-liked svg { animation: none; }
+    .modern-ripple__wave { animation: none; }
+    .modern-star-rating__star:hover { transform: none; }
+  }
+</style>
+
+<script>
+(function() {
+  'use strict';
+
+  /* Range slider fill update */
+  function updateRangeFill(input) {
+    var min = parseFloat(input.min) || 0;
+    var max = parseFloat(input.max) || 100;
+    var val = parseFloat(input.value) || 0;
+    var pct = ((val - min) / (max - min)) * 100;
+    input.style.setProperty('--range-fill', pct + '%');
+  }
+
+  document.querySelectorAll('.modern-range').forEach(function(range) {
+    updateRangeFill(range);
+    range.addEventListener('input', function() { updateRangeFill(range); });
+  });
+
+  /* Star rating interaction */
+  document.querySelectorAll('.modern-star-rating').forEach(function(container) {
+    var stars = container.querySelectorAll('.modern-star-rating__star');
+    var input = container.querySelector('input[type="hidden"]');
+
+    stars.forEach(function(star, i) {
+      star.addEventListener('click', function() {
+        var value = i + 1;
+        if (input) input.value = value;
+        stars.forEach(function(s, j) {
+          s.classList.toggle('is-active', j < value);
+        });
+      });
+
+      star.addEventListener('mouseenter', function() {
+        stars.forEach(function(s, j) {
+          s.style.color = j <= i ? '#f59e0b' : '';
+        });
+      });
+
+      star.addEventListener('mouseleave', function() {
+        stars.forEach(function(s) { s.style.color = ''; });
+      });
+    });
+  });
+
+  /* Like button toggle */
+  document.addEventListener('click', function(e) {
+    var btn = e.target.closest('.modern-like-btn');
+    if (!btn) return;
+    btn.classList.toggle('is-liked');
+    if (window.ModernHaptic) window.ModernHaptic.light();
+  });
+
+  /* Copy button */
+  document.addEventListener('click', function(e) {
+    var btn = e.target.closest('.modern-copy-btn');
+    if (!btn) return;
+    var text = btn.dataset.copyText || btn.previousElementSibling?.textContent;
+    if (!text) return;
+    navigator.clipboard.writeText(text.trim()).then(function() {
+      btn.classList.add('is-copied');
+      setTimeout(function() { btn.classList.remove('is-copied'); }, 2000);
+    });
+  });
+
+  /* Ripple effect */
+  document.addEventListener('click', function(e) {
+    var el = e.target.closest('.modern-ripple');
+    if (!el) return;
+    var rect = el.getBoundingClientRect();
+    var size = Math.max(rect.width, rect.height);
+    var wave = document.createElement('span');
+    wave.className = 'modern-ripple__wave';
+    wave.style.width = wave.style.height = size + 'px';
+    wave.style.left = (e.clientX - rect.left - size / 2) + 'px';
+    wave.style.top = (e.clientY - rect.top - size / 2) + 'px';
+    el.appendChild(wave);
+    setTimeout(function() { wave.remove(); }, 600);
+  });
+
+  /* Re-init on section load */
+  document.addEventListener('shopify:section:load', function() {
+    document.querySelectorAll('.modern-range').forEach(updateRangeFill);
+  });
+})();
+</script>

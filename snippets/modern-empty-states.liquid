@@ -1,0 +1,217 @@
+{%- comment -%}
+  Modern Empty States
+  ====================
+  Beautiful empty state designs with SVG illustrations and helpful CTAs.
+
+  Usage:
+    {% render 'modern-empty-states', type: 'cart' %}
+    {% render 'modern-empty-states', type: 'search', query: search.terms %}
+    {% render 'modern-empty-states', type: 'collection' %}
+    {% render 'modern-empty-states', type: 'blog' %}
+    {% render 'modern-empty-states', type: 'wishlist' %}
+    {% render 'modern-empty-states', type: 'filter' %}
+    {% render 'modern-empty-states', type: 'inventory' %}
+{%- endcomment -%}
+
+<style>
+  .modern-empty {
+    text-align: center;
+    padding: var(--space-3xl, 48px) var(--space-xl, 24px);
+    max-width: 480px;
+    margin: 0 auto;
+  }
+  .modern-empty__illustration {
+    width: 160px;
+    height: 160px;
+    margin: 0 auto var(--space-xl, 24px);
+    color: var(--color-foreground, #333);
+    opacity: 0.15;
+  }
+  .modern-empty__illustration svg { width: 100%; height: 100%; }
+  .modern-empty__heading {
+    font-size: var(--text-xl, 20px);
+    font-weight: 700;
+    margin: 0 0 var(--space-sm, 8px);
+    letter-spacing: var(--tracking-tight, -0.025em);
+  }
+  .modern-empty__description {
+    font-size: var(--text-sm, 14px);
+    opacity: 0.6;
+    margin: 0 0 var(--space-2xl, 32px);
+    line-height: var(--leading-relaxed, 1.6);
+  }
+  .modern-empty__actions {
+    display: flex;
+    gap: var(--space-md, 16px);
+    justify-content: center;
+    flex-wrap: wrap;
+  }
+  .modern-empty__suggestions {
+    margin-top: var(--space-2xl, 32px);
+    padding-top: var(--space-2xl, 32px);
+    border-top: 1px solid rgba(128, 128, 128, 0.1);
+  }
+  .modern-empty__suggestions-title {
+    font-size: var(--text-xs, 12px);
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    opacity: 0.4;
+    margin: 0 0 var(--space-md, 16px);
+  }
+  .modern-empty__suggestion-links {
+    display: flex;
+    gap: var(--space-sm, 8px);
+    justify-content: center;
+    flex-wrap: wrap;
+  }
+  .modern-empty__suggestion-link {
+    padding: var(--space-xs, 4px) var(--space-md, 16px);
+    background: rgba(128, 128, 128, 0.06);
+    border-radius: var(--radius-full, 999px);
+    font-size: var(--text-xs, 12px);
+    font-weight: 500;
+    color: inherit;
+    text-decoration: none;
+    transition: background 0.15s ease;
+  }
+  .modern-empty__suggestion-link:hover { background: rgba(128, 128, 128, 0.12); }
+</style>
+
+<div class="modern-empty modern-animate animate--fade-up">
+
+  {%- case type -%}
+
+    {%- when 'cart' -%}
+      <div class="modern-empty__illustration">
+        <svg viewBox="0 0 160 160" fill="none" stroke="currentColor" stroke-width="1.5">
+          <circle cx="80" cy="80" r="70" stroke-dasharray="4 6" opacity="0.3"/>
+          <path d="M50 55h8l12 40h30l10-25H68" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+          <circle cx="78" cy="105" r="4" fill="currentColor"/>
+          <circle cx="100" cy="105" r="4" fill="currentColor"/>
+          <path d="M55 48l65 65" stroke-width="2" opacity="0.4"/>
+        </svg>
+      </div>
+      <h2 class="modern-empty__heading">Your cart is empty</h2>
+      <p class="modern-empty__description">Looks like you haven't added anything to your cart yet. Start shopping to find something you'll love.</p>
+      <div class="modern-empty__actions">
+        <a href="/collections/all" class="modern-btn modern-btn--primary">Start Shopping</a>
+        {%- if customer -%}
+          <a href="/account" class="modern-btn modern-btn--outline">View Account</a>
+        {%- endif -%}
+      </div>
+
+    {%- when 'search' -%}
+      <div class="modern-empty__illustration">
+        <svg viewBox="0 0 160 160" fill="none" stroke="currentColor" stroke-width="1.5">
+          <circle cx="80" cy="80" r="70" stroke-dasharray="4 6" opacity="0.3"/>
+          <circle cx="72" cy="72" r="25" stroke-width="2.5"/>
+          <line x1="90" y1="90" x2="110" y2="110" stroke-width="3" stroke-linecap="round"/>
+          <line x1="62" y1="72" x2="82" y2="72" stroke-width="2" opacity="0.4"/>
+          <line x1="66" y1="80" x2="78" y2="80" stroke-width="2" opacity="0.3"/>
+        </svg>
+      </div>
+      <h2 class="modern-empty__heading">No results found</h2>
+      <p class="modern-empty__description">
+        {%- if query != blank -%}
+          We couldn't find anything for "{{ query | escape }}". Try different keywords or browse our collections.
+        {%- else -%}
+          Try searching with different keywords or browse our collections below.
+        {%- endif -%}
+      </p>
+      <div class="modern-empty__actions">
+        <a href="/collections/all" class="modern-btn modern-btn--primary">Browse All Products</a>
+      </div>
+      <div class="modern-empty__suggestions">
+        <p class="modern-empty__suggestions-title">Popular searches</p>
+        <div class="modern-empty__suggestion-links">
+          <a href="/search?q=new" class="modern-empty__suggestion-link">New Arrivals</a>
+          <a href="/search?q=sale" class="modern-empty__suggestion-link">On Sale</a>
+          <a href="/search?q=best+seller" class="modern-empty__suggestion-link">Best Sellers</a>
+          <a href="/collections" class="modern-empty__suggestion-link">Collections</a>
+        </div>
+      </div>
+
+    {%- when 'collection' -%}
+      <div class="modern-empty__illustration">
+        <svg viewBox="0 0 160 160" fill="none" stroke="currentColor" stroke-width="1.5">
+          <circle cx="80" cy="80" r="70" stroke-dasharray="4 6" opacity="0.3"/>
+          <rect x="45" y="50" width="30" height="35" rx="4" stroke-width="2"/>
+          <rect x="85" y="50" width="30" height="35" rx="4" stroke-width="2"/>
+          <rect x="65" y="90" width="30" height="25" rx="4" stroke-width="2" opacity="0.5"/>
+          <line x1="50" y1="60" x2="70" y2="60" stroke-width="1.5" opacity="0.3"/>
+          <line x1="90" y1="60" x2="110" y2="60" stroke-width="1.5" opacity="0.3"/>
+        </svg>
+      </div>
+      <h2 class="modern-empty__heading">No products yet</h2>
+      <p class="modern-empty__description">This collection doesn't have any products yet. Check back soon or explore our other collections.</p>
+      <div class="modern-empty__actions">
+        <a href="/collections" class="modern-btn modern-btn--primary">Browse Collections</a>
+        <a href="/" class="modern-btn modern-btn--outline">Go Home</a>
+      </div>
+
+    {%- when 'blog' -%}
+      <div class="modern-empty__illustration">
+        <svg viewBox="0 0 160 160" fill="none" stroke="currentColor" stroke-width="1.5">
+          <circle cx="80" cy="80" r="70" stroke-dasharray="4 6" opacity="0.3"/>
+          <rect x="48" y="45" width="64" height="70" rx="6" stroke-width="2"/>
+          <line x1="60" y1="60" x2="100" y2="60" stroke-width="2"/>
+          <line x1="60" y1="72" x2="95" y2="72" stroke-width="1.5" opacity="0.5"/>
+          <line x1="60" y1="82" x2="90" y2="82" stroke-width="1.5" opacity="0.4"/>
+          <line x1="60" y1="92" x2="85" y2="92" stroke-width="1.5" opacity="0.3"/>
+        </svg>
+      </div>
+      <h2 class="modern-empty__heading">No posts yet</h2>
+      <p class="modern-empty__description">We're working on some great content. Check back soon for articles, guides, and more.</p>
+      <div class="modern-empty__actions">
+        <a href="/" class="modern-btn modern-btn--primary">Go Home</a>
+      </div>
+
+    {%- when 'wishlist' -%}
+      <div class="modern-empty__illustration">
+        <svg viewBox="0 0 160 160" fill="none" stroke="currentColor" stroke-width="1.5">
+          <circle cx="80" cy="80" r="70" stroke-dasharray="4 6" opacity="0.3"/>
+          <path d="M80 110s-30-18-30-38a18 18 0 0130-12 18 18 0 0130 12c0 20-30 38-30 38z" stroke-width="2.5"/>
+        </svg>
+      </div>
+      <h2 class="modern-empty__heading">Your wishlist is empty</h2>
+      <p class="modern-empty__description">Save items you love by clicking the heart icon on any product. Your wishlist is saved on this device.</p>
+      <div class="modern-empty__actions">
+        <a href="/collections/all" class="modern-btn modern-btn--primary">Discover Products</a>
+      </div>
+
+    {%- when 'filter' -%}
+      <div class="modern-empty__illustration">
+        <svg viewBox="0 0 160 160" fill="none" stroke="currentColor" stroke-width="1.5">
+          <circle cx="80" cy="80" r="70" stroke-dasharray="4 6" opacity="0.3"/>
+          <path d="M55 55h50l-18 25v20l-14 8V80z" stroke-width="2.5" stroke-linejoin="round"/>
+        </svg>
+      </div>
+      <h2 class="modern-empty__heading">No matching products</h2>
+      <p class="modern-empty__description">Try removing some filters or broadening your search to find what you're looking for.</p>
+      <div class="modern-empty__actions">
+        <button class="modern-btn modern-btn--primary" onclick="document.querySelectorAll('.modern-collection-grid__filter-checkbox:checked').forEach(function(c){c.click()})">Clear All Filters</button>
+      </div>
+
+    {%- when 'inventory' -%}
+      <div class="modern-empty__illustration">
+        <svg viewBox="0 0 160 160" fill="none" stroke="currentColor" stroke-width="1.5">
+          <circle cx="80" cy="80" r="70" stroke-dasharray="4 6" opacity="0.3"/>
+          <rect x="50" y="50" width="60" height="60" rx="6" stroke-width="2"/>
+          <line x1="65" y1="50" x2="65" y2="110" stroke-width="1.5" opacity="0.3"/>
+          <line x1="50" y1="75" x2="110" y2="75" stroke-width="1.5" opacity="0.3"/>
+          <path d="M70 86l8 8 15-15" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" opacity="0.5"/>
+        </svg>
+      </div>
+      <h2 class="modern-empty__heading">Out of stock</h2>
+      <p class="modern-empty__description">This item is currently sold out. Enter your email below and we'll notify you when it's back.</p>
+      <div class="modern-empty__actions">
+        <form class="modern-back-in-stock__form" style="max-width:360px;display:flex;gap:8px;">
+          <input type="email" class="modern-back-in-stock__input" placeholder="Enter your email" required aria-label="Email">
+          <button type="submit" class="modern-back-in-stock__btn">Notify Me</button>
+        </form>
+      </div>
+
+  {%- endcase -%}
+
+</div>

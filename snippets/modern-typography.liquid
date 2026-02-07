@@ -1,0 +1,244 @@
+{%- comment -%}
+  Modern Typography Enhancements
+  ================================
+  Optical kerning, ligatures, hyphenation, drop caps, pull quotes,
+  text gradients, variable fonts, reading mode, widow/orphan prevention.
+
+  Usage: {% render 'modern-typography' %}
+{%- endcomment -%}
+
+<style>
+  /* ==========================================================================
+     1. Font Feature Settings
+     ========================================================================== */
+  body {
+    font-feature-settings: 'kern' 1, 'liga' 1, 'calt' 1;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
+  }
+
+  /* Enable proportional numbers in body, tabular in tables */
+  body { font-variant-numeric: proportional-nums; }
+  table, .modern-countdown, .modern-gamify__points, [data-tabular-nums] {
+    font-variant-numeric: tabular-nums;
+  }
+
+  /* ==========================================================================
+     2. Hyphenation for Justified Text
+     ========================================================================== */
+  .modern-text-justified {
+    text-align: justify;
+    hyphens: auto;
+    -webkit-hyphens: auto;
+    hyphenate-limit-chars: 6 3 3;
+    hyphenate-limit-lines: 2;
+    hyphenate-limit-last: always;
+  }
+
+  /* ==========================================================================
+     3. Widows & Orphans Prevention
+     ========================================================================== */
+  p, li, h1, h2, h3, h4, h5, h6 {
+    widows: 2;
+    orphans: 2;
+  }
+  /* Text wrap balance for headings (modern browsers) */
+  h1, h2, h3,
+  .modern-section__heading,
+  .modern-hero__heading {
+    text-wrap: balance;
+  }
+  /* Pretty text wrap for body copy */
+  p, li {
+    text-wrap: pretty;
+  }
+
+  /* ==========================================================================
+     4. Drop Caps
+     ========================================================================== */
+  .modern-dropcap::first-letter {
+    float: left;
+    font-size: 3.5em;
+    line-height: 0.8;
+    font-weight: 800;
+    margin: 0.05em 0.12em 0 0;
+    padding: 0;
+    color: var(--color-button, #667eea);
+  }
+  .modern-article__content > p:first-of-type {
+    /* Auto drop cap on articles if enabled */
+  }
+  .modern-dropcap--gradient::first-letter {
+    background: var(--gradient-primary, linear-gradient(135deg, #667eea, #764ba2));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  /* ==========================================================================
+     5. Pull Quotes
+     ========================================================================== */
+  .modern-pullquote {
+    position: relative;
+    padding: var(--space-2xl, 32px) 0;
+    margin: var(--space-2xl, 32px) 0;
+    border-top: 2px solid var(--color-button, #667eea);
+    border-bottom: 2px solid var(--color-button, #667eea);
+    text-align: center;
+  }
+  .modern-pullquote__text {
+    font-size: var(--text-2xl, 24px);
+    font-weight: 600;
+    line-height: var(--leading-snug, 1.4);
+    margin: 0;
+    font-style: italic;
+  }
+  .modern-pullquote__author {
+    font-size: var(--text-sm, 14px);
+    font-style: normal;
+    font-weight: 500;
+    opacity: 0.5;
+    margin-top: var(--space-md, 16px);
+  }
+
+  /* ==========================================================================
+     6. Text Gradient Effect
+     ========================================================================== */
+  .modern-text-gradient {
+    background: var(--gradient-primary, linear-gradient(135deg, #667eea, #764ba2));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+  .modern-text-gradient--warm {
+    background: linear-gradient(135deg, #f59e0b, #ef4444);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+  .modern-text-gradient--cool {
+    background: linear-gradient(135deg, #3b82f6, #06b6d4);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  /* ==========================================================================
+     7. Text Stroke Outlines
+     ========================================================================== */
+  .modern-text-outline {
+    -webkit-text-stroke: 1px currentColor;
+    -webkit-text-fill-color: transparent;
+    color: transparent;
+  }
+  .modern-text-outline--thick {
+    -webkit-text-stroke: 2px currentColor;
+  }
+
+  /* ==========================================================================
+     8. Variable Font Controls
+     ========================================================================== */
+  .modern-vf-light { font-variation-settings: 'wght' 300; }
+  .modern-vf-regular { font-variation-settings: 'wght' 400; }
+  .modern-vf-medium { font-variation-settings: 'wght' 500; }
+  .modern-vf-bold { font-variation-settings: 'wght' 700; }
+  .modern-vf-black { font-variation-settings: 'wght' 900; }
+
+  /* Optical sizing (if supported) */
+  .modern-vf-optical-auto { font-optical-sizing: auto; }
+
+  /* ==========================================================================
+     9. Reading Mode
+     ========================================================================== */
+  .modern-reading-mode {
+    max-width: 65ch;
+    margin: 0 auto;
+    font-size: 1.125rem;
+    line-height: 1.8;
+    letter-spacing: 0.01em;
+  }
+  .modern-reading-mode h2,
+  .modern-reading-mode h3 {
+    margin-top: 2em;
+    margin-bottom: 0.5em;
+  }
+  .modern-reading-mode p + p {
+    margin-top: 1.25em;
+  }
+  .modern-reading-mode img {
+    margin: 2em auto;
+  }
+
+  /* Reading mode toggle button */
+  .modern-reading-toggle {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-xs, 4px);
+    padding: var(--space-xs, 4px) var(--space-md, 16px);
+    border: 1px solid rgba(128, 128, 128, 0.15);
+    border-radius: var(--radius-full, 999px);
+    background: transparent;
+    font-size: var(--text-xs, 12px);
+    font-weight: 500;
+    cursor: pointer;
+    color: inherit;
+    opacity: 0.6;
+    transition: opacity 0.15s ease;
+    font-family: inherit;
+  }
+  .modern-reading-toggle:hover { opacity: 1; }
+  .modern-reading-toggle svg { width: 14px; height: 14px; }
+  .modern-reading-toggle.is-active {
+    background: var(--color-button, #667eea);
+    color: var(--color-button-text, #fff);
+    border-color: transparent;
+    opacity: 1;
+  }
+
+  /* ==========================================================================
+     10. Hanging Punctuation
+     ========================================================================== */
+  blockquote,
+  .modern-pullquote__text {
+    hanging-punctuation: first last;
+  }
+
+  /* ==========================================================================
+     11. Smart Spacing Utilities
+     ========================================================================== */
+  .modern-text-columns-2 {
+    columns: 2;
+    column-gap: var(--space-2xl, 32px);
+  }
+  .modern-text-columns-3 {
+    columns: 3;
+    column-gap: var(--space-2xl, 32px);
+  }
+  @media screen and (max-width: 749px) {
+    .modern-text-columns-2,
+    .modern-text-columns-3 { columns: 1; }
+  }
+
+  /* Leading trim (if supported) */
+  .modern-leading-trim {
+    leading-trim: both;
+    text-edge: cap alphabetic;
+  }
+</style>
+
+<script>
+(function() {
+  'use strict';
+
+  /* Reading mode toggle */
+  document.addEventListener('click', function(e) {
+    var toggle = e.target.closest('.modern-reading-toggle');
+    if (!toggle) return;
+    var target = document.querySelector(toggle.dataset.readingTarget || '.modern-article__content');
+    if (!target) return;
+    toggle.classList.toggle('is-active');
+    target.classList.toggle('modern-reading-mode');
+  });
+})();
+</script>

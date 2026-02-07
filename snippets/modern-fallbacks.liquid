@@ -1,0 +1,252 @@
+{%- comment -%}
+  Modern Fallbacks & Graceful Degradation
+  =========================================
+  Handles: no-JS, CSS failures, image failures, API failures,
+  video failures, font failures, localStorage limits, offline detection.
+
+  Usage: {% render 'modern-fallbacks' %}
+  (Include once in theme.liquid)
+{%- endcomment -%}
+
+{%- comment -%} 1. No-JavaScript Fallback {%- endcomment -%}
+<noscript>
+  <style>
+    /* Show all animated elements immediately */
+    .modern-animate { opacity: 1 !important; transform: none !important; }
+    /* Hide JS-only features */
+    .modern-quick-view, .modern-cart-drawer, [data-js-only],
+    .modern-search-results, .modern-toast-container,
+    .modern-page-loader, .modern-urgency__social-proof { display: none !important; }
+    /* Show noscript banner */
+    .modern-noscript-banner { display: flex !important; }
+    /* Ensure images are visible */
+    img[data-src] { display: none; }
+    img:not([data-src]) { opacity: 1 !important; }
+    /* Basic form styles */
+    .modern-password__form,
+    .modern-contact-form__form { opacity: 1; }
+  </style>
+  <div class="modern-noscript-banner" style="display:flex;align-items:center;justify-content:center;gap:8px;padding:12px 20px;background:#fef3c7;color:#92400e;font-size:14px;font-weight:500;text-align:center;position:sticky;top:0;z-index:10001;">
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+    Please enable JavaScript for the best experience. Some features require JavaScript to function properly.
+  </div>
+</noscript>
+
+{%- comment -%} 2. CSS/Font Fallback {%- endcomment -%}
+<style>
+  /* System font stack fallback */
+  :root {
+    --font-system: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen-Sans, Ubuntu, Cantarell, 'Helvetica Neue', sans-serif;
+    --font-mono-system: 'SF Mono', SFMono-Regular, Consolas, 'Liberation Mono', Menlo, monospace;
+  }
+  .fonts-failed body,
+  .fonts-failed * {
+    font-family: var(--font-system) !important;
+  }
+</style>
+
+<script>
+(function() {
+  'use strict';
+
+  /* ========================================================================
+     3. Image Load Failure Fallback
+     ======================================================================== */
+  document.addEventListener('error', function(e) {
+    if (e.target.tagName !== 'IMG') return;
+    var img = e.target;
+    if (img.dataset.fallbackApplied) return;
+    img.dataset.fallbackApplied = 'true';
+
+    /* Try a lower-resolution version first */
+    var src = img.src;
+    if (src.includes('width=') && !img.dataset.fallbackRetried) {
+      img.dataset.fallbackRetried = 'true';
+      img.src = src.replace(/width=\d+/, 'width=200');
+      return;
+    }
+
+    /* Apply placeholder */
+    var width = img.getAttribute('width') || img.offsetWidth || 300;
+    var height = img.getAttribute('height') || img.offsetHeight || 300;
+    img.style.background = 'rgba(128,128,128,0.08)';
+    img.style.objectFit = 'contain';
+    img.src = 'data:image/svg+xml,' + encodeURIComponent(
+      '<svg xmlns="http://www.w3.org/2000/svg" width="' + width + '" height="' + height + '" viewBox="0 0 ' + width + ' ' + height + '">' +
+      '<rect fill="rgba(128,128,128,0.06)" width="100%" height="100%"/>' +
+      '<g transform="translate(' + (width/2) + ',' + (height/2) + ')" fill="rgba(128,128,128,0.2)">' +
+      '<rect x="-24" y="-20" width="48" height="40" rx="4"/>' +
+      '<circle cx="-12" cy="-8" r="4"/>' +
+      '<path d="M-24 12 L-12-2 L0 8 L8-4 L24 12z"/>' +
+      '</g></svg>'
+    );
+    img.alt = img.alt || 'Image unavailable';
+  }, true);
+
+  /* ========================================================================
+     4. API Failure Handling
+     ======================================================================== */
+  window.ModernFallback = {
+    /* Wrap fetch calls with retry and fallback */
+    fetchWithRetry: function(url, options, retries) {
+      retries = retries || 2;
+      return fetch(url, options).then(function(response) {
+        if (!response.ok) throw new Error('HTTP ' + response.status);
+        return response;
+      }).catch(function(err) {
+        if (retries > 0) {
+          return new Promise(function(resolve) {
+            setTimeout(function() {
+              resolve(window.ModernFallback.fetchWithRetry(url, options, retries - 1));
+            }, 1000);
+          });
+        }
+        throw err;
+      });
+    },
+
+    /* Cart API with fallback */
+    cartFetch: function(url, options) {
+      return this.fetchWithRetry(url, options).catch(function(err) {
+        if (window.ModernToast) {
+          window.ModernToast.error('Unable to update cart. Please try again.');
+        }
+        throw err;
+      });
+    },
+
+    /* Search with fallback */
+    searchFetch: function(query) {
+      return this.fetchWithRetry('/search/suggest.json?q=' + encodeURIComponent(query) + '&resources[type]=product,collection,page&resources[limit]=6')
+        .then(function(r) { return r.json(); })
+        .catch(function() {
+          /* Fallback to basic search redirect */
+          return { resources: { results: { products: [], collections: [], pages: [] } } };
+        });
+    },
+
+    /* ========================================================================
+       5. Video Embed Failure
+       ======================================================================== */
+    initVideoFallback: function() {
+      document.querySelectorAll('.modern-video-section iframe, .modern-flex__video iframe').forEach(function(iframe) {
+        iframe.addEventListener('error', function() {
+          var parent = iframe.closest('.modern-video-section__player, .modern-flex__video');
+          if (!parent) return;
+          parent.innerHTML = '<div style="display:flex;align-items:center;justify-content:center;width:100%;height:100%;background:rgba(128,128,128,0.06);color:rgba(128,128,128,0.4);font-size:14px;flex-direction:column;gap:8px;min-height:200px;border-radius:var(--radius-lg,12px);">' +
+            '<svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><polygon points="23 7 16 12 23 17 23 7"/><rect x="1" y="5" width="15" height="14" rx="2" ry="2"/></svg>' +
+            '<span>Video unavailable</span></div>';
+        });
+      });
+    },
+
+    /* ========================================================================
+       6. Font Loading Detection
+       ======================================================================== */
+    initFontFallback: function() {
+      if ('fonts' in document) {
+        document.fonts.ready.then(function() {
+          document.documentElement.classList.add('fonts-loaded');
+        }).catch(function() {
+          document.documentElement.classList.add('fonts-failed');
+        });
+
+        /* Timeout fallback after 3 seconds */
+        setTimeout(function() {
+          if (!document.documentElement.classList.contains('fonts-loaded')) {
+            document.documentElement.classList.add('fonts-failed');
+          }
+        }, 3000);
+      }
+    },
+
+    /* ========================================================================
+       7. LocalStorage Quota Handling
+       ======================================================================== */
+    safeStorage: {
+      get: function(key) {
+        try {
+          return JSON.parse(localStorage.getItem(key));
+        } catch (e) {
+          return null;
+        }
+      },
+      set: function(key, value) {
+        try {
+          localStorage.setItem(key, JSON.stringify(value));
+          return true;
+        } catch (e) {
+          /* Quota exceeded - try clearing old data */
+          try {
+            var oldKeys = ['modern_recently_viewed', 'modern_bis_requests', 'modern_search_history'];
+            for (var i = 0; i < oldKeys.length; i++) {
+              if (oldKeys[i] !== key) {
+                var data = JSON.parse(localStorage.getItem(oldKeys[i]) || '[]');
+                if (data.length > 5) {
+                  localStorage.setItem(oldKeys[i], JSON.stringify(data.slice(0, 5)));
+                }
+              }
+            }
+            localStorage.setItem(key, JSON.stringify(value));
+            return true;
+          } catch (e2) {
+            return false;
+          }
+        }
+      },
+      remove: function(key) {
+        try { localStorage.removeItem(key); } catch (e) { /* ignore */ }
+      }
+    },
+
+    /* ========================================================================
+       8. Network Offline Detection
+       ======================================================================== */
+    initOfflineDetection: function() {
+      var banner = null;
+
+      function createBanner() {
+        if (banner) return;
+        banner = document.createElement('div');
+        banner.style.cssText = 'position:fixed;top:0;left:0;right:0;z-index:100001;padding:10px 20px;background:#fecaca;color:#991b1b;font-size:13px;font-weight:600;text-align:center;display:flex;align-items:center;justify-content:center;gap:8px;transform:translateY(-100%);transition:transform 0.3s ease;';
+        banner.innerHTML = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="1" y1="1" x2="23" y2="23"/><path d="M16.72 11.06A10.94 10.94 0 0119 12.55"/><path d="M5 12.55a10.94 10.94 0 015.17-2.39"/><path d="M10.71 5.05A16 16 0 0122.56 9"/><path d="M1.42 9a15.91 15.91 0 014.7-2.88"/><path d="M8.53 16.11a6 6 0 016.95 0"/><line x1="12" y1="20" x2="12.01" y2="20"/></svg>You\'re offline. Some features may be limited.';
+        document.body.appendChild(banner);
+        requestAnimationFrame(function() {
+          banner.style.transform = 'translateY(0)';
+        });
+      }
+
+      function removeBanner() {
+        if (!banner) return;
+        banner.style.transform = 'translateY(-100%)';
+        setTimeout(function() {
+          if (banner && banner.parentNode) {
+            banner.parentNode.removeChild(banner);
+            banner = null;
+          }
+        }, 300);
+        if (window.ModernToast) {
+          window.ModernToast.success('Back online!');
+        }
+      }
+
+      window.addEventListener('offline', createBanner);
+      window.addEventListener('online', removeBanner);
+      if (!navigator.onLine) createBanner();
+    }
+  };
+
+  /* Auto-init all fallbacks */
+  function init() {
+    window.ModernFallback.initVideoFallback();
+    window.ModernFallback.initFontFallback();
+    window.ModernFallback.initOfflineDetection();
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', init);
+  } else {
+    init();
+  }
+})();
+</script>

@@ -1,0 +1,589 @@
+{%- comment -%}
+  Modern Gamification Elements
+  ==============================
+  Points tracker, achievement badges, spin-to-win wheel,
+  streak counter, loyalty tier visualization, and progress bars.
+{%- endcomment -%}
+
+{%- style -%}
+  .section-{{ section.id }}-padding {
+    padding-top: {{ section.settings.padding_top | times: 0.75 | round: 0 }}px;
+    padding-bottom: {{ section.settings.padding_bottom | times: 0.75 | round: 0 }}px;
+  }
+  @media screen and (min-width: 750px) {
+    .section-{{ section.id }}-padding {
+      padding-top: {{ section.settings.padding_top }}px;
+      padding-bottom: {{ section.settings.padding_bottom }}px;
+    }
+  }
+
+  .modern-gamify { max-width: 800px; margin: 0 auto; }
+
+  /* Loyalty Tier Card */
+  .modern-gamify__tier-card {
+    padding: var(--space-2xl, 32px);
+    border-radius: var(--radius-xl, 16px);
+    background: var(--gradient-primary, linear-gradient(135deg, #667eea, #764ba2));
+    color: #fff;
+    position: relative;
+    overflow: hidden;
+    margin-bottom: var(--space-2xl, 32px);
+  }
+  .modern-gamify__tier-card::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    right: -20%;
+    width: 200px;
+    height: 200px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.08);
+  }
+  .modern-gamify__tier-name {
+    font-size: var(--text-xs, 12px);
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    font-weight: 600;
+    opacity: 0.7;
+    margin: 0 0 var(--space-xs, 4px);
+  }
+  .modern-gamify__tier-title {
+    font-size: var(--text-2xl, 24px);
+    font-weight: 800;
+    margin: 0 0 var(--space-md, 16px);
+  }
+  .modern-gamify__points {
+    font-size: var(--text-4xl, 36px);
+    font-weight: 900;
+    margin: 0 0 var(--space-xs, 4px);
+  }
+  .modern-gamify__points-label {
+    font-size: var(--text-sm, 14px);
+    opacity: 0.7;
+    margin: 0 0 var(--space-xl, 24px);
+  }
+  .modern-gamify__progress {
+    height: 8px;
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 4px;
+    overflow: hidden;
+    margin-bottom: var(--space-sm, 8px);
+  }
+  .modern-gamify__progress-fill {
+    height: 100%;
+    background: #fff;
+    border-radius: 4px;
+    transition: width 1s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+  .modern-gamify__progress-text {
+    font-size: var(--text-xs, 12px);
+    opacity: 0.7;
+    margin: 0;
+  }
+
+  /* Achievement Badges */
+  .modern-gamify__badges-heading {
+    font-size: var(--text-lg, 18px);
+    font-weight: 700;
+    margin: 0 0 var(--space-lg, 20px);
+  }
+  .modern-gamify__badges {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+    gap: var(--space-md, 16px);
+    margin-bottom: var(--space-2xl, 32px);
+  }
+  .modern-gamify__badge {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--space-xs, 4px);
+    padding: var(--space-lg, 20px) var(--space-md, 16px);
+    border-radius: var(--radius-lg, 12px);
+    background: rgba(128, 128, 128, 0.04);
+    border: 1px solid rgba(128, 128, 128, 0.08);
+    text-align: center;
+    transition: all 0.2s ease;
+  }
+  .modern-gamify__badge.is-earned {
+    background: rgba(102, 126, 234, 0.06);
+    border-color: rgba(102, 126, 234, 0.15);
+  }
+  .modern-gamify__badge.is-locked {
+    opacity: 0.4;
+    filter: grayscale(1);
+  }
+  .modern-gamify__badge-icon {
+    font-size: 32px;
+    line-height: 1;
+    margin-bottom: var(--space-xs, 4px);
+  }
+  .modern-gamify__badge-name {
+    font-size: var(--text-xs, 12px);
+    font-weight: 600;
+  }
+  .modern-gamify__badge-desc {
+    font-size: 10px;
+    opacity: 0.5;
+  }
+
+  /* Streak Counter */
+  .modern-gamify__streak {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--space-lg, 20px);
+    padding: var(--space-xl, 24px);
+    background: rgba(128, 128, 128, 0.03);
+    border-radius: var(--radius-lg, 12px);
+    margin-bottom: var(--space-2xl, 32px);
+  }
+  .modern-gamify__streak-fire {
+    font-size: 40px;
+    line-height: 1;
+  }
+  .modern-gamify__streak-count {
+    font-size: var(--text-3xl, 30px);
+    font-weight: 900;
+    line-height: 1;
+  }
+  .modern-gamify__streak-label {
+    font-size: var(--text-sm, 14px);
+    opacity: 0.5;
+  }
+  .modern-gamify__streak-days {
+    display: flex;
+    gap: 4px;
+  }
+  .modern-gamify__streak-dot {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    background: rgba(128, 128, 128, 0.12);
+  }
+  .modern-gamify__streak-dot.is-active {
+    background: var(--color-button, #667eea);
+  }
+
+  /* Spin-the-Wheel */
+  .modern-spin-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 10001;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(0, 0, 0, 0.6);
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.3s ease, visibility 0.3s ease;
+  }
+  .modern-spin-overlay.is-open { opacity: 1; visibility: visible; }
+  .modern-spin-modal {
+    background: var(--color-background, #fff);
+    border-radius: var(--radius-xl, 16px);
+    padding: var(--space-2xl, 32px);
+    max-width: 400px;
+    width: 90%;
+    text-align: center;
+  }
+  .modern-spin__wheel-container {
+    width: 260px;
+    height: 260px;
+    margin: 0 auto var(--space-xl, 24px);
+    position: relative;
+  }
+  .modern-spin__wheel {
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    border: 4px solid var(--color-button, #667eea);
+    position: relative;
+    transition: transform 4s cubic-bezier(0.17, 0.67, 0.12, 0.99);
+    overflow: hidden;
+  }
+  .modern-spin__segment {
+    position: absolute;
+    width: 50%;
+    height: 50%;
+    transform-origin: 100% 100%;
+    display: flex;
+    align-items: center;
+    padding-left: 15%;
+    font-size: 11px;
+    font-weight: 700;
+    color: #fff;
+  }
+  .modern-spin__pointer {
+    position: absolute;
+    top: -8px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 0;
+    height: 0;
+    border-left: 10px solid transparent;
+    border-right: 10px solid transparent;
+    border-top: 16px solid var(--color-button, #667eea);
+    z-index: 1;
+  }
+  .modern-spin__btn {
+    padding: var(--space-md, 16px) var(--space-3xl, 48px);
+    background: var(--color-button, #667eea);
+    color: var(--color-button-text, #fff);
+    border: none;
+    border-radius: var(--radius-full, 999px);
+    font-size: var(--text-base, 16px);
+    font-weight: 700;
+    cursor: pointer;
+    font-family: inherit;
+    transition: opacity 0.15s ease;
+  }
+  .modern-spin__btn:hover { opacity: 0.9; }
+  .modern-spin__btn:disabled { opacity: 0.4; cursor: not-allowed; }
+  .modern-spin__result {
+    display: none;
+    margin-top: var(--space-lg, 20px);
+    padding: var(--space-md, 16px);
+    background: rgba(16, 185, 129, 0.1);
+    border-radius: var(--radius-lg, 12px);
+    font-weight: 600;
+  }
+  .modern-spin__result.is-visible { display: block; animation: modernFormMsgIn 0.3s ease-out; }
+  .modern-spin__close {
+    position: absolute;
+    top: var(--space-md, 16px);
+    right: var(--space-md, 16px);
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: none;
+    background: rgba(128, 128, 128, 0.08);
+    border-radius: 50%;
+    cursor: pointer;
+    color: inherit;
+  }
+  .modern-spin__close svg { width: 16px; height: 16px; }
+{%- endstyle -%}
+
+<div class="color-{{ section.settings.color_scheme }} gradient">
+  <div class="page-width section-{{ section.id }}-padding">
+    <div class="modern-gamify modern-animate animate--fade-up">
+
+      {%- if section.settings.show_loyalty_card -%}
+        <div class="modern-gamify__tier-card" id="GamifyTier-{{ section.id }}">
+          <p class="modern-gamify__tier-name" id="GamifyTierName-{{ section.id }}">Member</p>
+          <h2 class="modern-gamify__tier-title" id="GamifyTierTitle-{{ section.id }}">{{ section.settings.tier_heading | default: 'Your Rewards' }}</h2>
+          <p class="modern-gamify__points"><span id="GamifyPoints-{{ section.id }}">0</span></p>
+          <p class="modern-gamify__points-label">points earned</p>
+          <div class="modern-gamify__progress">
+            <div class="modern-gamify__progress-fill" id="GamifyProgress-{{ section.id }}" style="width: 0%"></div>
+          </div>
+          <p class="modern-gamify__progress-text" id="GamifyNextTier-{{ section.id }}">Earn 100 more to reach Silver</p>
+        </div>
+      {%- endif -%}
+
+      {%- if section.settings.show_badges -%}
+        <h3 class="modern-gamify__badges-heading modern-animate animate--fade-up" data-stagger="2">Achievements</h3>
+        <div class="modern-gamify__badges modern-animate animate--fade-up" data-stagger="3" id="GamifyBadges-{{ section.id }}">
+          {%- for block in section.blocks -%}
+            {%- if block.type == 'badge' -%}
+              <div class="modern-gamify__badge is-locked" data-badge-id="{{ block.settings.badge_id }}" {{ block.shopify_attributes }}>
+                <span class="modern-gamify__badge-icon">{{ block.settings.icon }}</span>
+                <span class="modern-gamify__badge-name">{{ block.settings.title }}</span>
+                <span class="modern-gamify__badge-desc">{{ block.settings.description }}</span>
+              </div>
+            {%- endif -%}
+          {%- endfor -%}
+        </div>
+      {%- endif -%}
+
+      {%- if section.settings.show_streak -%}
+        <div class="modern-gamify__streak modern-animate animate--fade-up" data-stagger="4">
+          <span class="modern-gamify__streak-fire" aria-hidden="true">&#x1F525;</span>
+          <div>
+            <div class="modern-gamify__streak-count" id="GamifyStreak-{{ section.id }}">0</div>
+            <div class="modern-gamify__streak-label">day streak</div>
+          </div>
+          <div class="modern-gamify__streak-days" id="GamifyStreakDots-{{ section.id }}">
+            <span class="modern-gamify__streak-dot"></span>
+            <span class="modern-gamify__streak-dot"></span>
+            <span class="modern-gamify__streak-dot"></span>
+            <span class="modern-gamify__streak-dot"></span>
+            <span class="modern-gamify__streak-dot"></span>
+            <span class="modern-gamify__streak-dot"></span>
+            <span class="modern-gamify__streak-dot"></span>
+          </div>
+        </div>
+      {%- endif -%}
+
+    </div>
+  </div>
+</div>
+
+{%- if section.settings.show_spin_wheel -%}
+  <div class="modern-spin-overlay" id="SpinOverlay-{{ section.id }}">
+    <div class="modern-spin-modal" style="position:relative;">
+      <button class="modern-spin__close" aria-label="Close">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+      <h3 style="font-size:var(--text-xl);font-weight:800;margin:0 0 var(--space-md);">Spin to Win!</h3>
+      <p style="font-size:var(--text-sm);opacity:0.6;margin:0 0 var(--space-xl);">Try your luck for an exclusive discount</p>
+      <div class="modern-spin__wheel-container">
+        <div class="modern-spin__pointer"></div>
+        <div class="modern-spin__wheel" id="SpinWheel-{{ section.id }}"></div>
+      </div>
+      <button class="modern-spin__btn" id="SpinBtn-{{ section.id }}">Spin the Wheel</button>
+      <div class="modern-spin__result" id="SpinResult-{{ section.id }}"></div>
+    </div>
+  </div>
+{%- endif -%}
+
+<script>
+(function() {
+  'use strict';
+  var sid = '{{ section.id }}';
+  var KEY = 'modern_gamify';
+
+  function getData() {
+    try { return JSON.parse(localStorage.getItem(KEY) || '{}'); } catch(e) { return {}; }
+  }
+  function saveData(data) {
+    try { localStorage.setItem(KEY, JSON.stringify(data)); } catch(e) {}
+  }
+
+  var data = getData();
+  if (!data.points) data.points = 0;
+  if (!data.badges) data.badges = [];
+  if (!data.streak) data.streak = { count: 0, lastDate: null };
+
+  /* Update streak */
+  var today = new Date().toDateString();
+  var yesterday = new Date(Date.now() - 86400000).toDateString();
+  if (data.streak.lastDate === today) {
+    /* Already visited today */
+  } else if (data.streak.lastDate === yesterday) {
+    data.streak.count++;
+    data.streak.lastDate = today;
+    data.points += 5; /* Points for streak */
+  } else {
+    data.streak.count = 1;
+    data.streak.lastDate = today;
+  }
+
+  /* Award visit points */
+  if (!data.lastVisitPoints || data.lastVisitPoints !== today) {
+    data.points += 2;
+    data.lastVisitPoints = today;
+  }
+
+  saveData(data);
+
+  /* Update UI */
+  function updateUI() {
+    var pointsEl = document.getElementById('GamifyPoints-' + sid);
+    if (pointsEl) pointsEl.textContent = data.points;
+
+    /* Tier calculation */
+    var tiers = [
+      { name: 'Bronze', min: 0 },
+      { name: 'Silver', min: 100 },
+      { name: 'Gold', min: 300 },
+      { name: 'Platinum', min: 700 },
+      { name: 'Diamond', min: 1500 }
+    ];
+    var currentTier = tiers[0];
+    var nextTier = tiers[1];
+    for (var i = tiers.length - 1; i >= 0; i--) {
+      if (data.points >= tiers[i].min) {
+        currentTier = tiers[i];
+        nextTier = tiers[i + 1] || null;
+        break;
+      }
+    }
+
+    var tierName = document.getElementById('GamifyTierName-' + sid);
+    if (tierName) tierName.textContent = currentTier.name + ' Member';
+
+    var progress = document.getElementById('GamifyProgress-' + sid);
+    var nextTierEl = document.getElementById('GamifyNextTier-' + sid);
+    if (nextTier && progress) {
+      var pct = Math.min(100, ((data.points - currentTier.min) / (nextTier.min - currentTier.min)) * 100);
+      progress.style.width = pct + '%';
+      if (nextTierEl) nextTierEl.textContent = 'Earn ' + (nextTier.min - data.points) + ' more to reach ' + nextTier.name;
+    } else if (progress) {
+      progress.style.width = '100%';
+      if (nextTierEl) nextTierEl.textContent = 'You\'ve reached the highest tier!';
+    }
+
+    /* Streak */
+    var streakEl = document.getElementById('GamifyStreak-' + sid);
+    if (streakEl) streakEl.textContent = data.streak.count;
+    var dots = document.querySelectorAll('#GamifyStreakDots-' + sid + ' .modern-gamify__streak-dot');
+    dots.forEach(function(dot, i) {
+      dot.classList.toggle('is-active', i < Math.min(data.streak.count, 7));
+    });
+
+    /* Badges */
+    var badgesContainer = document.getElementById('GamifyBadges-' + sid);
+    if (badgesContainer) {
+      data.badges.forEach(function(id) {
+        var badge = badgesContainer.querySelector('[data-badge-id="' + id + '"]');
+        if (badge) {
+          badge.classList.remove('is-locked');
+          badge.classList.add('is-earned');
+        }
+      });
+    }
+
+    /* Auto-award badges */
+    if (data.streak.count >= 3 && data.badges.indexOf('streak3') === -1) {
+      data.badges.push('streak3');
+      saveData(data);
+    }
+    if (data.points >= 50 && data.badges.indexOf('points50') === -1) {
+      data.badges.push('points50');
+      saveData(data);
+    }
+  }
+
+  updateUI();
+
+  /* Spin wheel */
+  {%- if section.settings.show_spin_wheel -%}
+  (function() {
+    var overlay = document.getElementById('SpinOverlay-' + sid);
+    var wheel = document.getElementById('SpinWheel-' + sid);
+    var btn = document.getElementById('SpinBtn-' + sid);
+    var result = document.getElementById('SpinResult-' + sid);
+    if (!overlay || !wheel || !btn) return;
+
+    var prizes = [
+      { text: '10% Off', color: '#667eea' },
+      { text: 'Free Ship', color: '#764ba2' },
+      { text: '5% Off', color: '#f093fb' },
+      { text: 'Try Again', color: '#6b7280' },
+      { text: '15% Off', color: '#10b981' },
+      { text: '$5 Off', color: '#f59e0b' },
+      { text: 'Try Again', color: '#6b7280' },
+      { text: '20% Off', color: '#ef4444' }
+    ];
+
+    /* Build wheel segments via conic-gradient */
+    var segSize = 360 / prizes.length;
+    var gradientParts = prizes.map(function(p, i) {
+      return p.color + ' ' + (i * segSize) + 'deg ' + ((i + 1) * segSize) + 'deg';
+    });
+    wheel.style.background = 'conic-gradient(' + gradientParts.join(', ') + ')';
+
+    /* Add labels */
+    prizes.forEach(function(p, i) {
+      var label = document.createElement('div');
+      label.style.cssText = 'position:absolute;left:50%;top:50%;font-size:11px;font-weight:700;color:#fff;transform-origin:0 0;white-space:nowrap;';
+      var angle = (i * segSize) + (segSize / 2);
+      label.style.transform = 'rotate(' + angle + 'deg) translateX(30px)';
+      label.textContent = p.text;
+      wheel.appendChild(label);
+    });
+
+    var hasSpun = localStorage.getItem('modern_spin_done');
+
+    /* Show spin wheel after delay (first time visitors only) */
+    if (!hasSpun && '{{ section.settings.auto_show }}' === 'true') {
+      setTimeout(function() { overlay.classList.add('is-open'); }, {{ section.settings.spin_delay | default: 15 }}000);
+    }
+
+    /* Manual trigger */
+    document.querySelectorAll('[data-spin-trigger]').forEach(function(t) {
+      t.addEventListener('click', function() { overlay.classList.add('is-open'); });
+    });
+
+    /* Close */
+    overlay.querySelector('.modern-spin__close').addEventListener('click', function() {
+      overlay.classList.remove('is-open');
+    });
+
+    /* Spin */
+    btn.addEventListener('click', function() {
+      if (hasSpun) return;
+      btn.disabled = true;
+
+      var winIndex = Math.floor(Math.random() * prizes.length);
+      var rotations = 5;
+      var targetAngle = rotations * 360 + (360 - (winIndex * segSize + segSize / 2));
+
+      wheel.style.transform = 'rotate(' + targetAngle + 'deg)';
+
+      setTimeout(function() {
+        var prize = prizes[winIndex];
+        result.textContent = prize.text === 'Try Again'
+          ? 'Almost! Try again next time.'
+          : 'You won: ' + prize.text + '!';
+        result.classList.add('is-visible');
+
+        if (prize.text !== 'Try Again' && window.ModernConfetti) {
+          window.ModernConfetti.burst({ count: 60 });
+        }
+
+        hasSpun = true;
+        localStorage.setItem('modern_spin_done', '1');
+
+        /* Award points */
+        data.points += 10;
+        saveData(data);
+        updateUI();
+      }, 4200);
+    });
+  })();
+  {%- endif -%}
+})();
+</script>
+
+{% schema %}
+{
+  "name": "Gamification",
+  "tag": "section",
+  "class": "section-modern-gamify",
+  "settings": [
+    { "type": "header", "content": "Loyalty Tier Card" },
+    { "type": "checkbox", "id": "show_loyalty_card", "default": true, "label": "Show loyalty tier card" },
+    { "type": "text", "id": "tier_heading", "label": "Heading", "default": "Your Rewards" },
+    { "type": "header", "content": "Badges" },
+    { "type": "checkbox", "id": "show_badges", "default": true, "label": "Show achievement badges" },
+    { "type": "header", "content": "Streak" },
+    { "type": "checkbox", "id": "show_streak", "default": true, "label": "Show visit streak" },
+    { "type": "header", "content": "Spin the Wheel" },
+    { "type": "checkbox", "id": "show_spin_wheel", "default": false, "label": "Enable spin-to-win" },
+    { "type": "checkbox", "id": "auto_show", "default": false, "label": "Auto-show to new visitors" },
+    { "type": "range", "id": "spin_delay", "min": 5, "max": 60, "step": 5, "default": 15, "unit": "s", "label": "Auto-show delay" },
+    { "type": "header", "content": "Section" },
+    { "type": "color_scheme", "id": "color_scheme", "label": "Color scheme", "default": "background-1" },
+    { "type": "range", "id": "padding_top", "min": 0, "max": 200, "step": 4, "default": 60, "unit": "px", "label": "Padding top" },
+    { "type": "range", "id": "padding_bottom", "min": 0, "max": 200, "step": 4, "default": 60, "unit": "px", "label": "Padding bottom" }
+  ],
+  "blocks": [
+    {
+      "type": "badge",
+      "name": "Achievement Badge",
+      "settings": [
+        { "type": "text", "id": "badge_id", "label": "Badge ID", "info": "Unique identifier (e.g. 'first_purchase')" },
+        { "type": "text", "id": "icon", "label": "Emoji icon", "default": "\u2b50" },
+        { "type": "text", "id": "title", "label": "Title", "default": "First Purchase" },
+        { "type": "text", "id": "description", "label": "Description", "default": "Made your first purchase" }
+      ]
+    }
+  ],
+  "presets": [{
+    "name": "Gamification",
+    "blocks": [
+      { "type": "badge", "settings": { "badge_id": "first_visit", "icon": "\ud83d\udc4b", "title": "Welcome", "description": "First visit" }},
+      { "type": "badge", "settings": { "badge_id": "streak3", "icon": "\ud83d\udd25", "title": "On Fire", "description": "3-day streak" }},
+      { "type": "badge", "settings": { "badge_id": "points50", "icon": "\u2b50", "title": "Rising Star", "description": "Earn 50 points" }},
+      { "type": "badge", "settings": { "badge_id": "first_purchase", "icon": "\ud83d\udcb0", "title": "Shopper", "description": "First purchase" }},
+      { "type": "badge", "settings": { "badge_id": "reviewer", "icon": "\u270d\ufe0f", "title": "Reviewer", "description": "Leave a review" }},
+      { "type": "badge", "settings": { "badge_id": "sharer", "icon": "\ud83d\udce3", "title": "Influencer", "description": "Share a product" }}
+    ]
+  }]
+}
+{% endschema %}

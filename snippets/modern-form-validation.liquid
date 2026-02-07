@@ -1,0 +1,379 @@
+{%- comment -%}
+  Modern Form Validation Enhancement
+  ====================================
+  Real-time validation, inline errors, password strength, email/phone
+  formatting, and input state animations.
+
+  Usage: {% render 'modern-form-validation' %}
+  (Include once in theme.liquid)
+{%- endcomment -%}
+
+<style>
+  /* Validation states */
+  .modern-field { position: relative; margin-bottom: var(--space-lg, 20px); }
+  .modern-field__input {
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+  }
+  .modern-field__input.is-valid {
+    border-color: #10b981 !important;
+    padding-right: 40px;
+  }
+  .modern-field__input.is-invalid {
+    border-color: #ef4444 !important;
+    padding-right: 40px;
+  }
+
+  /* Validation icon */
+  .modern-field__icon {
+    position: absolute;
+    right: 14px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 18px;
+    height: 18px;
+    opacity: 0;
+    transition: opacity 0.2s ease;
+    pointer-events: none;
+  }
+  .modern-field__input.is-valid ~ .modern-field__icon--valid,
+  .modern-field__input.is-invalid ~ .modern-field__icon--invalid {
+    opacity: 1;
+  }
+  .modern-field__icon--valid { color: #10b981; }
+  .modern-field__icon--invalid { color: #ef4444; }
+
+  /* Inline error */
+  .modern-field__error {
+    font-size: var(--text-xs, 12px);
+    color: #ef4444;
+    margin-top: var(--space-xs, 4px);
+    display: none;
+    align-items: center;
+    gap: 4px;
+    animation: modernFieldError 0.2s ease-out;
+  }
+  .modern-field__error.is-visible { display: flex; }
+  .modern-field__error svg { width: 12px; height: 12px; flex-shrink: 0; }
+  @keyframes modernFieldError {
+    from { opacity: 0; transform: translateY(-4px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  /* Password strength meter */
+  .modern-field__strength {
+    display: flex;
+    gap: 4px;
+    margin-top: var(--space-xs, 4px);
+  }
+  .modern-field__strength-bar {
+    flex: 1;
+    height: 3px;
+    background: rgba(128, 128, 128, 0.12);
+    border-radius: 2px;
+    transition: background 0.3s ease;
+  }
+  .modern-field__strength--1 .modern-field__strength-bar:nth-child(1) { background: #ef4444; }
+  .modern-field__strength--2 .modern-field__strength-bar:nth-child(-n+2) { background: #f59e0b; }
+  .modern-field__strength--3 .modern-field__strength-bar:nth-child(-n+3) { background: #3b82f6; }
+  .modern-field__strength--4 .modern-field__strength-bar { background: #10b981; }
+  .modern-field__strength-label {
+    font-size: 11px;
+    font-weight: 600;
+    margin-top: 2px;
+  }
+
+  /* Input character counter */
+  .modern-field__counter {
+    position: absolute;
+    right: 14px;
+    bottom: -18px;
+    font-size: 11px;
+    opacity: 0.4;
+  }
+  .modern-field__counter.is-near-limit { color: #f59e0b; opacity: 1; }
+  .modern-field__counter.is-over-limit { color: #ef4444; opacity: 1; }
+
+  /* Card icon in input */
+  .modern-field__card-icon {
+    position: absolute;
+    right: 14px;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 20px;
+    opacity: 0.5;
+    transition: opacity 0.2s ease;
+  }
+  .modern-field__card-icon.is-detected { opacity: 1; }
+</style>
+
+<script>
+(function() {
+  'use strict';
+
+  var VALIDATORS = {
+    email: function(val) {
+      if (!val) return { valid: false, message: 'Email is required' };
+      var re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      return { valid: re.test(val), message: 'Please enter a valid email address' };
+    },
+
+    password: function(val) {
+      if (!val) return { valid: false, message: 'Password is required', strength: 0 };
+      var strength = 0;
+      if (val.length >= 8) strength++;
+      if (/[a-z]/.test(val) && /[A-Z]/.test(val)) strength++;
+      if (/\d/.test(val)) strength++;
+      if (/[^a-zA-Z0-9]/.test(val)) strength++;
+      var labels = ['', 'Weak', 'Fair', 'Good', 'Strong'];
+      return {
+        valid: strength >= 2 && val.length >= 8,
+        message: val.length < 8 ? 'At least 8 characters required' : 'Add uppercase, numbers, or symbols',
+        strength: strength,
+        strengthLabel: labels[strength]
+      };
+    },
+
+    phone: function(val) {
+      if (!val) return { valid: true, message: '' }; /* Optional */
+      var cleaned = val.replace(/[\s\-\(\)\.]/g, '');
+      if (cleaned.startsWith('+')) cleaned = cleaned.slice(1);
+      var valid = /^\d{7,15}$/.test(cleaned);
+      return { valid: valid, message: 'Please enter a valid phone number' };
+    },
+
+    required: function(val) {
+      return { valid: val && val.trim().length > 0, message: 'This field is required' };
+    },
+
+    minlength: function(val, min) {
+      return {
+        valid: val.length >= min,
+        message: 'Must be at least ' + min + ' characters'
+      };
+    },
+
+    match: function(val, targetSelector) {
+      var target = document.querySelector(targetSelector);
+      return {
+        valid: target && val === target.value,
+        message: 'Fields do not match'
+      };
+    },
+
+    url: function(val) {
+      if (!val) return { valid: true, message: '' };
+      try {
+        new URL(val.startsWith('http') ? val : 'https://' + val);
+        return { valid: true, message: '' };
+      } catch (e) {
+        return { valid: false, message: 'Please enter a valid URL' };
+      }
+    }
+  };
+
+  /* Phone number auto-format */
+  function formatPhone(input) {
+    var val = input.value.replace(/\D/g, '');
+    if (val.length <= 3) {
+      input.value = val;
+    } else if (val.length <= 6) {
+      input.value = '(' + val.slice(0, 3) + ') ' + val.slice(3);
+    } else {
+      input.value = '(' + val.slice(0, 3) + ') ' + val.slice(3, 6) + '-' + val.slice(6, 10);
+    }
+  }
+
+  /* Credit card detection */
+  var CARD_PATTERNS = [
+    { name: 'Visa', pattern: /^4/, icon: 'V' },
+    { name: 'Mastercard', pattern: /^(5[1-5]|2[2-7])/, icon: 'MC' },
+    { name: 'Amex', pattern: /^3[47]/, icon: 'AX' },
+    { name: 'Discover', pattern: /^6(?:011|5)/, icon: 'DC' }
+  ];
+
+  function detectCard(val) {
+    var cleaned = val.replace(/\D/g, '');
+    for (var i = 0; i < CARD_PATTERNS.length; i++) {
+      if (CARD_PATTERNS[i].pattern.test(cleaned)) return CARD_PATTERNS[i];
+    }
+    return null;
+  }
+
+  /* Show/hide error message */
+  function showError(field, message) {
+    var input = field.querySelector('input, textarea, select');
+    var error = field.querySelector('.modern-field__error');
+    if (input) {
+      input.classList.add('is-invalid');
+      input.classList.remove('is-valid');
+    }
+    if (error) {
+      error.textContent = message;
+      error.classList.add('is-visible');
+    }
+  }
+
+  function showValid(field) {
+    var input = field.querySelector('input, textarea, select');
+    var error = field.querySelector('.modern-field__error');
+    if (input) {
+      input.classList.add('is-valid');
+      input.classList.remove('is-invalid');
+    }
+    if (error) {
+      error.classList.remove('is-visible');
+    }
+  }
+
+  function clearState(field) {
+    var input = field.querySelector('input, textarea, select');
+    var error = field.querySelector('.modern-field__error');
+    if (input) {
+      input.classList.remove('is-valid', 'is-invalid');
+    }
+    if (error) {
+      error.classList.remove('is-visible');
+    }
+  }
+
+  /* Validate a single field */
+  function validateField(field) {
+    var input = field.querySelector('input, textarea, select');
+    if (!input) return true;
+
+    var val = input.value;
+    var type = input.dataset.validate || input.type;
+    var result = { valid: true };
+
+    /* Required check */
+    if (input.required || input.dataset.validate === 'required') {
+      result = VALIDATORS.required(val);
+      if (!result.valid) {
+        showError(field, result.message);
+        return false;
+      }
+    }
+
+    /* Skip further validation if empty and not required */
+    if (!val) { clearState(field); return true; }
+
+    /* Type-specific validation */
+    if (VALIDATORS[type]) {
+      result = VALIDATORS[type](val, input.dataset.validateParam);
+    }
+
+    /* Min length */
+    if (input.minLength > 0) {
+      var mlResult = VALIDATORS.minlength(val, input.minLength);
+      if (!mlResult.valid) result = mlResult;
+    }
+
+    /* Match field */
+    if (input.dataset.validateMatch) {
+      var matchResult = VALIDATORS.match(val, input.dataset.validateMatch);
+      if (!matchResult.valid) result = matchResult;
+    }
+
+    if (result.valid) {
+      showValid(field);
+    } else {
+      showError(field, result.message);
+    }
+
+    /* Password strength */
+    if (type === 'password' && result.strength !== undefined) {
+      var meter = field.querySelector('.modern-field__strength');
+      if (meter) {
+        meter.className = 'modern-field__strength modern-field__strength--' + result.strength;
+        var label = meter.querySelector('.modern-field__strength-label');
+        if (label) label.textContent = result.strengthLabel || '';
+      }
+    }
+
+    return result.valid;
+  }
+
+  /* Init form validation */
+  function initValidation() {
+    /* Auto-enhance fields with data-validate */
+    document.querySelectorAll('.modern-field').forEach(function(field) {
+      var input = field.querySelector('input, textarea, select');
+      if (!input) return;
+
+      /* Add error container if missing */
+      if (!field.querySelector('.modern-field__error')) {
+        var err = document.createElement('div');
+        err.className = 'modern-field__error';
+        err.setAttribute('role', 'alert');
+        field.appendChild(err);
+      }
+
+      /* Validate on blur */
+      input.addEventListener('blur', function() {
+        if (input.value) validateField(field);
+      });
+
+      /* Clear error on input */
+      input.addEventListener('input', function() {
+        if (input.classList.contains('is-invalid')) {
+          validateField(field);
+        }
+      });
+
+      /* Phone auto-format */
+      if (input.type === 'tel' || input.dataset.validate === 'phone') {
+        input.addEventListener('input', function() { formatPhone(input); });
+      }
+
+      /* Card detection */
+      if (input.dataset.validate === 'card') {
+        input.addEventListener('input', function() {
+          var card = detectCard(input.value);
+          var icon = field.querySelector('.modern-field__card-icon');
+          if (icon) {
+            icon.textContent = card ? card.icon : '';
+            icon.classList.toggle('is-detected', !!card);
+            icon.title = card ? card.name : '';
+          }
+        });
+      }
+    });
+
+    /* Form submission validation */
+    document.querySelectorAll('form[data-modern-validate]').forEach(function(form) {
+      form.addEventListener('submit', function(e) {
+        var fields = form.querySelectorAll('.modern-field');
+        var allValid = true;
+
+        fields.forEach(function(field) {
+          if (!validateField(field)) {
+            allValid = false;
+          }
+        });
+
+        if (!allValid) {
+          e.preventDefault();
+          /* Focus first invalid field */
+          var firstInvalid = form.querySelector('.is-invalid');
+          if (firstInvalid) firstInvalid.focus();
+        }
+      });
+    });
+  }
+
+  /* Expose validator API */
+  window.ModernValidation = {
+    validate: validateField,
+    validators: VALIDATORS,
+    init: initValidation
+  };
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initValidation);
+  } else {
+    initValidation();
+  }
+
+  document.addEventListener('shopify:section:load', initValidation);
+})();
+</script>
